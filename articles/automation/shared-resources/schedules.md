@@ -3,9 +3,12 @@ title: Manage schedules in Azure Automation
 description: This article tells how to create and work with a schedule in Azure Automation.
 services: automation
 ms.subservice: shared-capabilities
-ms.date: 03/29/2021
-ms.topic: conceptual 
+ms.date: 11/17/2025
+ms.topic: how-to
 ms.custom: devx-track-azurepowershell
+ms.service: azure-automation
+ms.author: v-rochak2
+author: RochakSingh-blr
 ---
 
 # Manage schedules in Azure Automation
@@ -20,7 +23,7 @@ To schedule a runbook in Azure Automation to start at a specified time, you link
 
 ## PowerShell cmdlets used to access schedules
 
-The cmdlets in the following table create and manage Automation schedules with PowerShell. They ship as part of the [Az modules](modules.md#az-modules).
+The cmdlets in the following table create and manage Automation schedules with PowerShell. They ship as part of the Az modules.
 
 | Cmdlets | Description |
 |:--- |:--- |

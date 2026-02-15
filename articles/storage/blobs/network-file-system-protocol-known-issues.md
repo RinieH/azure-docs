@@ -1,24 +1,34 @@
 ---
-title: Known issues with NFS 3.0 in Azure Blob Storage | Microsoft Docs
-description: Learn about limitations and known issues of Network File System (NFS) 3.0 protocol support in Azure Blob Storage.
+title: Known issues with NFS 3.0 in Azure Blob Storage
+titleSuffix: Azure Storage
+description: Learn about limitations and known issues of Network File System (NFS) 3.0 protocol support for Azure Blob Storage.
 author: normesta
-ms.subservice: data-lake-storage-gen2
-ms.service: storage
-ms.topic: conceptual
-ms.date: 06/21/2021
+
+ms.service: azure-blob-storage
+ms.topic: concept-article
+ms.date: 03/04/2024
 ms.author: normesta
-ms.reviewer: yzheng
-
+# Customer intent: As a storage administrator, I want to understand the limitations and known issues of NFS 3.0 support for Azure Blob Storage, so that I can make informed decisions about enabling it and managing my storage environment effectively.
 ---
-# Known issues with Network File System (NFS) 3.0 protocol support in Azure Blob Storage
 
-This article describes limitations and known issues of Network File System (NFS) 3.0 protocol support in Azure Blob Storage.
+# Known issues with Network File System (NFS) 3.0 protocol support for Azure Blob Storage
+
+This article describes limitations and known issues of Network File System (NFS) 3.0 protocol support for Azure Blob Storage.
+
+> [!IMPORTANT]
+> Because you must enable the hierarchical namespace feature of your account to use NFS 3.0, all of the known issues that are described in the [Known issues with Azure Data Lake Storage](data-lake-storage-known-issues.md) article also apply to your account.
 
 ## NFS 3.0 support
 
 - NFS 3.0 support can't be enabled on existing storage accounts.
 
-- NFS 3.0 support can't be disabled in a storage account after you've enabled it.
+- NFS 3.0 support can't be disabled in a storage account after you enable it.
+
+- Geo-redundant storage (GRS), Geo-zone-redundant storage (GZRS), and Read-access geo-redundant storage (RA-GRS) redundancy options aren't supported when you create an NFS 3.0 storage account.
+
+- Access control lists (ACLs) can't be used to authorize an NFS 3.0 request. In fact, if the ACL or a blob or directory contains an entry for a named user or group, that file becomes inaccessible on the client for nonroot users. You have to remove these entries to restore access to nonroot users on the client. For information about how to remove an ACL entry for named users and groups, see [How to set ACLs](data-lake-storage-access-control.md#how-to-set-acls).
+
+- NFS 3.0 enabled accounts don't support [Azure Data Lake Storage vaulted backup](/azure/backup/azure-data-lake-storage-backup-support-matrix).
 
 ## NFS 3.0 features
 
@@ -30,65 +40,39 @@ The following NFS 3.0 features aren't yet supported.
 
 - Mounting subdirectories. You can only mount the root directory (Container).
 
-- Listing mounts (For example: by using the command `showmount -a`)
+- Listing mounts (For example: by using the command `showmount -a`).
 
-- Listing exports (For example: by using the command `showmount -e`)
+- Listing exports (For example: by using the command `showmount -e`).
 
-- Hard link
+- Hard link.
 
-- Exporting a container as read-only
+- Exporting a container as read-only.
 
 ## NFS 3.0 clients
 
-Windows client for NFS is not yet supported
+Windows client for NFS isn't yet supported. However, there's a workaround available that uses the Windows Subsystem for Linux (WSL 2) to mount storage by using the NFS 3.0 protocol. See the [BlobNFS-wsl2](https://github.com/Azure/BlobNFS-wsl2/tree/develop) project on GitHub.
 
 ## Blob Storage features
 
-The following Blob Storage features aren't yet supported.
+When you enable NFS 3.0 protocol support, some Blob Storage features are fully supported, but some features might be supported only at the preview level or not yet supported at all.
 
-- [Azure Active Directory (AD) security](../common/storage-auth-aad.md?toc=/azure/storage/blobs/toc.json)
-- [Azure Backup integration](../../backup/blob-backup-overview.md)
-- [Azure Storage analytics logging](../common/storage-analytics-logging.md?toc=/azure/storage/blobs/toc.json)
-- [Blob index tags](storage-blob-index-how-to.md)
-- [Blob storage events](storage-blob-event-overview.md)
-- [Blob versioning](versioning-enable.md)
-- [Change Feed](storage-blob-change-feed.md)
-- [Customer-managed account failover](../common/storage-disaster-recovery-guidance.md?toc=/azure/storage/blobs/toc.json)
-- [Customer-provided keys for Azure Storage encryption](encryption-customer-provided-keys.md) 
-- [Encryption scopes](encryption-scope-overview.md)
-- [Last access time tracking for lifecycle management](storage-lifecycle-management-concepts.md#move-data-based-on-last-accessed-date-preview)
-- [Object replication for block blobs](object-replication-overview.md)
-- [Page blobs](storage-blobs-introduction.md#blobs)
-- [Point-in-time restore for block blobs](point-in-time-restore-overview.md)
-- [Soft delete for blobs](soft-delete-blob-overview.md)
-- [Soft delete for containers](soft-delete-container-overview.md)
-- [Blob snapshots](snapshots-overview.md)
-- [Static websites hosting](storage-blob-static-website.md)
+To see how each Blob Storage feature is supported in accounts that have NFS 3.0 support enabled, see [Blob Storage feature support for Azure Storage accounts](storage-feature-support-in-storage-accounts.md).
 
-## Blob storage APIs
+> [!NOTE]
+> Static websites is an example of a partially supported feature because the configuration page for static websites does not yet appear in the Azure portal for accounts that have NFS 3.0 support enabled. You can enable static websites only by using PowerShell or Azure CLI.
 
-NFS 3.0, Blob APIs and Data Lake Storage Gen2 APIs can operate on the same data. 
+## Blob Storage events
 
-This section describes issues and limitations with using NFS 3.0, blob APIs and Data Lake Storage Gen2 APIs to operate on the same data. 
+The names of NFS operations don't appear in resource logs or in responses returned by the Event Grid. Only block blob operations appear. When your application makes a request by using the NFS 3.0 protocol, that request is translated into combination of block blob operations. For example, NFS 3.0 read Remote Procedure Call (RPC) requests are translated into Get Blob operation. NFS 3.0 write RPC requests are translated into a combination of Get Block List, Put Block, and Put Block List.
 
-- You cannot use NFS 3.0 and blob API or Data Lake Storage APIs to write to the same instance of a file. If you write to a file by using NFS, then that file's blocks won't be visible to calls to the [Get Block List](/rest/api/storageservices/get-block-list) blob API. The only exception is when using you are overwriting. You can overwrite a file/blob using either API. You can also overwrite with NFS 3.0 by using the zero-truncate option.
+Storage Events aren't supported for NFS specific operations. However, if you're performing blob or data lake storage operations on NFS enabled account, then the events shall get created based on the API being called.
 
-- When you use the [List Blobs](/rest/api/storageservices/list-blobs) operation without specifying a delimiter, the results will include both directories and blobs. If you choose to use a delimiter, use only a forward slash (`/`). This is the only supported delimiter.
+## Group membership in an NFS share
 
-- If you use the [Delete Blob](/rest/api/storageservices/delete-blob) API to delete a directory, that directory will be deleted only if it's empty. This means that you can't use the Blob API delete directories recursively.
-
-These Blob REST APIs aren't supported:
-
-* [Put Blob (Page)](/rest/api/storageservices/put-blob)
-* [Put Page](/rest/api/storageservices/put-page)
-* [Get Page Ranges](/rest/api/storageservices/get-page-ranges)
-* [Incremental Copy Blob](/rest/api/storageservices/incremental-copy-blob)
-* [Put Page from URL](/rest/api/storageservices/put-page-from-url)
-* [Put Block List](/rest/api/storageservices/put-block-list)
-
-Unmanaged VM disks are not supported in accounts that have a hierarchical namespace. If you want to enable a hierarchical namespace on a storage account, place unmanaged VM disks into a storage account that doesn't have the hierarchical namespace feature enabled. 
+Files and directories that you create in an NFS share always inherit the group ID of the parent directory regardless of whether the Set Group Identification (SGID) is set on the parent directory.
 
 ## See also
 
-- [Network File System (NFS) 3.0 protocol support in Azure Blob Storage](network-file-system-protocol-support.md)
+- [Network File System (NFS) 3.0 protocol support for Azure Blob Storage](network-file-system-protocol-support.md)
 - [Mount Blob storage by using the Network File System (NFS) 3.0 protocol](network-file-system-protocol-support-how-to.md)
+

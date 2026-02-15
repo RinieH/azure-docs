@@ -1,52 +1,82 @@
 ---
 title: Azure RabbitMQ bindings for Azure Functions
 description: Learn to send Azure RabbitMQ triggers and bindings in Azure Functions.
-author: cachai2
-
-ms.assetid: 
 ms.topic: reference
-ms.date: 12/17/2020
-ms.author: cachai
-ms.custom:
+ms.date: 08/20/2025
+ms.custom: devx-track-extended-java, devx-track-js, devx-track-python
+zone_pivot_groups: programming-languages-set-functions-lang-workers
 ---
+
 
 # RabbitMQ bindings for Azure Functions overview
 
-> [!NOTE]
-> The RabbitMQ bindings are only fully supported on **Premium and Dedicated** plans. Consumption is not supported.
+Azure Functions integrates with [RabbitMQ](https://www.rabbitmq.com/) via [triggers and bindings](./functions-triggers-bindings.md). 
 
-Azure Functions integrates with [RabbitMQ](https://www.rabbitmq.com/) via [triggers and bindings](./functions-triggers-bindings.md). The Azure Functions RabbitMQ extension allows you to send and receive messages using the RabbitMQ API with Functions.
+[!INCLUDE [functions-rabbitmq-plans-support-note](../../includes/functions-rabbitmq-plans-support-note.md)]
+
+The Azure Functions RabbitMQ extension allows you to send and receive messages using the RabbitMQ API with Functions.
 
 | Action | Type |
 |---------|---------|
 | Run a function when a RabbitMQ message comes through the queue | [Trigger](./functions-bindings-rabbitmq-trigger.md) |
 | Send RabbitMQ messages |[Output binding](./functions-bindings-rabbitmq-output.md) |
 
-## Add to your Functions app
+## Prerequisites
 
-To get started with developing with this extension, make sure you first [set up a RabbitMQ endpoint](https://github.com/Azure/azure-functions-rabbitmq-extension/wiki/Setting-up-a-RabbitMQ-Endpoint). To learn more about RabbitMQ, check out their [getting started page](https://www.rabbitmq.com/getstarted.html).
+Before working with the RabbitMQ extension, you must [set up your RabbitMQ endpoint](https://github.com/Azure/azure-functions-rabbitmq-extension/wiki/Setting-up-a-RabbitMQ-Endpoint). To learn more about RabbitMQ, see the [getting started page](https://www.rabbitmq.com/getstarted.html).
 
-### Functions 3.x and higher
+::: zone pivot="programming-language-csharp"
 
-Working with the trigger and bindings requires that you reference the appropriate package. The NuGet package is used for .NET class libraries while the extension bundle is used for all other application types.
+## Install extension
 
-| Language                                        | Add by...                                   | Remarks
-|-------------------------------------------------|---------------------------------------------|-------------|
-| C#                                              | Installing the [NuGet package], version 4.x | |
-| C# Script, Java, JavaScript, Python, PowerShell | Registering the [extension bundle]          | The [Azure Tools extension] is recommended to use with Visual Studio Code. |
-| C# Script (online-only in Azure portal)         | Adding a binding                            | To update existing binding extensions without having to republish your function app, see [Update your extensions]. |
+The extension NuGet package you install depends on the C# mode you're using in your function app: 
 
-[NuGet package]: https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.RabbitMQ
-[core tools]: ./functions-run-local.md
-[extension bundle]: ./functions-bindings-register.md#extension-bundles
-[Update your extensions]: ./functions-bindings-register.md
-[Azure Tools extension]: https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack
+# [Isolated worker model](#tab/isolated-process)
 
-### Functions 1.x and 2.x
+Functions execute in an isolated C# worker process. To learn more, see [Guide for running C# Azure Functions in an isolated worker process](dotnet-isolated-process-guide.md).
 
-RabbitMQ Binding extensions are not supported for Functions 1.x and 2.x. Please use Functions 3.x and higher.
+Add the extension to your project by installing this [NuGet package](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.Rabbitmq).
 
-## Next steps
+# [In-process model](#tab/in-process)
+
+[!INCLUDE [functions-in-process-model-retirement-note](../../includes/functions-in-process-model-retirement-note.md)]
+
+Functions execute in the same process as the Functions host. To learn more, see [Develop C# class library functions using Azure Functions](functions-dotnet-class-library.md).
+
+Add the extension to your project by installing this [NuGet package](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.RabbitMQ).
+
+---
+
+::: zone-end  
+::: zone pivot="programming-language-javascript,programming-language-python,programming-language-java,programming-language-powershell"  
+[!INCLUDE [functions-install-extension-bundle](../../includes/functions-install-extension-bundle.md)]
+::: zone-end
+## host.json settings
+
+[!INCLUDE [functions-host-json-section-intro](../../includes/functions-host-json-section-intro.md)]
+
+```json
+{
+    "version": "2.0",
+    "extensions": {
+        "rabbitMQ": {
+            "prefetchCount": 100,
+            "queueName": "queue",
+            "connectionString": "%<MyConnectionAppSetting>%",
+            "port": 10
+        }
+    }
+}
+```
+
+|Property  |Default | Description |
+|---------|---------|---------|
+|`prefetchCount`|30|Gets or sets the number of messages that the message receiver can simultaneously request and is cached.|
+|`queueName`|n/a| Name of the queue to receive messages from.|
+|`connectionString`|n/a|The app setting that contains the RabbitMQ message queue connection string. |
+|`port`|0|(ignored if using connectionString) Gets or sets the Port used. Defaults to 0, which points to rabbitmq client's default port setting: 5672.|
+
+## Related articles
 
 - [Run a function when a RabbitMQ message is created (Trigger)](./functions-bindings-rabbitmq-trigger.md)
 - [Send RabbitMQ messages from Azure Functions (Output binding)](./functions-bindings-rabbitmq-output.md)

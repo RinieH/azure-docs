@@ -4,11 +4,13 @@ description: Describes how to create custom Windows and Linux VM images for depl
 services: databox
 author: alkohli
 
-ms.service: databox
-ms.subservice: edge
+ms.service: azure-stack-edge
 ms.topic: how-to
-ms.date: 06/14/2021
+ms.date: 08/09/2022
 ms.author: alkohli
+ms.custom:
+  - linux-related-content
+  - sfi-image-nochange
 #Customer intent: As an IT admin, I need to understand how to create Azure VM images that I can use to deploy virtual machines on my Azure Stack Edge Pro GPU device.
 ---
 
@@ -18,13 +20,13 @@ ms.author: alkohli
 
 To deploy VMs on your Azure Stack Edge Pro GPU device, you need to be able to create custom VM images that you can use to create VMs in Azure. This article describes the steps to create custom VM images in Azure for Windows and Linux VMs and download or copy those images to an Azure Storage account.
 
-There's a required workflow for preparing a custom VM image. For the image source, you need to use a fixed VHD from a Gen1 VM of any size that Azure supports. For VM size options, see [Supported VM sizes](azure-stack-edge-gpu-virtual-machine-sizes.md#supported-vm-sizes).
+There's a required workflow for preparing a custom VM image. For the image source, you need to use a fixed VHD from any size that Azure supports. For VM size options, see [Supported VM sizes](azure-stack-edge-gpu-virtual-machine-sizes.md#supported-vm-sizes).
 
 ## Prerequisites
 
 Complete the following prerequisite before you create your VM image:
 
-- [Download AzCopy](/azure/storage/common/storage-use-azcopy-v10#download-azcopy). AzCopy gives you a fast way to copy an OS disk to an Azure Storage account.
+- [Download AzCopy](../storage/common/storage-use-azcopy-v10.md#download-azcopy). AzCopy gives you a fast way to copy an OS disk to an Azure Storage account.
 
 ---
 
@@ -37,11 +39,11 @@ The steps for preparing a custom VM image vary for a Windows or Linux VM.
 
 Do the following steps to create a Windows VM image:
 
-1. Create a Windows virtual machine in Azure. For portal instructions, see [Create a Windows virtual machine in the Azure portal](/azure/virtual-machines/windows/quick-create-portal). For PowerShell instructions, see [Tutorial: Create and manage Windows VMs with Azure PowerShell](../virtual-machines/windows/tutorial-manage-vm.md).  
+1. Create a Windows virtual machine in Azure. For portal instructions, see [Create a Windows virtual machine in the Azure portal](/azure/virtual-machines/windows/quick-create-portal). For PowerShell instructions, see [Tutorial: Create and manage Windows VMs with Azure PowerShell](/azure/virtual-machines/windows/tutorial-manage-vm).  
 
-   The virtual machine must be a Generation 1 VM. The OS disk that you use to create your VM image must be a fixed-size VHD of any size that Azure supports. For VM size options, see [Supported VM sizes](azure-stack-edge-gpu-virtual-machine-sizes.md#supported-vm-sizes).
+   The virtual machine can be a Generation 1 or Generation 2 VM. The OS disk that you use to create your VM image must be a fixed-size VHD of any size that Azure supports. For VM size options, see [Supported VM sizes](azure-stack-edge-gpu-virtual-machine-sizes.md#supported-vm-sizes).
 
-   You can use any Windows Gen1 VM with a fixed-size VHD in Azure Marketplace. For a list of commonly used Azure Marketplace images that could work, see [Azure Marketplace items available for Azure Stack Hub](azure-stack-edge-gpu-create-virtual-machine-marketplace-image.md#commonly-used-marketplace-images).
+   You can use any Windows Gen1 or Gen2 VM with a fixed-size VHD in Azure Marketplace. For a of list Azure Marketplace images that could work, see [Commonly used Azure Marketplace images for Azure Stack Edge](azure-stack-edge-gpu-create-virtual-machine-marketplace-image.md#commonly-used-marketplace-images).
 
 2. Generalize the virtual machine. To generalize the VM, [connect to the virtual machine](azure-stack-edge-gpu-deploy-virtual-machine-powershell.md#connect-to-a-windows-vm), open a command prompt, and run the following `sysprep` command:
 
@@ -57,11 +59,11 @@ Do the following steps to create a Windows VM image:
 
 Do the following steps to create a Linux VM image:
 
-1. Create a Linux virtual machine in Azure. For portal instructions, see [Quickstart: Create a Linux VM in the Azure portal](../virtual-machines/linux/quick-create-portal.md).  For PowerShell instructions, see [Quickstart: Create a Linux VM in Azure with PowerShell](../virtual-machines/linux/quick-create-powershell.md).
+1. Create a Linux virtual machine in Azure. For portal instructions, see [Quickstart: Create a Linux VM in the Azure portal](/azure/virtual-machines/linux/quick-create-portal).  For PowerShell instructions, see [Quickstart: Create a Linux VM in Azure with PowerShell](/azure/virtual-machines/linux/quick-create-powershell).
 
-   You can use any Gen1 VM with a fixed-size VHD in Azure Marketplace to create Linux custom images, with the exception of Red Hat Enterprise Linux (RHEL) images, which require extra steps. For a list of Azure Marketplace images that could work, see [Azure Marketplace items available for Azure Stack Hub](azure-stack-edge-gpu-create-virtual-machine-marketplace-image.md#commonly-used-marketplace-images). For guidance on RHEL images, see [Using RHEL BYOS images](#using-rhel-byos-images), below. 
+   You can use any Gen1 or Gen2 VM with a fixed-size VHD in Azure Marketplace to create Linux custom images. This excludes Red Hat Enterprise Linux (RHEL) images, which require extra steps and can only be used to create a Gen1 VM image. For a list of Azure Marketplace images that could work, see [Commonly used Azure Marketplace images for Azure Stack Edge](azure-stack-edge-gpu-create-virtual-machine-marketplace-image.md#commonly-used-marketplace-images). For guidance on RHEL images, see [Using RHEL BYOS images](#using-rhel-byos-images), below.
 
-1. Deprovision the VM. Use the Azure VM agent to delete machine-specific files and data. Use the `waagent` command with the `-deprovision+user` parameter on your source Linux VM. For more information, see [Understanding and using Azure Linux Agent](../virtual-machines/extensions/agent-linux.md).
+1. Deprovision the VM. Use the Azure VM agent to delete machine-specific files and data. Use the `waagent` command with the `-deprovision+user` parameter on your source Linux VM. For more information, see [Understanding and using Azure Linux Agent](/azure/virtual-machines/extensions/agent-linux).
 
     1. [Connect to your Linux VM with an SSH client](azure-stack-edge-gpu-deploy-virtual-machine-powershell.md#connect-to-a-linux-vm).
     2. In the SSH window, enter the following command:
@@ -78,14 +80,14 @@ Do the following steps to create a Linux VM image:
 
 ### Using RHEL BYOS images
 
-If using Red Hat Enterprise Linux (RHEL) images, only the Red Hat Enterprise Linux Bring Your Own Subscription (RHEL BYOS) images, also known as the Red Hat gold images, are supported and can be used to create your VM image. The standard pay-as-you-go RHEL images on Azure Marketplace are not supported on Azure Stack Edge.
+If using Red Hat Enterprise Linux (RHEL) images, only the Red Hat Enterprise Linux Bring Your Own Subscription (RHEL BYOS) images, also known as the Red Hat gold images, are supported and can be used to create your VM image. The standard pay-as-you-go RHEL images on Azure Marketplace aren't supported on Azure Stack Edge.
 
 To create a VM image using the RHEL BYOS image, follow these steps:
 
-1. Log in to [Red Hat Subscription Management](https://access.redhat.com/management). Navigate to the [Cloud Access Dashboard](https://access.redhat.com/management/cloud) from the top menu bar.
-1. Enable your Azure subscription. See [detailed instructions](https://access.redhat.com/documentation/en-us/red_hat_subscription_management/1/html/red_hat_cloud_access_reference_guide/getting-started-with-ca_cloud-access). Enabling the subscription will allow you to access the Red Hat Gold Images.
+1. Sign in to [Red Hat Subscription Management](https://access.redhat.com/management). Navigate to the [Cloud Access Dashboard](https://access.redhat.com/management/cloud) from the top menu bar.
+1. Enable your Azure subscription. See [detailed instructions](https://docs.redhat.com/en/documentation/subscription_central/1-latest/html/getting_started_with_rhel_system_registration/red-hat-cloud-access-program-overview_). Enabling the subscription will allow you to access the Red Hat Gold Images.
 
-1. Accept the Azure terms of use (only once per Azure Subscription, per image) and provision a VM. See [instructions](https://access.redhat.com/documentation/en-us/red_hat_subscription_management/1/html/red_hat_cloud_access_reference_guide/understanding-gold-images_cloud-access). 
+1. Accept the Azure terms of use (only once per Azure Subscription, per image) and provision a VM. See [instructions](https://docs.redhat.com/en/documentation/subscription_central/1-latest/html/getting_started_with_rhel_system_registration/red-hat-cloud-access-program-overview_). 
 
 You can now use the VM that you provisioned to [Create a VM custom image](#create-a-custom-vm-image) in Linux.
 
@@ -111,7 +113,7 @@ You can now use this VHD to create and deploy VMs on your Azure Stack Edge Pro G
 
 ## Copy VHD to storage account using AzCopy
 
-The following procedures describe how to use AzCopy to copy a custom VM image to an Azure Storage account so you can use the image to deploy VMs on your Azure Stack Edge Pro GPU device. We recommend that you store your custom VM images in the same storage account that you're using for your Azure Stack Edge Pro GPU device. 
+The following procedures describe how to use AzCopy to copy a custom VM image to an Azure Storage account so you can use the image to deploy VMs on your Azure Stack Edge Pro GPU device. We recommend that you store your custom VM images in any existing storage account that you're using which is in the same region/subscription as Azure Stack Edge.
 
 
 ### Create target URI for a container
@@ -151,7 +153,7 @@ To create the target URI for your prepared VHD, do the following steps:
 
 To copy your VHD to a blob container using AzCopy, do the following steps:
 
- 1. [Download AZCopy](/azure/storage/common/storage-use-azcopy-v10#download-azcopy) if you haven't done that already.
+ 1. [Download AZCopy](../storage/common/storage-use-azcopy-v10.md#download-azcopy) if you haven't done that already.
  
  1. In PowerShell, navigate to the directory where you stored azcopy.exe, and run the following command:
 
@@ -164,7 +166,7 @@ To copy your VHD to a blob container using AzCopy, do the following steps:
     For example, the following URI will copy a file named **windowsosdisk.vhd** to the **virtual machines** blob container in the **mystorageaccount** storage account:
 
     ```azcopy 
-    .\azcopy copy "https://md-h1rvdq3wwtdp.z24.blob.storage.azure.net/gxs3kpbgjhkr/abcd?sv=2018-03-28&sr=b&si=f86003fc-a231-43b0-baf2-61dd51e3a05a&sig=o5Rj%2BNZSook%2FVNMcuCcwEwsr0i7sy%2F7gIDzak6JhlKg%3D" "https://mystorageaccount.blob.core.windows.net/virtualmachines/osdisk.vhd?sp=rw&st=2021-05-21T16:52:24Z&se=2021-05-22T00:52:24Z&spr=https&sv=2020-02-10&sr=c&sig=PV3Q3zpaQ%2FOLidbQJDKlW9nK%2BJ7PkzYv2Eczxko5k%2Bg%3D" --recursive
+    .\azcopy copy "https://md-h1rvdq3wwtdp.z24.blob.storage.azure.net/gxs3kpbgjhkr/abcd?sv=2018-03-28&sr=b&si=f86003fc-a231-43b0-baf2-61dd51e3a05a&sig=abc123DEF456...%3D" "https://mystorageaccount.blob.core.windows.net/virtualmachines/osdisk.vhd?sp=rw&st=2021-05-21T16:52:24Z&se=2021-05-22T00:52:24Z&spr=https&sv=2020-02-10&sr=c&sig=abc123DEF456...%3D" --recursive
     ```
 
 #### Sample output
@@ -172,7 +174,7 @@ To copy your VHD to a blob container using AzCopy, do the following steps:
 For the example AzCopy command above, the following output indicates a successful copy was completed.
 
    ```output
-   PS C:\azcopy\azcopy_windows_amd64_10.10.0> .\azcopy copy "https://md-h1rvdq3wwtdp.z24.blob.storage.azure.net/gxs3kpbgjhkr/abcd?sv=2018-03-28&sr=b&si=f86003fc-a231-43b0-baf2-61dd51e3a05a&sig=o5Rj%2BNZSook%2FVNMcuCcwEwsr0i7sy%2F7gIDzak6JhlKg%3D" "https://mystorageaccount.blob.core.windows.net/virtualmachines/osdisk.vhd?sp=rw&st=2021-05-21T16:52:24Z&se=2021-05-22T00:52:24Z&spr=https&sv=2020-02-10&sr=c&sig=PV3Q3zpaQ%2FOLidbQJDKlW9nK%2BJ7PkzYv2Eczxko5k%2Bg%3D" --recursive
+   PS C:\azcopy\azcopy_windows_amd64_10.10.0> .\azcopy copy "https://md-h1rvdq3wwtdp.z24.blob.storage.azure.net/gxs3kpbgjhkr/abcd?sv=2018-03-28&sr=b&si=f86003fc-a231-43b0-baf2-61dd51e3a05a&sig=abc123DEF456...%3D" "https://mystorageaccount.blob.core.windows.net/virtualmachines/osdisk.vhd?sp=rw&st=2021-05-21T16:52:24Z&se=2021-05-22T00:52:24Z&spr=https&sv=2020-02-10&sr=c&sig=abc123DEF456...%3D" --recursive
    INFO: Scanning...
    INFO: Failed to create one or more destination container(s). Your transfers may still succeed if the container already exists.
    INFO: Any empty folders will not be processed, because source and/or destination doesn't have full folder support

@@ -2,22 +2,19 @@
 title: Manage DNS records in Azure DNS using Azure PowerShell | Microsoft Docs
 description: Managing DNS record sets and records on Azure DNS when hosting your domain on Azure DNS. All PowerShell commands for operations on record sets and records.
 services: dns
-documentationcenter: na
-author: rohinkoul
-ms.service: dns
-ms.devlang: na
+author: asudbring
+ms.service: azure-dns
 ms.topic: how-to
-ms.tgt_pltfrm: na
 ms.custom: H1Hack27Feb2017, devx-track-azurepowershell
-ms.workload: infrastructure-services
-ms.date: 04/28/2021
-ms.author: rohink
+ms.date: 11/30/2023
+ms.author: allensu
+# Customer intent: "As a network administrator, I want to manage DNS records in Azure using PowerShell, so that I can efficiently create, modify, or delete record sets for my domains hosted in Azure DNS."
 ---
 
 # Manage DNS records and recordsets in Azure DNS using Azure PowerShell
 
 > [!div class="op_single_selector"]
-> * [Azure Portal](dns-operations-recordsets-portal.md)
+> * [Azure portal](dns-operations-recordsets-portal.md)
 > * [Azure classic CLI](./dns-operations-recordsets-cli.md)
 > * [Azure CLI](dns-operations-recordsets-cli.md)
 > * [PowerShell](dns-operations-recordsets.md)
@@ -26,7 +23,7 @@ This article shows you how to manage DNS records for your DNS zone by using Azur
 
 The examples in this article assume you have already [installed Azure PowerShell, signed in, and created a DNS zone](dns-operations-dnszones.md).
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 ## Introduction
 
@@ -207,21 +204,21 @@ To add a record to an existing record set, follow the following three steps:
 
 1. Get the existing record set
 
-	```azurepowershell-interactive
-	$rs = Get-AzDnsRecordSet -Name www –ZoneName "contoso.com" -ResourceGroupName "MyResourceGroup" -RecordType A
-	```
+    ```azurepowershell-interactive
+    $rs = Get-AzDnsRecordSet -Name www –ZoneName "contoso.com" -ResourceGroupName "MyResourceGroup" -RecordType A
+    ```
 
 1. Add the new record to the local record set.
 
-	```azurepowershell-interactive
-	Add-AzDnsRecordConfig -RecordSet $rs -Ipv4Address "5.6.7.8"
-	```
+    ```azurepowershell-interactive
+    Add-AzDnsRecordConfig -RecordSet $rs -Ipv4Address "5.6.7.8"
+    ```
 
 3. Update the changes so it reflects to the Azure DNS service. 
 
-	```azurepowershell-interactive
-	Set-AzDnsRecordSet -RecordSet $rs
-	```
+    ```azurepowershell-interactive
+    Set-AzDnsRecordSet -RecordSet $rs
+    ```
 
 Using `Set-AzDnsRecordSet` *replaces* the existing record set in Azure DNS (and all records it contains) with the record set specified. [Etag checks](dns-zones-records.md#etags) are used to ensure concurrent changes aren't overwritten. You can use the optional `-Overwrite` switch to suppress these checks.
 
@@ -241,21 +238,21 @@ The process to remove a record from a record set is similar to the process to ad
 
 1. Get the existing record set
 
-	```azurepowershell-interactive
-	$rs = Get-AzDnsRecordSet -Name www –ZoneName "contoso.com" -ResourceGroupName "MyResourceGroup" -RecordType A
-	```
+    ```azurepowershell-interactive
+    $rs = Get-AzDnsRecordSet -Name www –ZoneName "contoso.com" -ResourceGroupName "MyResourceGroup" -RecordType A
+    ```
 
 2. Remove the record from the local record set object. The record that's being removed must be an exact match with an existing record across all parameters.
 
-	```azurepowershell-interactive
-	Remove-AzDnsRecordConfig -RecordSet $rs -Ipv4Address "5.6.7.8"
-	```
+    ```azurepowershell-interactive
+    Remove-AzDnsRecordConfig -RecordSet $rs -Ipv4Address "5.6.7.8"
+    ```
 
 3. Commit the change back to the Azure DNS service. Use the optional `-Overwrite` switch to suppress [Etag checks](dns-zones-records.md#etags) for concurrent changes.
 
-	```azurepowershell-interactive
-	Set-AzDnsRecordSet -RecordSet $Rs
-	```
+    ```azurepowershell-interactive
+    Set-AzDnsRecordSet -RecordSet $Rs
+    ```
 
 Using the above sequence to remove the last record from a record set doesn't delete the record set, rather it leaves an empty record set. To remove a record set entirely, see [Delete a record set](#delete-a-record-set).
 
@@ -279,7 +276,7 @@ The steps for modifying an existing record set are similar to the steps you take
     * Changing the record set metadata and time to live (TTL)
 3. Commit your changes by using the `Set-AzDnsRecordSet` cmdlet. This *replaces* the existing record set in Azure DNS with the record set specified.
 
-When using `Set-AzDnsRecordSet`, [Etag checks](dns-zones-records.md#etags) are used to ensure concurrent changes aren't overwritten. You can use the optional `-Overwrite` switch to suppress these checks.
+When you use the `Set-AzDnsRecordSet` command, [Etag checks](dns-zones-records.md#etags) are used to ensure concurrent changes aren't overwritten. You can use the optional `-Overwrite` switch to suppress these checks.
 
 ### To update a record in an existing record set
 

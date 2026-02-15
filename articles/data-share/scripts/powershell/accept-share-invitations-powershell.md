@@ -1,12 +1,11 @@
 ---
 title: "PowerShell script: Accept invitation from an Azure Data Share"
 description: This PowerShell script accepts invitations from an existing data share.
-services: data-share
-author: joannapea
-ms.author: joanpo
-ms.service: data-share
+author: chvukosw
+ms.author: chvukosw
+ms.service: azure-data-share
 ms.topic: article
-ms.date: 07/07/2019 
+ms.date: 01/23/2026
 ms.custom: devx-track-azurepowershell
 ---
 
@@ -40,8 +39,8 @@ This script uses the following commands:
 | [New-AzDataShareSubscription](/powershell/module/az.datashare/get-azdatasharesubscription) | Create a data share subscription. |
 |||
 
-## Next steps
+## Related content
 
 For more information on the Azure PowerShell, see [Azure PowerShell documentation](/powershell/).
 
-Additional Azure Data Share PowerShell script samples can be found in the [Azure Data Share PowerShell samples](../../samples-powershell.md).
+Other Azure Data Share PowerShell script samples can be found in the [Azure Data Share PowerShell samples](../../samples-powershell.md).

@@ -1,96 +1,103 @@
 ---
-title: Create custom artifacts for your DevTest Labs virtual machine | Microsoft Docs
-description: Learn how to create artifacts to use with Azure DevTest Labs to deploy and set up applications after you provision a virtual machine.
-ms.topic: article
-ms.date: 06/26/2020
+title: Create custom artifacts for VMs
+description: Learn how to create and use artifacts to deploy and set up applications on DevTest Labs virtual machines (VMs).
+ms.topic: how-to
+ms.author: rosemalcolm
+author: RoseHJM
+ms.date: 12/08/2025
+ms.custom: UpdateFrequency2
+#customer intent: As an Azure DevTest Labs user, I want to learn how to create and store artifact definition files so I can use them to install tools or take other actions on my lab VMs.
 ---
 
-# Create custom artifacts for your DevTest Labs virtual machine
+# Create custom artifacts for DevTest Labs VMs
 
-Watch the following video for an overview of the steps described in this article:
+Artifacts are tools, actions, or software you can add to Azure DevTest Labs VMs. For example, artifacts can run scripts, install tools, or take actions like joining a domain. DevTest Labs users can [add artifacts to their VMs](add-artifact-vm.md), and lab administrators can [specify mandatory artifacts to be added to all lab VMs](devtest-lab-mandatory-artifacts.md).
 
-> [!VIDEO https://channel9.msdn.com/Blogs/Azure/how-to-author-custom-artifacts/player]
->
->
+This article describes how to create artifacts that provision lab VMs. An artifact consists of an artifact definition JSON file and other script files stored in a Git repository folder. You can store artifacts in a private or public Git repository. Lab administrators can [add artifact repositories to labs](add-artifact-repository.md) so all lab users can access them.
 
-## Overview
-You can use *artifacts* to deploy and set up your application after you provision a VM. An artifact consists of an artifact definition file and other script files that are stored in a folder in a Git repository. Artifact definition files consist of JSON and expressions that you can use to specify what you want to install on a VM. For example, you can define the name of an artifact, a command to run, and parameters that are available when the command is run. You can refer to other script files within the artifact definition file by name.
+## Prerequisites
 
-## Artifact definition file format
-The following example shows the sections that make up the basic structure of a definition file:
+- To create and work with artifact definition files, you need a JSON editor. [Visual Studio Code](https://code.visualstudio.com/) is available for Windows, Linux, and macOS.
+- To store the artifact definition and script files, you need a GitHub account.
+
+## Understand artifact definition files
+
+An artifact definition file consists of a JSON expression that specifies the action to take on a VM. The file defines an artifact name, a command to run, and parameters available for the command. If the artifact contains other script files, you can refer to the files by name in the artifact definition file.
+
+The following example shows the basic structure of an *artifactfile.json* artifact definition file.
 
 ```json
   {
     "$schema": "https://raw.githubusercontent.com/Azure/azure-devtestlab/master/schemas/2016-11-28/dtlArtifacts.json",
-    "title": "",
-    "description": "",
+    "title": "<title>",
+    "description": "<description>",
     "iconUri": "",
-    "targetOsType": "",
+    "targetOsType": "<os>",
     "parameters": {
-      "<parameterName>": {
-        "type": "",
-        "displayName": "",
-        "description": ""
+      "<paramName>": {
+        "type": "<type>",
+        "displayName": "<display name>",
+        "description": "<description>"
       }
     },
     "runCommand": {
-      "commandToExecute": ""
+      "commandToExecute": "<command>"
     }
   }
 ```
 
-| Element name | Required? | Description |
-| --- | --- | --- |
-| $schema |No |Location of the JSON schema file. The JSON schema file can help you test the validity of the definition file. |
-| title |Yes |Name of the artifact displayed in the lab. |
-| description |Yes |Description of the artifact displayed in the lab. |
-| iconUri |No |URI of the icon displayed in the lab. |
-| targetOsType |Yes |Operating system of the VM where the artifact is installed. Supported options are Windows and Linux. |
-| parameters |No |Values that are provided when the artifact install command is run on a machine. This helps you customize your artifact. |
-| runCommand |Yes |Artifact install command that is executed on a VM. |
+The definition has the following required and optional elements:
+
+| Element name | Description |
+| --- | --- |
+| `$schema` | Location of the JSON schema file, which can help you test the validity of the definition file.|
+| `title` | **Required** artifact name to display. |
+| `description` | **Required** artifact description. |
+| `iconUri` | Artifact icon URI to display.|
+| `targetOsType` | **Required** operating system to install on. The supported values are `Windows` or `Linux`. |
+| `parameters` | Available artifact customizations during installation.|
+| `runCommand` | **Required** command to install the artifact on the VM. |
 
 ### Artifact parameters
-In the parameters section of the definition file, specify which values a user can input when they install an artifact. You can refer to these values in the artifact install command.
 
-To define parameters, use the following structure:
+The `parameters` section of the definition file defines the options and values users can specify when they install the artifact. You can refer to these parameters in the `runCommand`.
+
+The following structure defines a parameter:
 
 ```json
   "parameters": {
-    "<parameterName>": {
-      "type": "<type-of-parameter-value>",
-      "displayName": "<display-name-of-parameter>",
-      "description": "<description-of-parameter>"
+    "<name>": {
+      "type": "<type>",
+      "displayName": "<display name>",
+      "description": "<description>"
     }
   }
 ```
 
-| Element name | Required? | Description |
-| --- | --- | --- |
-| type |Yes |Type of parameter value. See the following list for the allowed types. |
-| displayName |Yes |Name of the parameter that is displayed to a user in the lab. |
-| description |Yes |Description of the parameter that is displayed in the lab. |
+Each parameter requires a name, and the parameter definition requires the following elements:
 
-Allowed types are:
+| Element name | Description |
+| --- | --- |
+| `type` | **Required** parameter value type. The type can be any valid JSON `string`, integer `int`, boolean `bool`, or `array`. |
+| `displayName` | **Required** parameter name to display to the user. |
+| `description` | **Required** parameter description.|
 
-* string (any valid JSON string)
-* int (any valid JSON integer)
-* bool (any valid JSON Boolean)
-* array (any valid JSON array)
+### Secure string parameters
 
-## Secrets as secure strings
-Declare secrets as secure strings. Here is the syntax for declaring a secure string parameter within the `parameters` section of the **artifactfile.json** file:
+To include secrets in an artifact definition, declare the secrets as secure strings by using the `secureStringParam` syntax in the `parameters` section of the definition file. The `description` element allows any text string, including spaces, and presents the string in the UI as masked characters.
+
 
 ```json
 
     "securestringParam": {
       "type": "securestring",
       "displayName": "Secure String Parameter",
-      "description": "Any text string is allowed, including spaces, and will be presented in UI as masked characters.",
+      "description": "<any text string>",
       "allowEmpty": false
     },
 ```
 
-For the artifact install command, run the PowerShell script that takes the secure string created by using the ConvertTo-SecureString command. 
+The following `runCommand` uses a PowerShell script that takes the secure string created by using the `ConvertTo-SecureString` command. The script captures output for debugging, so for security don't log the output to the console.
 
 ```json
   "runCommand": {
@@ -98,21 +105,22 @@ For the artifact install command, run the PowerShell script that takes the secur
   }
 ```
 
-For the complete example artifactfile.json and the artifact.ps1 (PowerShell script), see [this sample on GitHub](https://github.com/Azure/azure-devtestlab/tree/master/Artifacts/windows-test-paramtypes).
+### Artifact expressions and functions
 
-Another important point to note is not to log secrets to the console as output is captured for user debugging. 
+You can use expressions and functions to construct the artifact install command. Expressions evaluate when the artifact installs.
 
-## Artifact expressions and functions
-You can use expressions and functions to construct the artifact install command.
-Expressions are enclosed with brackets ([ and ]), and are evaluated when the artifact is installed. Expressions can appear anywhere in a JSON string value. Expressions always return another JSON value. If you need to use a literal string that starts with a bracket ([), you must use two brackets ([[).
-Typically, you use expressions with functions to construct a value. Just like in JavaScript, function calls are formatted as **functionName(arg1, arg2, arg3)**.
+Expressions can appear anywhere in a JSON string value, and always return another JSON value. Enclose expressions with brackets, `[ ]`. If you need to use a literal string that starts with a bracket, use two brackets `[[`.
 
-The following list shows common functions:
+You usually use expressions with functions to construct a value. Function calls are formatted as `functionName(arg1, arg2, arg3)`.
 
-* **parameters(parameterName)**: Returns a parameter value that is provided when the artifact command is run.
-* **concat(arg1, arg2, arg3,….. )**: Combines multiple string values. This function can take a variety of arguments.
+Common functions include:
 
-The following example shows how to use expressions and functions to construct a value:
+| Function | Description |
+| --- | --- |
+|`parameters(parameterName)`|Returns a parameter value to use when the artifact command runs.|
+|`concat(arg1, arg2, arg3, ...)`|Combines multiple string values and can take various arguments.|
+
+The following example uses expressions with the `concat` function to construct a value.
 
 ```json
   runCommand": {
@@ -125,23 +133,31 @@ The following example shows how to use expressions and functions to construct a 
 
 ## Create a custom artifact
 
-1. Install a JSON editor. You need a JSON editor to work with artifact definition files. We recommend using [Visual Studio Code](https://code.visualstudio.com/), which is available for Windows, Linux, and OS X.
-2. Get a sample artifactfile.json definition file. Check out the artifacts created by the DevTest Labs team in our [GitHub repository](https://github.com/Azure/azure-devtestlab). We have created a rich library of artifacts that can help you create your own artifacts. Download an artifact definition file and make changes to it to create your own artifacts.
-3. Make use of IntelliSense. Use IntelliSense to see valid elements that you can use to construct an artifact definition file. You also can see the different options for values of an element. For example, when you edit the **targetOsType** element, IntelliSense shows you two choices, for Windows or Linux.
-4. Store the artifact in the [public Git repository for DevTest Labs](https://github.com/Azure/azure-devtestlab/tree/master/Artifacts) or [your own Git repository](devtest-lab-add-artifact-repo.md). In the public repository, you can view artifacts shared by others that you can use directly or customize them to suit your needs.
-   
-   1. Create a separate directory for each artifact. The directory name should be the same as the artifact name.
-   2. Store the artifact definition file (artifactfile.json) in the directory that you created.
-   3. Store the scripts that are referenced from the artifact install command.
-      
-      Here is an example of how an artifact folder might look:
-      
-      ![Artifact folder example](./media/devtest-lab-artifact-author/git-repo.png)
-5. If you are using your own repository to store artifacts, add the repository to the lab by following instructions in the article: [Add a Git repository for artifacts and templates](devtest-lab-add-artifact-repo.md).
+You can create a custom artifact by starting from a sample *artifactfile.json* definition file. The public [DevTest Labs artifact repository](https://github.com/Azure/azure-devtestlab/tree/master/Artifacts) has a library of artifacts. You can download an artifact definition file and customize it to create your own artifacts.
 
-## Related articles
-* [How to diagnose artifact failures in DevTest Labs](devtest-lab-troubleshoot-artifact-failure.md)
-* [Join a VM to an existing Active Directory domain by using a Resource Manager template in DevTest Labs](https://www.visualstudiogeeks.com/blog/DevOps/Join-a-VM-to-existing-AD-domain-using-ARM-template-AzureDevTestLabs)
+1. Download the *artifactfile.json* definition file and *artifact.ps1* PowerShell script from [https://github.com/Azure/azure-devtestlab/tree/master/Artifacts/windows-test-paramtypes](https://github.com/Azure/azure-devtestlab/tree/master/Artifacts/windows-test-paramtypes).
+
+1. Edit the artifact definition file to make some valid changes to elements and values. In Visual Studio Code, you can use IntelliSense to see valid elements and value options. For example, when you edit the `targetOsType` element, IntelliSense shows you `Windows` or `Linux` options.
+
+1. Store your artifact in a public or private Git artifact repository.
+
+   - Store each *artifactfile.json* artifact definition file in a separate directory named the same as the artifact name.
+   - Store the scripts that the install command references in the same directory as the artifact definition file.
+
+   The following screenshot shows an example artifact folder:
+
+   ![Screenshot that shows an example artifact folder.](./media/devtest-lab-artifact-author/git-repo.png)
+
+   >[!NOTE]
+   >To add your custom artifacts to the public [DevTest Labs artifact repository](https://github.com/Azure/azure-devtestlab/tree/master/Artifacts), open a pull request against the repo.
 
 ## Next steps
-* Learn how to [add a Git artifact repository to a lab](devtest-lab-add-artifact-repo.md).
+
+- [Add artifacts to DevTest Labs VMs](add-artifact-vm.md)
+- [Specify mandatory artifacts to be added to all lab VMs](devtest-lab-mandatory-artifacts.md)
+- [Add an artifact repository to a lab](add-artifact-repository.md)
+
+## Related content
+
+- [Diagnose artifact failures in the lab](devtest-lab-troubleshoot-artifact-failure.md)
+- [Troubleshoot issues when applying artifacts](devtest-lab-troubleshoot-apply-artifacts.md)

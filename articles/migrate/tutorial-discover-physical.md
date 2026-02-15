@@ -1,270 +1,318 @@
 ---
-title: Discover physical servers with Azure Migrate Discovery and assessment
-description: Learn how to discover on-premises physical servers with Azure Migrate Discovery and assessment.
-author: vineetvikram
-ms.author: vivikram
+title: Discover physical servers with Azure Migrate discovery and assessment
+description: Learn how to discover on-premises physical servers with Azure Migrate discovery and assessment.
+author: molishv
+ms.author: v-uhabiba
 ms.manager: abhemraj
 ms.topic: tutorial
-ms.date: 03/11/2021
-ms.custom: mvc
+ms.date: 02/07/2025
+ms.service: azure-migrate
+ms.reviewer: v-uhabiba
+ms.custom:
+  - mvc
+  - subject-rbac-steps
+  - engagement-fy24
+  - linux-related-content
+  - sfi-ropc-nochange
 #Customer intent: As a server admin I want to discover my on-premises server inventory.
+# Customer intent: As a server administrator, I want to discover and assess my on-premises physical servers using a migration tool, so that I can efficiently plan for migration to the cloud.
 ---
 
-# Tutorial: Discover physical servers with Azure Migrate: Discovery and assessment
+# Discover physical servers and servers running in AWS and GCP
 
-As part of your migration journey to Azure, you discover your servers for assessment and migration.
+This article explains how to set up the Azure Migrate appliance to discover physical servers and servers running in AWS, GCP, or any other cloud.
 
-This tutorial shows you how to discover on-premises physical servers with the Azure Migrate: Discovery and assessment tool, using a lightweight Azure Migrate appliance. You deploy the appliance as a physical server, to continuously discover servers and performance metadata.
+The Azure Migrate appliance is a lightweight tool that Azure Migrate: Discovery and assessment uses to:
 
-In this tutorial, you learn how to:
-
-> [!div class="checklist"]
-> * Set up an Azure account.
-> * Prepare physical servers for discovery.
-> * Create a project.
-> * Set up the Azure Migrate appliance.
-> * Start continuous discovery.
-
-> [!NOTE]
-> Tutorials show the quickest path for trying out a scenario, and use default options.  
-
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/free-trial/) before you begin.
+- Discover on-premises servers.
+- Send metadata and performance data of the discovered servers to Azure Migrate: Discovery and assessment.
 
 ## Prerequisites
 
-Before you start this tutorial, check you have these prerequisites in place.
+Before you set up the appliance, [create an Azure Migrate project](create-project.md) by following these steps.
 
-**Requirement** | **Details**
---- | ---
-**Appliance** | You need a server on which to run the Azure Migrate appliance. The server should have:<br/><br/> - Windows Server 2016 installed.<br/> _(Currently the deployment of appliance is only supported on Windows Server 2016.)_<br/><br/> - 16-GB RAM, 8 vCPUs, around 80 GB of disk storage<br/><br/> - A static or dynamic IP address, with internet access, either directly or through a proxy.
-**Windows servers** | Allow inbound connections on WinRM port 5985 (HTTP), so that the appliance can pull configuration and performance metadata.
-**Linux servers** | Allow inbound connections on port 22 (TCP).
+## Prepare Azure Migrate appliance
 
-## Prepare an Azure user account
+- Check the hardware requirements for the [Azure Migrate appliance](migrate-appliance.md).
+- Ensure the appliance VM can connect to all the required [endpoints](migrate-appliance.md#url-access).
 
-To create a project and register the Azure Migrate appliance, you need an account with:
-- Contributor or Owner permissions on an Azure subscription.
-- Permissions to register Azure Active Directory (AAD) apps.
+### Prepare Windows server
 
-If you just created a free Azure account, you're the owner of your subscription. If you're not the subscription owner, work with the owner to assign the permissions as follows:
+To discover Windows servers and enable software inventory and agentless dependency analysis, use a domain account for domain-joined servers or a local account for servers that are not domain-joined.
 
-1. In the Azure portal, search for "subscriptions", and under **Services**, select **Subscriptions**.
+You can create the local user account in one of two ways:
 
-    ![Search box to search for the Azure subscription](./media/tutorial-discover-physical/search-subscription.png)
+#### Option 1: Set up administrator account
 
-2. In the **Subscriptions** page, select the subscription in which you want to create project.
-3. In the subscription, select **Access control (IAM)** > **Check access**.
-4. In **Check access**, search for the relevant user account.
-5. In **Add a role assignment**, click **Add**.
+To set up:
 
-    ![Search for a user account to check access and assign a role](./media/tutorial-discover-physical/azure-account-access.png)
+- Create an account with administrator rights on the servers.
+- This account helps collect configuration and performance data using a CIM connection.
+- It also supports software inventory (finding installed applications) and enables agentless dependency analysis through PowerShell remoting.
 
-6. In **Add role assignment**, select the Contributor or Owner role, and select the account (azmigrateuser in our example). Then click **Save**.
+#### Option 2: Set up a least-privileged Windows user account
 
-    ![Opens the Add Role assignment page to assign a role to the account](./media/tutorial-discover-physical/assign-role.png)
+- Add the user account to these groups: Remote Management Users, Performance Monitor Users, and Performance Log Users.
+- If the Remote Management Users group is not available, add the user to the `WinRMRemoteWMIUsers_ group` instead.
+- The account needs these permissions so the appliance can create a CIM connection with the server and collect configuration and performance data from the required WMI classes.
+- Sometimes, even after adding the account to the right groups, it may not return the needed data because of [UAC](/windows/win32/wmisdk/user-account-control-and-wmi) filtering. To fix this, give the user account the right permissions on the **CIMV2 namespace** and its sub-namespaces on the target server. You can follow these [steps](troubleshoot-appliance.md) to set the required permissions.
 
-1. To register the appliance, your Azure account needs **permissions to register AAD apps.**
-1. In Azure portal, navigate to **Azure Active Directory** > **Users** > **User Settings**.
-1. In **User settings**, verify that Azure AD users can register applications (set to **Yes** by default).
+>[!Note]
+> - For Windows Server 2008 and 2008 R2, ensure that WMF 3.0 is installed on the servers.
+> - To discover SQL Server instances and databases, the Windows/ Domain account, or SQL Server account [requires these low privilege read permissions](migrate-support-matrix-vmware.md) for each SQL Server instance. You can use the [low-privilege account provisioning utility](least-privilege-credentials.md) to create custom accounts or use any existing account that is a member of the sysadmin server role for simplicity.
 
-    ![Verify in User Settings that users can register Active Directory apps](./media/tutorial-discover-physical/register-apps.png)
 
-9. In case the 'App registrations' settings is set to 'No', request the tenant/global admin to assign the required permission. Alternately, the tenant/global admin can assign the **Application Developer** role to an account to allow the registration of AAD App. [Learn more](../active-directory/fundamentals/active-directory-users-assign-role-azure-portal.md).
+### Prepare Linux server
 
-## Prepare physical servers
+For discovering Linux servers, you can set up a least privileged sudo account by following these steps:
 
-Set up an account that the appliance can use to access the physical servers.
+**Set up Least privileged Linux user accounts** 
 
-- For **Windows servers**, use a domain account for domain-joined servers, and a local account for server that are not domain-joined. The user account should be added to these groups: Remote Management Users, Performance Monitor Users, and Performance Log Users.
+- You need a user account that has sudo permissions to execute the below commands with `NOPASSWD` on the Linux servers you want to discover.
+- This account helps collect configuration and performance data, perform software inventory (find installed applications), and enable agentless dependency analysis using SSH.
+- Ensure that you enable `NOPASSWD` for the account so it can run the required commands without asking for a password each time it uses sudo.
+- Modify the sudoers file to disable terminal (requiretty) for the user account. 
+
+- For example, you can add an entry like this in the `/etc/sudoers` file.
+
+```
+AzMigrateLeastprivuser ALL=(ALL) NOPASSWD: /usr/sbin/dmidecode, /usr/sbin/fdisk -l, /usr/sbin/fdisk -l *, /usr/bin/ls -l /proc/*/exe, /usr/bin/netstat -atnp, /usr/sbin/lvdisplay ""
+Defaults:AzMigrateLeastprivuser !requiretty
+
+```
+- If any of the packages mentioned aren't available in the target Linux distributions, use the following fallback commands:
+
+```
+- If /usr/sbin/dmidecode -s system-uuid is not available, add permissions to /usr/bin/cat /sys/class/dmi/id/product_uuid. 
+
+- If /usr/sbin/dmidecode -t 1 isn't available, add permissions to /usr/sbin/lshw "" 
+
+- If /usr/sbin/dmidecode system-manufacturer isn't available, add permissions to /usr/bin/cat /sys/devices/virtual/dmi/id/sys_vendor 
+
+- If /usr/bin/netstat isn't available, add permissions to /usr/sbin/ss -atnp 
+
+```
+- The list of commands run on the target servers and the information they collect. [Learn more](discovered-metadata.md#linux-server-metadata).
+- Below is the list of supported Linux operating system distributions.
+
+| Operating system| Versions |
+| --- | --- | 
+| Red Hat Enterprise Linux | 5.1, 5.3, 5.11, 6.x, 7.x, 8.x, 9.x, 9.5|
+| Ubuntu | 12.04, 14.04, 16.04, 18.04, 20.04, 22.04, 24.04|
+| Oracle Linux| 6.1, 6.7, 6.8, 6.9, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 8, 8.1, 8.3, 8.5|
+| SUSE Linux| 10, 11 SP4, 12 SP1, 12 SP2, 12 SP3, 12 SP4, 15 SP2, 15 SP3|
+| Debian | 7, 8, 9, 10, 11|
+| Amazon Linux | 2.0.2021|
+| CoreOS Container | 2345.3.0|
+| Alma Linux | 8.x, 9.x|
+| Rocky Linux | 8.x, 9.x|
+
+> [!Note]
+> - We recommend setting up the least privileged sudo accounts. Any account, such as root, that has the superset of the mentioned permissions can also be used for Linux discovery.
+> - We recommend following the above steps to set up non-root accounts. Using `setcap` to set up capabilities is no longer advised. 
+
+## Generate the project key
+
+To generate the project key, follow the steps:
+
+1. In **Servers, databases, and web apps** > **Azure Migrate: Discovery and assessment**, select **Discover**.
+1. In **Discover servers** > **Are your servers virtualized?** select **Physical or other (AWS, GCP, Xen, etc.)**.
+1. **Generate project key**, enter a name for the Azure Migrate appliance you want to set up to discover physical or virtual servers. The name should be alphanumeric and 14 characters or fewer.
+1. Select **Generate key** to start creating the required Azure resources. Keep the Discover servers page open while the resources are created.
+1. After the resources are created successfully, a **project key** is generated.
+1. Copy the key as you’ll need it to register the appliance during its setup.
+
+    :::image type="content" source="./media/tutorial-discover-physical/discover-generate-key.png" alt-text="Screenshot that shows how to generate the key." lightbox="./media/tutorial-discover-physical/discover-generate-key.png" :::
+
+## Download the installer script
+
+1. In **Download Azure Migrate appliance**, select **Download**.
+1. Before you run the script, [verify security](migrate-appliance.md#verify-security) by validating the SHA256 values.
+    
+>[!Note]
+> You can use the same script to set up the physical appliance for both Azure Public and Azure Government cloud.
+
+## Run the Azure Migrate installer script
+
+To run the installer script:
+
+1. Extract the zipped file to a folder on the server where you want to install the appliance. Ensure that you don’t run the script on a server that already has an Azure Migrate appliance.
+1. Open PowerShell on that server with administrator (elevated) rights.
+1. Go to the folder where you extracted the files from the zipped download.
+Run the script named `AzureMigrateInstaller.ps1` using this command: 
+    `PS C:\Users\administrator\Desktop\AzureMigrateInstaller> .\AzureMigrateInstaller.ps1`
+1. Select from the scenario, cloud, and connectivity options to deploy an appliance with the desired configuration. For instance, the selection shown below sets up an appliance to discover and assess **physical servers** *(or servers running on other clouds like AWS, GCP, Xen, etc.)* to an Azure Migrate project with **default (public endpoint) connectivity** on **Azure public cloud**.
+    
+    :::image type="content" source="./media/tutorial-discover-physical/set-up-appliance.png" alt-text="Screenshot that shows how to set up appliance." lightbox="./media/tutorial-discover-physical/set-up-appliance.png" :::
+  
+1. The installer script does the following:
+    1. Installs agents and a web application. 
+    1. Installs Windows roles like Windows Activation Service, IIS, and PowerShell ISE.
+    1. Downloads and installs an IIS rewritable module.
+    1. Updates a registry key (HKLM) with Azure Migrate settings.
+    1. Creates these files under the path:
+        - Config Files: `%Programdata%\Microsoft Azure\Config`
+        - Log Files: `%Programdata%\Microsoft Azure\Logs`
+
+After the script runs successfully, it automatically launches the appliance configuration manager.
+
+>[!Note]
+> If you face any issues, you can find the script logs at `C:\ProgramData\Microsoft Azure\Logs\AzureMigrateScenarioInstaller_Timestamp.log to troubleshoot`.
+
+## Verify appliance access to Azure
+
+Ensure that the appliance connects to Azure URLs for [public](migrate-appliance.md#public-cloud-urls) and [government clouds](migrate-appliance.md#government-cloud-urls).
+
+### Configure the Appliance
+
+Set up the appliance for the first time:
+
+1. Open a browser on any machine that connects to the appliance. Go to the appliance web app URL:https://[appliance name or IP address]:44368. Or open the app from the desktop by selecting the shortcut.
+
+1. Accept the license terms and read the partner information.
+
+## Set up prerequisites and register the appliance
+
+In the configuration manager, select **Set up prerequisites**, and then follow these steps:
+
+1. **Connectivity**: The appliance checks if the server has internet access. If the server uses a proxy:
+
+    - Select **Setup proxy** and enter the proxy address *(http://ProxyIPAddress or http://ProxyFQDN, where FQDN means fully qualified domain name)* and the listening port.
+    - Enter credentials if the proxy needs authentication.
+    - If you add or change proxy settings or disable the proxy or authentication, select **Save** to apply the changes and check connectivity again.
+    
     > [!Note]
-    > For Windows Server 2008 and 2008 R2, ensure that WMF 3.0 is installed on the servers and the domain/local account used to access the servers is added to these groups: Performance Monitor Users, Performance Log Users and WinRMRemoteWMIUsers.
+    > Only HTTP proxy is supported.
 
-- For **Linux servers**, you need a root account on the Linux servers that you want to discover. Alternately, you can set a non-root account with the required capabilities using the following commands:
+1. **Time sync**: Check that the appliance time matches internet time. This is needed for discovery to work properly.
 
-**Command** | **Purpose**
---- | --- |
-setcap CAP_DAC_READ_SEARCH+eip /usr/sbin/fdisk <br></br> setcap CAP_DAC_READ_SEARCH+eip /sbin/fdisk _(if /usr/sbin/fdisk is not present)_ | To collect disk configuration data
-setcap "cap_dac_override,cap_dac_read_search,cap_fowner,cap_fsetid,cap_setuid,<br>cap_setpcap,cap_net_bind_service,cap_net_admin,cap_sys_chroot,cap_sys_admin,<br>cap_sys_resource,cap_audit_control,cap_setfcap=+eip" /sbin/lvm | To collect disk performance data
-setcap CAP_DAC_READ_SEARCH+eip /usr/sbin/dmidecode | To collect BIOS serial number
-chmod a+r /sys/class/dmi/id/product_uuid | To collect BIOS GUID
+1. **Install updates and register appliance**: Follow the steps to run auto-update and register the appliance.
 
+    :::image type="content" source="./media/tutorial-discover-physical/install-updates-register-appliance.png" alt-text="Screenshot that shows to install updates and register the appliance." lightbox="./media/tutorial-discover-physical/install-updates-register-appliance.png" :::
 
-## Set up a project
+1. To enable automatic updates on the appliance, paste the project key you copied from the portal.
+1. If you don't have the key, go to **Azure Migrate**: **Discovery and assessment** > **Overview** > **Manage existing appliances**.
+1. Select the appliance name you used when you created the project key, then copy the key shown there.
+1. The appliance verifies the key and starts the auto-update service. This service updates all appliance components to their latest versions. After the update finishes, you can select **View appliance services** to see the status and versions of the services running on the appliance server.
+1. To register the appliance, select Login. In **Continue with Azure Login** select **Copy code & Login** to copy the device code. You need this code to sign in to Azure. The browser opens a new tab with the Azure sign-in prompt. Make sure you turn off the pop-up blocker to see the prompt.
 
-Set up a new project.
-
-1. In the Azure portal > **All services**, search for **Azure Migrate**.
-2. Under **Services**, select **Azure Migrate**.
-3. In **Overview**, select **Create project**.
-5. In **Create project**, select your Azure subscription and resource group. Create a resource group if you don't have one.
-6. In **Project Details**, specify the project name and the geography in which you want to create the project. Review supported geographies for [public](migrate-support-matrix.md#supported-geographies-public-cloud) and [government clouds](migrate-support-matrix.md#supported-geographies-azure-government).
-
-   ![Boxes for project name and region](./media/tutorial-discover-physical/new-project.png)
-
-7. Select **Create**.
-8. Wait a few minutes for the project to deploy. The **Azure Migrate: Discovery and assessment** tool is added by default to the new project.
-
-![Page showing Server Assessment tool added by default](./media/tutorial-discover-physical/added-tool.png)
-
-> [!NOTE]
-> If you have already created a project, you can use the same project to register additional appliances to discover and assess more no of servers.[Learn more](create-manage-projects.md#find-a-project)
-
-## Set up the appliance
-
-Azure Migrate appliance performs server discovery and sends server configuration and performance metadata to Azure Migrate. The appliance can be set up by executing a PowerShell script that can be downloaded from the project.
-
-To set up the appliance you:
-
-1. Provide an appliance name and generate a project key in the portal.
-2. Download a zipped file with Azure Migrate installer script from the Azure portal.
-3. Extract the contents from the zipped file. Launch the PowerShell console with administrative privileges.
-4. Execute the PowerShell script to launch the appliance web application.
-5. Configure the appliance for the first time, and register it with the project using the project key.
-
-### 1. Generate the project key
-
-1. In **Migration Goals** > **Servers** > **Azure Migrate: Discovery and assessment**, select **Discover**.
-2. In **Discover servers** > **Are your servers virtualized?**, select **Physical or other (AWS, GCP, Xen, etc.)**.
-3. In **1:Generate project key**, provide a name for the Azure Migrate appliance that you will set up for discovery of physical or virtual servers. The name should be alphanumeric with 14 characters or fewer.
-1. Click on **Generate key** to start the creation of the required Azure resources. Do not close the Discover servers page during the creation of resources.
-1. After the successful creation of the Azure resources, a **project key** is generated.
-1. Copy the key as you will need it to complete the registration of the appliance during its configuration.
-
-### 2. Download the installer script
-
-In **2: Download Azure Migrate appliance**, click on **Download**.
-
-### Verify security
-
-Check that the zipped file is secure, before you deploy it.
-
-1. On the server to which you downloaded the file, open an administrator command window.
-2. Run the following command to generate the hash for the zipped file:
-    - ```C:\>CertUtil -HashFile <file_location> [Hashing Algorithm]```
-    - Example usage for public cloud: ```C:\>CertUtil -HashFile C:\Users\administrator\Desktop\AzureMigrateInstaller-Server-Public.zip SHA256 ```
-    - Example usage for government cloud: ```  C:\>CertUtil -HashFile C:\Users\administrator\Desktop\AzureMigrateInstaller-Server-USGov.zip SHA256 ```
-3.  Verify the latest appliance versions and hash values:
-    - For the public cloud:
-
-        **Scenario** | **Download*** | **Hash value**
-        --- | --- | ---
-        Physical (85.8 MB) | [Latest version](https://go.microsoft.com/fwlink/?linkid=2140334) | ce5e6f0507936def8020eb7b3109173dad60fc51dd39c3bd23099bc9baaabe29
-
-    - For Azure Government:
-
-        **Scenario** | **Download*** | **Hash value**
-        --- | --- | ---
-        Physical (85.8 MB) | [Latest version](https://go.microsoft.com/fwlink/?linkid=2140338) | ae132ebc574caf231bf41886891040ffa7abbe150c8b50436818b69e58622276
- 
-
-### 3. Run the Azure Migrate installer script
-The installer script does the following:
-
-- Installs agents and a web application for physical server discovery and assessment.
-- Install Windows roles, including Windows Activation Service, IIS, and PowerShell ISE.
-- Download and installs an IIS rewritable module.
-- Updates a registry key (HKLM) with persistent setting details for Azure Migrate.
-- Creates the following files under the path:
-    - **Config Files**: %Programdata%\Microsoft Azure\Config
-    - **Log Files**: %Programdata%\Microsoft Azure\Logs
-
-Run the script as follows:
-
-1. Extract the zipped file to a folder on the server that will host the appliance.  Make sure you don't run the script on a server with an existing Azure Migrate appliance.
-2. Launch PowerShell on the above server with administrative (elevated) privilege.
-3. Change the PowerShell directory to the folder where the contents have been extracted from the downloaded zipped file.
-4. Run the script named **AzureMigrateInstaller.ps1** by running the following command:
-
-    - For the public cloud: 
-    
-        ``` PS C:\Users\administrator\Desktop\AzureMigrateInstaller-Server-Public> .\AzureMigrateInstaller.ps1 ```
-    - For Azure Government: 
-    
-        ``` PS C:\Users\Administrators\Desktop\AzureMigrateInstaller-Server-USGov>.\AzureMigrateInstaller.ps1 ```
-
-    The script will launch the appliance web application when it finishes successfully.
-
-If you come across any issues, you can access the script logs at C:\ProgramData\Microsoft Azure\Logs\AzureMigrateScenarioInstaller_<em>Timestamp</em>.log for troubleshooting.
-
-### Verify appliance access to Azure
-
-Make sure that the appliance can connect to Azure URLs for [public](migrate-appliance.md#public-cloud-urls) and [government](migrate-appliance.md#government-cloud-urls) clouds.
-
-### 4. Configure the appliance
-
-Set up the appliance for the first time.
-
-1. Open a browser on any server that can connect to the appliance, and open the URL of the appliance web app: **https://*appliance name or IP address*: 44368**.
-
-   Alternately, you can open the app from the desktop by clicking the app shortcut.
-2. Accept the **license terms**, and read the third-party information.
-1. In the web app > **Set up prerequisites**, do the following:
-    - **Connectivity**: The app checks that the server has internet access. If the server uses a proxy:
-        - Click on **Set up proxy** to and specify the proxy address (in the form http://ProxyIPAddress or http://ProxyFQDN) and listening port.
-        - Specify credentials if the proxy needs authentication.
-        - Only HTTP proxy is supported.
-        - If you have added proxy details or disabled the proxy and/or authentication, click on **Save** to trigger connectivity check again.
-    - **Time sync**: Time is verified. The time on the appliance should be in sync with internet time for server discovery to work properly.
-    - **Install updates**: Azure Migrate: Discovery and assessment checks that the appliance has the latest updates installed. After the check completes, you can click on **View appliance services** to see the status and versions of the components running on the appliance.
-
-### Register the appliance with Azure Migrate
-
-1. Paste the **project key** copied from the portal. If you do not have the key, go to **Azure Migrate: Discovery and assessment> Discover> Manage existing appliances**, select the appliance name you provided at the time of key generation and copy the corresponding key.
-1. You will need a device code to authenticate with Azure. Clicking on **Login** will open a modal with the device code as shown below.
-
-    ![Modal showing the device code](./media/tutorial-discover-vmware/device-code.png)
-
-1. Click on **Copy code & Login** to copy the device code and open an Azure Login prompt in a new browser tab. If it doesn't appear, make sure you've disabled the pop-up blocker in the browser.
-1. On the new tab, paste the device code and sign-in by using your Azure username and password.
+    :::image type="content" source="./media/tutorial-discover-physical/continue-azure-login.png" alt-text="Screenshot that shows how to continue to Azure login." lightbox="./media/tutorial-discover-physical/continue-azure-login.png" :::
    
-   Sign-in with a PIN isn't supported.
-3. In case you close the login tab accidentally without logging in, you need to refresh the browser tab of the appliance configuration manager to enable the Login button again.
-1. After you successfully logged in, go back to the previous tab with the appliance configuration manager.
-4. If the Azure user account used for logging has the right [permissions]() on the Azure resources created during key generation, the appliance registration will be initiated.
-1. After appliance is successfully registered, you can see the registration details by clicking on **View details**.
+1. In a new browser tab, paste the device code and sign in using your Azure username and password. You cannot sign in with a PIN.
 
+> [!Note]
+> If you close the sign-in tab accidentally without logging in, refresh the browser tab of the appliance configuration manager. It shows the device code and the **Copy code & Login button again**.
 
-## Start continuous discovery
+1. After you sign in successfully, return to the browser tab that displays the appliance configuration manager.
+1. If the Azure account you used has the right permissions for the Azure resources created during key generation, the appliance starts registration.
+1. When the appliance registers successfully, select **View details** to see the registration information.
+1. You can run the prerequisites again anytime during the appliance setup to check if it meets all the requirements.
 
-Now, connect from the appliance to the physical servers to be discovered, and start the discovery.
+### Add credentials 
 
-1. In **Step 1: Provide credentials for discovery of Windows and Linux physical or virtual servers​**, click on **Add credentials**.
-1. For Windows server, select the source type as **Windows Server**, specify a friendly name for credentials, add the username and password. Click on **Save**.
-1. If you are using password-based authentication for Linux server, select the source type as **Linux Server (Password-based)**, specify a friendly name for credentials, add the username and password. Click on **Save**.
-1. If you are using SSH key-based authentication for Linux server, you can select source type as **Linux Server (SSH key-based)**, specify a friendly name for credentials, add the username, browse and select the SSH private key file. Click on **Save**.
+Now, connect the appliance to the physical servers and start discovery:
 
-    - Azure Migrate supports the SSH private key generated by ssh-keygen command using RSA, DSA, ECDSA, and ed25519 algorithms.
-    - Currently Azure Migrate does not support passphrase-based SSH key. Use an SSH key without a passphrase.
-    - Currently Azure Migrate does not support SSH private key file generated by PuTTY.
-    - Azure Migrate supports OpenSSH format of the SSH private key file as shown below:
+1. **Provide credentials for discovery of Windows and Linux physical or virtual servers**, select **Add credentials**.
+1. For a Windows server: 
+    1. Select the source type as **Windows Server**.
+    1. Enter a friendly name for the credentials.
+    1. Add the username and password.
+    1. Select **Save**.
+
+1. If you use password-based authentication for a Linux server, select the source type as **Linux Server (Password-based)**. 
+    1. Enter a friendly name for the credentials.
+    1. Add the username and password, and then select **Save**.
+1. If you use SSH key-based authentication for a Linux server:
+    1. Select the source type as **Linux Server (SSH key-based)**.
+    1. Enter a friendly name for the credentials.
+    1. Add the username.
+    1. Browse and select the SSH private key file. 
+    1. Select **Save**.
+    > [!Note]
+    > - Azure Migrate supports SSH private keys created using the ssh-keygen command with RSA, DSA, ECDSA, and ed25519 algorithms.
+    - It does not support SSH keys with a passphrase. Use a key without a passphrase.
+    - It does not support SSH private key files created by PuTTY.
+    - It supports SSH private key files in OpenSSH format.
+
+1. To add multiple credentials at once, select **Add more** to save and enter more credentials. The appliance supports multiple credentials for physical server discovery.
+
+>[!Note]
+> By default, the appliance uses the credentials to collect data about installed applications, roles, and features. It also collects dependency data from Windows and Linux servers, unless you turn off the slider to skip these actions in the last step.
+
+### Add server details 
+
+1. **Provide physical or virtual server** details.
+1. Select **Add discovery source** to enter the server IP address or FQDN and the friendly name for the credentials used to connect to the server.
+    1. The appliance uses WinRM port 5986 (HTTPS) by default to communicate with Windows servers, and port 22 (TCP) for Linux servers.
+    1. If the target Hyper-V servers do not have HTTPS [prerequisites](/troubleshoot/windows-client/system-management-components/configure-winrm-for-https) set up, the appliance switches to WinRM port 5985 (HTTP).
+    1. 
+    :::image type="content" source="./media/tutorial-discover-physical/physical-virtual-server-details.png" alt-text="Screenshot that shows the physical or virtual server details." lightbox="./media/tutorial-discover-physical/physical-virtual-server-details.png" :::    
+   
+    1. To use HTTPS communication without fallback, turn on the HTTPS protocol toggle in Appliance Config Manager.
+    1. After you turn on the checkbox, ensure that the prerequisites are configured on the target servers. If the servers do not have certificates, discovery fails on both current and newly added servers.
+        1. WinRM HTTPS needs a local computer Server Authentication certificate. The certificate must have a CN that matches the hostname. It must not be expired, revoked, or self-signed. [Learn more](/troubleshoot/windows-client/system-management-components/configure-winrm-for-https).
+1. You can **Add single item** at a time or **Add multiple items** together. You can also provide server details through **Import a CSV file**. 
     
-    ![SSH private key supported format](./media/tutorial-discover-physical/key-format.png)
+    :::image type="content" source="./media/tutorial-discover-physical/add-discovery-source.png" alt-text="Screenshot that shows how to add physical discovery source." lightbox="./media/tutorial-discover-physical/add-discovery-source.png" :::  
+    
+    1. If you choose **Add single item**, select the OS type. 
+    1. Enter a friendly name for the credentials, add the server **IP address or FQDN**.
+    1. Select **Save**.
+    1. If you choose **Add multiple items**, enter multiple records at once by specifying the server **IP address or FQDN**. 
+    1. Enter the friendly name for the credentials in the text box. 
+    1. Verify the records and then select **Save**.
+    1. If you choose **Import CSV** *(this is selected by default)*, download the CSV template file. 
+    1. Fill it with the server **IP address or FQDN**.
+    1. Enter the friendly name for the credentials. Then import the file into the appliance.
+    1. Verify the records, and then select **Save**.
 
-1. If you want to add multiple credentials at once, click on **Add more** to save and add more credentials. Multiple credentials are supported for physical servers discovery.
-1. In **Step 2:Provide physical or virtual server details​**, click on **Add discovery source** to specify the server **IP address/FQDN** and the friendly name for credentials to connect to the server.
-1. You can either **Add single item** at a time or **Add multiple items** in one go. There is also an option to provide server details through **Import CSV**.
+1. When you select **Save**, the appliance validates the connection to the added servers and shows the **Validation status** in the table next to each server. 
+    1. If validation fails for a server, you can review the error by selecting **Validation failed** in the Status column. Fix the issue and validate again.
+    1. To remove a server, select **Delete**.
+1. You can **revalidate** the connectivity to servers any time before you start the discovery. 
+1. Before you start discovery, you can turn off the slider to skip software inventory and agentless dependency analysis on the added servers. You can change this option at any time.
+1. To discover SQL Server instances and databases, you add extra credentials (Windows domain, non-domain, or SQL authentication). The appliance then tries to automatically map these credentials to the SQL servers. If you add domain credentials, the appliance authenticates them with the domain’s Active Directory to prevent user account lockouts. To check if the domain credentials are valid, follow these steps:
+    1. In the configuration manager credentials table, you see the **Validation status** for domain credentials. Only domain credentials are validated.
+    1. If you use domain accounts, the username must be in Down-Level format (domain\username). The UPN format (username@domain.com) isn't supported.
+    1. If validation fails, you can select the Failed status to view the error. Fix the issue, and then select **Revalidate credentials** to try again.
+    
+## Start discovery
+
+Select **Start discovery** to begin discovering the validated servers. After discovery starts, you can check each server’s discovery status in the table.
+
+### How discovery works
+
+- It takes about 2 minutes to discover 100 servers and show their metadata in the Azure portal.
+- [Software inventory](how-to-discover-applications.md) (installed applications discovery) starts automatically after the server discovery finishes. 
+- The time to discover installed applications depends on the number of servers. For 500 servers, it takes about one hour for the inventory to appear in the Azure Migrate project in the portal. 
+- The server credentials are checked and validated for agentless dependency analysis during software inventory. After server discovery finishes, you can enable [agentless dependency analysis](how-to-create-group-machine-dependencies-agentless.md) in the portal. You can select only the servers that pass validation.
 
 
-    - If you choose **Add single item**, you can choose the OS type, specify friendly name for credentials, add server **IP address/FQDN** and click on **Save**.
-    - If you choose **Add multiple items**, you can add multiple records at once by specifying server **IP address/FQDN** with the friendly name for credentials in the text box. Verify** the added records and click on **Save**.
-    - If you choose **Import CSV** _(selected by default)_, you can download a CSV template file, populate the file with the server **IP address/FQDN** and friendly name for credentials. You then import the file into the appliance, **verify** the records in the file and click on **Save**.
-
-1. On clicking Save, appliance will try validating the connection to the servers added and show the **Validation status** in the table against each server.
-    - If validation fails for a server, review the error by clicking on **Validation failed** in the Status column of the table. Fix the issue, and validate again.
-    - To remove a server, click on **Delete**.
-1. You can **revalidate** the connectivity to servers anytime before starting the discovery.
-1. Click on **Start discovery**, to kick off discovery of the successfully validated servers. After the discovery has been successfully initiated, you can check the discovery status against each server in the table.
-
-
-This starts discovery. It takes approximately 2 minutes per server for metadata of discovered server to appear in the Azure portal.
-
-## Verify servers in the portal
+### Verify servers in the portal
 
 After discovery finishes, you can verify that the servers appear in the portal.
+1.	Go to the Azure Migrate dashboard.
+2.	In **Servers, databases and web apps** > **Azure Migrate: Discovery and assessment** page, select the icon that displays the count for discovered servers.
 
-1. Open the Azure Migrate dashboard.
-2. In **Azure Migrate - Servers** > **Azure Migrate: Discovery and assessment** page, click the icon that displays the count for **Discovered servers**.
+## View License support status
+
+You get deeper insights into your environment’s support posture from the **Discovered servers** and **Discovered database instances** sections.
+
+The **Operating system license support status** column shows whether the operating system is in mainstream support, extended support, or out of support. When you select the support status, a pane opens on the right and gives clear guidance on what actions you can take to secure servers and databases that are in extended support or out of support.
+
+To view the remaining duration until end of support, select **Columns** > **Support ends in** > **Submit**. The Support ends in column then shows the remaining duration in months.
+
+The **Database instances** section displays the number of instances that Azure Migrate discovers. Select the number to view the database instance details. The **Database instance license support status** shows the support status of each instance. When you select the support status, a pane opens on the right and provides clear guidance on actions you can take to secure servers and databases that are in extended support or out of support.
+
+To see how many months are left until the end of support, select **Columns** > **Support ends in** > **Submit**. The **Support ends in** column then shows the remaining duration in months.
+
+## Delete servers
+
+After discovery starts, you can delete any added server from the appliance configuration manager by searching for the server name in the **Add discovery source** table and selecting **Delete**.
+
+>[!Note]
+> If you delete a server after discovery starts, it stops the ongoing discovery and assessment. This action might affect the performance coverage of the assessment that includes the server. [Learn more](common-questions-discovery-assessment.md#why-is-the-performance-coverage-of-my-assessment-low).
+
 ## Next steps
 
-- [Assess physical servers](tutorial-assess-physical.md) for migration to Azure VMs.
-- [Review the data](migrate-appliance.md#collected-data---physical) that the appliance collects during discovery.
+Try [assessment of physical servers](tutorial-assess-physical.md) with Azure Migrate: Discovery and assessment.

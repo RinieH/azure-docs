@@ -1,21 +1,26 @@
 ---
-title: UserInfo endpoint | Microsoft Docs
+title: UserInfo endpoint  
 description: Define a UserInfo endpoint in a custom policy in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
 
-ms.service: active-directory
-ms.workload: identity
+author: kengaderdus
+manager: CelesteDG
+
+ms.service: azure-active-directory
+
 ms.topic: reference
-ms.date: 03/09/2021
-ms.custom: project-no-code
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 01/11/2024
+
+ms.author: kengaderdus
+ms.subservice: b2c
 zone_pivot_groups: b2c-policy-type
+
+
+#Customer intent: As a developer integrating Azure AD B2C with my application, I want to understand how to create and configure a UserInfo endpoint, so that I can retrieve claims about the authenticated user and use them in my application.
+
 ---
 
 # UserInfo endpoint
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-choose-user-flow-or-custom-policy](../../includes/active-directory-b2c-choose-user-flow-or-custom-policy.md)]
 
@@ -39,7 +44,7 @@ The user info UserJourney specifies:
 
 - **Authorization**: The UserInfo endpoint is protected with a bearer token. An issued access token is presented in the authorization header to the UserInfo endpoint. The policy specifies the technical profile that validates the incoming token and extracts claims, such as the objectId of the user. The objectId of the user is used to retrieve the claims to be returned in the response of the UserInfo endpoint journey. 
 - **Orchestration step**: 
-  - An orchestration step is used to gather information about the user. Based on the claims within the incoming access token, the user journey invokes an [Azure Active Directory technical profile](active-directory-technical-profile.md) to retrieve data about the user, for example, reading the user by the objectId. 
+  - An orchestration step is used to gather information about the user. Based on the claims within the incoming access token, the user journey invokes a [Microsoft Entra ID technical profile](active-directory-technical-profile.md) to retrieve data about the user, for example, reading the user by the objectId. 
   - **Optional orchestration steps** - You can add more orchestration steps, such as a REST API technical profile to retrieve more information about the user. 
   - **UserInfo Issuer** - Specifies the list of claims that the UserInfo endpoint returns.
 
@@ -80,8 +85,8 @@ The user info UserJourney specifies:
             <Metadata>
               <!-- Update the Issuer and Audience below -->
               <!-- Audience is optional, Issuer is required-->
-              <Item Key="issuer">https://yourtenant.b2clogin.com/11111111-1111-1111-1111-111111111111/v2.0/</Item>
-              <Item Key="audience">[ "22222222-2222-2222-2222-222222222222", "33333333-3333-3333-3333-333333333333" ]</Item>
+              <Item Key="issuer">https://yourtenant.b2clogin.com/aaaabbbb-0000-cccc-1111-dddd2222eeee/v2.0/</Item>
+              <Item Key="audience">[ "00001111-aaaa-2222-bbbb-3333cccc4444", "11112222-bbbb-3333-cccc-4444dddd5555" ]</Item>
               <Item Key="client_assertion_type">urn:ietf:params:oauth:client-assertion-type:jwt-bearer</Item>
             </Metadata>
             <CryptographicKeys>
@@ -107,7 +112,7 @@ The user info UserJourney specifies:
     1. **issuer** - This value must be identical to the `iss` claim within the access token claim. Tokens issued by Azure AD B2C use an issuer in the format `https://yourtenant.b2clogin.com/your-tenant-id/v2.0/`. Learn more about [token customization](configure-tokens.md).
     1. **IdTokenAudience** - Must be identical to the `aud` claim within the access token claim. In Azure AD B2C the `aud` claim is the ID of your relying party application. This value is a collection and supports multiple values using a comma delimiter.
 
-        In the following access token, the `iss` claim value is `https://contoso.b2clogin.com/11111111-1111-1111-1111-111111111111/v2.0/`. The `aud` claim value is `22222222-2222-2222-2222-222222222222`.
+        In the following access token, the `iss` claim value is `https://contoso.b2clogin.com/aaaabbbb-0000-cccc-1111-dddd2222eeee/v2.0/`. The `aud` claim value is `00001111-aaaa-2222-bbbb-3333cccc4444`.
 
         ```json
         {
@@ -115,8 +120,8 @@ The user info UserJourney specifies:
           "nbf": 1605545868,
           "ver": "1.0",
           "iss": "https://contoso.b2clogin.com/11111111-1111-1111-1111-111111111111/v2.0/",
-          "sub": "44444444-4444-4444-4444-444444444444",
-          "aud": "22222222-2222-2222-2222-222222222222",
+          "sub": "aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb",
+          "aud": "00001111-aaaa-2222-bbbb-3333cccc4444",
           "acr": "b2c_1a_signup_signin",
           "nonce": "defaultNonce",
           "iat": 1605545868,
@@ -124,11 +129,11 @@ The user info UserJourney specifies:
           "name": "John Smith",
           "given_name": "John",
           "family_name": "Smith",
-          "tid": "11111111-1111-1111-1111-111111111111"
+          "tid": "aaaabbbb-0000-cccc-1111-dddd2222eeee"
         }
         ```
     
-1.  The OutputClaims element of the **UserInfoAuthorization** technical profile specifies the attributes you want to read from the access token. The **ClaimTypeReferenceId** is the reference to a claim type. The optional **PartnerClaimType** is the name of the of the claim defined in the access token.
+1.  The OutputClaims element of the **UserInfoAuthorization** technical profile specifies the attributes you want to read from the access token. The **ClaimTypeReferenceId** is the reference to a claim type. The optional **PartnerClaimType** is the name of the claim defined in the access token.
 
 
 
@@ -214,7 +219,7 @@ The completed relying party element will be as follows:
 ### 4. Upload the files
 
 1. Sign in to the [Azure portal](https://portal.azure.com/).
-1. Make sure you're using the directory that contains your Azure AD B2C tenant by selecting the **Directory + subscription** filter in the top menu and choosing the directory that contains your tenant.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
 1. Choose **All services** in the top-left corner of the Azure portal, and then search for and select **Azure AD B2C**.
 1. Select **Identity Experience Framework**.
 1. On the **Custom policies** page, select **Upload custom policy**.
@@ -255,13 +260,50 @@ A successful response would look like:
 
 ```json
 {
-    "objectId": "44444444-4444-4444-4444-444444444444",
+    "objectId": "aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb",
     "givenName": "John",
     "surname": "Smith",
     "displayName": "John Smith",
     "signInNames.emailAddress": "john.s@contoso.com"
 }
 ```
+
+## Provide optional claims
+
+To provide more claims to your app, follow these steps:
+
+1. [Add user attributes and customize user input](configure-user-input.md).
+1. Modify the [Relying party policy technical profile](relyingparty.md#technicalprofile) OutputClaims element with the claims you want to provide. Use the `DefaultValue` attribute to set a default value. You can also set the default value to a [claim resolver](claim-resolver-overview.md), such as `{Context:CorrelationId}`. To force the use of the default value, set the `AlwaysUseDefaultValue` attribute to `true`. The following example adds the city claim with a default value.
+    
+    ```xml
+    <RelyingParty>
+      ...
+      <TechnicalProfile Id="PolicyProfile">
+        ...
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="city" DefaultValue="Berlin" />
+        </OutputClaims>
+        ...
+      </TechnicalProfile>
+    </RelyingParty>
+    ```
+  
+1. Modify the UserInfoIssuer technical profile  InputClaims element with the claims you want to provide. Use the `PartnerClaimType` attribute to change the name of the claim return to your app. The following example adds the city claim and change the name of some of the claims.
+
+    ```xml
+    <TechnicalProfile Id="UserInfoIssuer">
+      ...
+      <InputClaims>
+        <InputClaim ClaimTypeReferenceId="objectId" />
+        <InputClaim ClaimTypeReferenceId="city" />
+        <InputClaim ClaimTypeReferenceId="givenName" />
+        <InputClaim ClaimTypeReferenceId="surname" PartnerClaimType="familyName" />
+        <InputClaim ClaimTypeReferenceId="displayName" PartnerClaimType="name" />
+        <InputClaim ClaimTypeReferenceId="signInNames.emailAddress" PartnerClaimType="email" />
+      </InputClaims>
+      ...
+    </TechnicalProfile>
+    ```
 
 ## Next Steps
 

@@ -1,12 +1,12 @@
-﻿---
+---
  title: include file
  description: include file
  services: iot-hub
- author: robinsh
- ms.service: iot-hub
+ author: SoniaLopezBravo
+ ms.service: azure-iot-hub
  ms.topic: include
  ms.date: 04/28/2020
- ms.author: robinsh
+ ms.author: sonialopez
  ms.custom: include file
 ---
 

@@ -1,16 +1,19 @@
 ---
 title: Azure Automanage Account
 description: Learn how an Automanage Account works and how to create one.
-author: asinn826
-ms.service: virtual-machines
-ms.subservice: automanage
-ms.workload: infrastructure
-ms.topic: conceptual
-ms.date: 04/07/2021
-ms.author: alsin
+ms.service: azure-automanage
+ms.topic: concept-article
+ms.date: 12/10/2021
+# Customer intent: As a system administrator, I want to create and configure an Automanage Account, so that I can enable automated operations on my virtual machines and manage permissions effectively across multiple subscriptions.
 ---
 
 # Automanage Accounts
+
+> [!CAUTION]
+> On September 30, 2027, the Azure Automanage Best Practices service will be retired. As a result, attempting to create a new configuration profile or onboarding a new subscription to the service will result in an error. Learn more [here](https://aka.ms/automanagemigration/) about how to migrate to Azure Policy before that date. 
+
+> [!CAUTION]
+> Starting February 1st 2025, Azure Automanage will begin rolling out changes to halt support and enforcement for all services dependent on the deprecated Microsoft Monitoring Agent (MMA). To continue using Change Tracking and Management, VM Insights, Update Management, and Azure Automation, [migrate to the new Azure Monitor Agent (AMA)](https://aka.ms/mma-to-ama/).
 
 The Automanage account is the identity that is used by the Automanage service to perform its automated operations.
 
@@ -82,8 +85,9 @@ To grant sufficient permissions to the Automanage Account, you will need to do t
 1. When prompted, enter the Object ID of the Automanage Account you created and saved down.
 
 ```azurecli-interactive
-az deployment group create --resource-group <resource group name> --template-file azuredeploy.json
+az deployment sub create --location <location> --template-file azuredeploy2.json
 ```
+
 ```json
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -94,6 +98,10 @@ az deployment group create --resource-group <resource group name> --template-fil
             "metadata": {
                 "description": "The principal to assign the role to"
             }
+        },
+        "dateTime": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
         }
     },
     "variables": {
@@ -104,7 +112,7 @@ az deployment group create --resource-group <resource group name> --template-fil
         {
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
-            "name": "[guid(variables('contributorRoleDefinitionID'))]",
+            "name": "[guid(concat(parameters('dateTime'), variables('contributorRoleDefinitionID')))]",
             "properties": {
                 "roleDefinitionId": "[variables('contributorRoleDefinitionID')]",
                 "principalId": "[parameters('principalId')]"
@@ -113,7 +121,7 @@ az deployment group create --resource-group <resource group name> --template-fil
         {
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2020-04-01-preview",
-            "name": "[guid(variables('resourcePolicyContributorRoleDefinitionID'))]",
+            "name": "[guid(concat(parameters('dateTime'), variables('resourcePolicyContributorRoleDefinitionID')))]",
             "properties": {
                 "roleDefinitionId": "[variables('resourcePolicyContributorRoleDefinitionID')]",
                 "principalId": "[parameters('principalId')]"

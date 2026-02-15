@@ -2,12 +2,12 @@
 title: "Tutorial: Publish Azure Static Web Apps using an ARM template"
 description: Create and deploy an ARM Template for Static Web Apps
 services: static-web-apps
-author: petender
-ms.service: static-web-apps
+author: cjk7989
+ms.service: azure-static-web-apps
+ms.custom: devx-track-arm-template
 ms.topic:  tutorial
-ms.date: 05/10/2021
-ms.author: petender
-
+ms.date: 07/13/2021
+ms.author: jikunchen
 ---
 
 # Tutorial: Publish Azure Static Web Apps using an ARM Template
@@ -22,7 +22,7 @@ In this tutorial, you learn to:
 
 ## Prerequisites
 
-- **Active Azure account:** If you don't have one, you can [create an account for free](https://azure.microsoft.com/free/).
+- **Active Azure account:** If you don't have one, you can [create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 - **GitHub Account:** If you don't have one, you can [create a GitHub Account for free](https://github.com)
 - **Editor for ARM Templates:** Reviewing and editing templates requires a JSON editor. Visual Studio Code with the [Azure Resource Manager Tools extension](https://marketplace.visualstudio.com/items?itemName=msazurermtools.azurerm-vscode-tools) is well suited for editing ARM Templates. For instructions on how to install and configure Visual Studio Code, see [Quickstart: Create ARM templates with Visual Studio Code](../azure-resource-manager/templates/quickstart-create-templates-use-visual-studio-code.md).
 
@@ -30,11 +30,11 @@ In this tutorial, you learn to:
   - [Install Azure CLI on Windows OS](/cli/azure/install-azure-cli-windows)
   - [Install Azure CLI on Linux OS](/cli/azure/install-azure-cli-linux)
   - [Install Azure CLI on macOS](/cli/azure/install-azure-cli-macos)
-  - [Install Azure PowerShell](/powershell/azure/install-az-ps)
+  - [Install Azure PowerShell](/powershell/azure/install-azure-powershell)
 
 ## Create a GitHub personal access token
 
-One of the required parameters in the ARM template is `repositoryToken`, which allows the ARM deployment process to interact with the GitHub repo holding the static site source code. 
+One of the parameters in the ARM template is `repositoryToken`, which allows the ARM deployment process to interact with the GitHub repo holding the static site source code. 
 
 1. From your GitHub Account Profile (in the upper right corner), select **Settings**.
 
@@ -44,7 +44,9 @@ One of the required parameters in the ARM template is `repositoryToken`, which a
 
 1. Select **Generate New Token**.
 
-1. Provide a name for this token in the _Note_ field, for example *myfirstswadeployment*.
+1. Provide a name for this token in the _Name_ field, for example *myfirstswadeployment*.
+
+1. Select an _Expiration_ for the token, the default is 30 days.
 
 1. Specify the following *scopes*: **repo, workflow, write:packages**
 
@@ -53,13 +55,13 @@ One of the required parameters in the ARM template is `repositoryToken`, which a
 1. Copy the token value and paste it into a text editor for later use.
 
 > [!IMPORTANT]
-> Make sure you copy this token and store it somewhere safe. Consider storing this token in [Azure KeyVault](../azure-resource-manager/templates/template-tutorial-use-key-vault.md) and access it in your ARM Template.
+> Make sure you copy this token and store it somewhere safe. Consider storing this token in [Azure Key Vault](../azure-resource-manager/templates/template-tutorial-use-key-vault.md) and access it in your ARM Template.
 
 ## Create a GitHub repo
 
 This article uses a GitHub template repository to make it easy for you to get started. The template features a starter app used to deploy using Azure Static Web Apps.
 
-1. Navigate to the following location to create a new repository:
+1. Go to the following location to create a new repository:
     1. [https://github.com/staticwebdev/vanilla-basic/generate](https://github.com/login?return_to=/staticwebdev/vanilla-basic/generate)
 
 1. Name your repository **myfirstswadeployment**
@@ -67,9 +69,9 @@ This article uses a GitHub template repository to make it easy for you to get st
     > [!NOTE]
     > Azure Static Web Apps requires at least one HTML file to create a web app. The repository you create in this step includes a single _index.html_ file.
 
-1. Select **Create repository from template**.
+1. Select **Create repository**.
 
-    :::image type="content" source="./media/getting-started/create-template.png" alt-text="Create repository from template":::
+    :::image type="content" source="./media/getting-started/create-template.png" alt-text="screenshot of the Create repository button.":::
 
 ## Create the ARM Template
 
@@ -118,11 +120,14 @@ With the prerequisites in place, the next step is to define the ARM deployment t
                 },
                 "resourceTags": {
                     "type": "object"
+                },
+                "appSettings": {
+                    "type": "object"
                 }
             },
             "resources": [
                 {
-                    "apiVersion": "2019-12-01-preview",
+                    "apiVersion": "2021-01-15",
                     "name": "[parameters('name')]",
                     "type": "Microsoft.Web/staticSites",
                     "location": "[parameters('location')]",
@@ -140,7 +145,19 @@ With the prerequisites in place, the next step is to define the ARM deployment t
                     "sku": {
                         "Tier": "[parameters('sku')]",
                         "Name": "[parameters('skuCode')]"
-                    }
+                    },
+                    "resources":[
+                        {
+                            "apiVersion": "2021-01-15",
+                            "name": "appsettings",
+                            "type": "config",
+                            "location": "[parameters('location')]",
+                            "properties": "[parameters('appSettings')]",
+                            "dependsOn": [
+                                "[resourceId('Microsoft.Web/staticSites', parameters('name'))]"
+                            ]
+                        }
+                    ]
                 }
             ]
         }
@@ -159,9 +176,8 @@ With the prerequisites in place, the next step is to define the ARM deployment t
                 "name": {
                     "value": "myfirstswadeployment"
                 },
-                "location": {
-                "type": "string",
-                "defaultValue": "Central US"
+                "location": { 
+                    "value": "Central US"
                 },   
                 "sku": {
                     "value": "Free"
@@ -185,13 +201,19 @@ With the prerequisites in place, the next step is to define the ARM deployment t
                     "value": ""
                 },
                 "appArtifactLocation": {
-                    "value": "public"
+                    "value": "src"
                 },
                 "resourceTags": {
                     "value": {
                         "Environment": "Development",
                         "Project": "Testing SWA with ARM",
                         "ApplicationName": "myfirstswadeployment"
+                    }
+                },
+                "appSettings": {
+                    "value": {
+                        "MY_APP_SETTING1": "value 1",
+                        "MY_APP_SETTING2": "value 2"
                     }
                 }
             }
@@ -213,7 +235,7 @@ You need either Azure CLI or Azure PowerShell to deploy the template.
 
 ### Sign in to Azure
 
-To deploy a template sign in to either the Azure CLI or Azure PowerShell.
+To deploy a template, sign in to either the Azure CLI or Azure PowerShell.
 
 # [Azure CLI](#tab/azure-cli)
 
@@ -229,18 +251,18 @@ Connect-AzAccount
 
 ---
 
-If you have multiple Azure subscriptions, select the subscription you want to use. Replace `<SUBSCRIPTION-ID-OR-SUBSCRIPTION-NAME>` with your subscription information:
+If you have multiple Azure subscriptions, select the subscription you want to use. Replace `<SUBSCRIPTION-ID>` with your subscription information:
 
 # [Azure CLI](#tab/azure-cli)
 
 ```azurecli
-az account set --subscription <SUBSCRIPTION-ID-OR-SUBSCRIPTION-NAME>
+az account set --subscription <SUBSCRIPTION-ID>
 ```
 
 # [PowerShell](#tab/azure-powershell)
 
 ```azurepowershell
-Set-AzContext <SUBSCRIPTION-ID-OR-SUBSCRIPTION-NAME>
+Set-AzContext <SUBSCRIPTION-ID>
 ```
 
 ---

@@ -1,22 +1,28 @@
 ---
 title: 'Quickstart: Route Azure Cache for Redis events to web endpoint with Azure CLI'
 description: Use Azure Event Grid to subscribe to Azure Cache for Redis events, trigger an event, and view the results.
-author: curib
-ms.author: cauribeg
+
+
 ms.date: 1/5/2021
+appliesto:
+  - ✅ Azure Cache for Redis
+
 ms.topic: quickstart
-ms.service: cache
+
+ms.custom: mode-api, devx-track-azurecli
 ---
 
 # Quickstart: Route Azure Cache for Redis events to web endpoint with Azure CLI
+
+[!INCLUDE [cache-retirement-alert](includes/cache-retirement-alert.md)]
 
 Azure Event Grid is an eventing service for the cloud. In this quickstart, you'll use the Azure CLI to subscribe to Azure Cache for Redis events, trigger an event, and view the results.
 
 Typically, you send events to an endpoint that processes the event data and takes actions. However, to simplify this quickstart, you'll send events to a web app that will collect and display the messages. When you complete the steps described in this quickstart, you'll see that the event data has been sent to the web app.
 
-[!INCLUDE [quickstarts-free-trial-note.md](../../includes/quickstarts-free-trial-note.md)]
+[!INCLUDE [quickstarts-free-trial-note.md](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
 If you choose to install and use the CLI locally, this quickstart requires that you're running the latest version of Azure CLI (2.0.70 or later). To find the version, run `az --version`. If you need to install or upgrade, see [Install Azure CLI](/cli/azure/install-azure-cli).
 
@@ -53,9 +59,9 @@ Replace `<your-site-name>` with a unique name for your web app. The web app name
 ```azurecli-interactive
 sitename=<your-site-name>
 
-az group deployment create \
+az deployment group create \
   --resource-group <resource_group_name> \
-  --template-uri "https://raw.githubusercontent.com/Azure-Samples/azure-event-grid-viewer/master/azuredeploy.json" \
+  --template-uri "https://raw.githubusercontent.com/Azure-Samples/azure-event-grid-viewer/main/azuredeploy.json" \
   --parameters siteName=$sitename hostingPlanName=viewerhost
 ```
 
@@ -63,7 +69,7 @@ The deployment may take a few minutes to complete. After the deployment has succ
 
 You should see the site with no messages currently displayed.
 
-[!INCLUDE [event-grid-register-provider-cli.md](../../includes/event-grid-register-provider-cli.md)]
+[!INCLUDE [register-provider-cli.md](../../articles/event-grid/includes/register-provider-cli.md)]
 
 ## Subscribe to your Azure Cache for Redis instance
 
@@ -72,7 +78,7 @@ In this step, you'll subscribe to a topic to tell Event Grid which events you wa
 The endpoint for your web app must include the suffix `/api/updates/`.
 
 ```azurecli-interactive
-cacheId=$(az redis show --name <cache_name> --resource-group <resource_group_name> --query id --subscription <subscription_id>)
+cacheId=$(az redis show --name <cache_name> --resource-group <resource_group_name> --query id --subscription <subscription_id> --output tsv)
 endpoint=https://$sitename.azurewebsites.net/api/updates
 
 az eventgrid event-subscription create \

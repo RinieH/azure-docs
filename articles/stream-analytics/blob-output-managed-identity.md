@@ -1,16 +1,20 @@
 ---
 title: Authenticate blob output with Managed Identity Azure Stream Analytics
 description: This article describes how to use managed identities to authenticate your Azure Stream Analytics job to Azure Blob storage output.
-author: kim-ale
-ms.author: kimal
-ms.service: stream-analytics
+author: AliciaLiMicrosoft 
+ms.author: ali 
+ms.service: azure-stream-analytics
 ms.topic: how-to
-ms.date: 12/15/2020
+ms.date: 09/16/2022
+ms.custom:
+  - subject-rbac-steps
+  - devx-track-arm-template
+  - sfi-image-nochange
 ---
 
-# Use Managed Identity (preview) to authenticate your Azure Stream Analytics job to Azure Blob Storage
+# Use Managed Identity to authenticate your Azure Stream Analytics job to Azure Blob Storage
 
-[Managed Identity authentication](../active-directory/managed-identities-azure-resources/overview.md) (preview) for output to Azure Blob storage gives Stream Analytics jobs direct access to a storage account instead of using a connection string. In addition to improved security, this feature also enables you to write data to a storage account in a Virtual Network (VNET) within Azure.
+[Managed Identity authentication](../active-directory/managed-identities-azure-resources/overview.md) for output to Azure Blob storage gives Stream Analytics jobs direct access to a storage account instead of using a connection string. In addition to improved security, this feature also enables you to write data to a storage account in a Virtual Network (VNET) within Azure.
 
 This article shows you how to enable Managed Identity for the Blob output(s) of a Stream Analytics job through the Azure portal and through an Azure Resource Manager deployment.
 
@@ -24,7 +28,7 @@ First, you create a managed identity for your Azure Stream Analytics job. 
 
    :::image type="content" source="media/event-hubs-managed-identity/system-assigned-managed-identity.png" alt-text="System assigned managed identity":::  
 
-3. A service principal for the Stream Analytics job's identity is created in Azure Active Directory. The life cycle of the newly created identity is managed by Azure. When the Stream Analytics job is deleted, the associated identity (that is, the service principal) is automatically deleted by Azure.  
+3. A service principal for the Stream Analytics job's identity is created in Microsoft Entra ID. The life cycle of the newly created identity is managed by Azure. When the Stream Analytics job is deleted, the associated identity (that is, the service principal) is automatically deleted by Azure.  
 
    When you save the configuration, the Object ID (OID) of the service principal is listed as the Principal ID as shown below:  
 
@@ -148,7 +152,7 @@ Using Azure Resource Manager allows you to fully automate the deployment of your
     }
     ```
 
-   Take note of the **principalId** from the job's definition, which identifies your job's Managed Identity within Azure Active Directory and will be used in the next step to grant the Stream Analytics job access to the storage account.
+   Take note of the **principalId** from the job's definition, which identifies your job's Managed Identity within Microsoft Entra ID and will be used in the next step to grant the Stream Analytics job access to the storage account.
 
 3. Now that the job is created, see the [Give the Stream Analytics job access to your storage account](#give-the-stream-analytics-job-access-to-your-storage-account) section of this article.
 
@@ -171,35 +175,37 @@ Unless you need the job to create containers on your behalf, you should choose *
 
 1. Navigate to the container's configuration pane within your storage account.
 
-2. Select **Access Control (IAM)** on the left-hand side.
+1. Select **Access control (IAM)**.
 
-3. Under the "Add a role assignment" section click **Add**.
+1. Select **Add** > **Add role assignment** to open the **Add role assignment** page.
 
-4. In the role assignment pane:
+1. Assign the following role. For detailed steps, see [Assign Azure roles using the Azure portal](/azure/role-based-access-control/role-assignments-portal).
 
-    1. Set the **Role** to "Storage Blob Data Contributor"
-    2. Ensure the **Assign access to** dropdown is set to "Azure AD user, group, or service principal".
-    3. Type the name of your Stream Analytics job in the search field.
-    4. Select your Stream Analytics job and click **Save**.
+    | Setting | Value |
+    | --- | --- |
+    | Role | Storage Blob Data Contributor |
+    | Assign access to | User, group, or service principal |
+    | Members | \<Name of your Stream Analytics job> |
 
-   ![Grant container access](./media/stream-analytics-managed-identities-blob-output-preview/stream-analytics-container-access-portal.png)
+    ![Screenshot that shows Add role assignment page in Azure portal.](~/reusable-content/ce-skilling/azure/media/role-based-access-control/add-role-assignment-page.png)
 
 #### Account level access
 
 1. Navigate to your storage account.
 
-2. Select **Access Control (IAM)** on the left-hand side.
+1. Select **Access control (IAM)**.
 
-3. Under the "Add a role assignment" section click **Add**.
+1. Select **Add** > **Add role assignment** to open the **Add role assignment** page.
 
-4. In the role assignment pane:
+1. Assign the following role. For detailed steps, see [Assign Azure roles using the Azure portal](/azure/role-based-access-control/role-assignments-portal).
 
-    1. Set the **Role** to "Storage Blob Data Contributor"
-    2. Ensure the **Assign access to** dropdown is set to "Azure AD user, group, or service principal".
-    3. Type the name of your Stream Analytics job in the search field.
-    4. Select your Stream Analytics job and click **Save**.
+    | Setting | Value |
+    | --- | --- |
+    | Role | Storage Blob Data Contributor |
+    | Assign access to | User, group, or service principal |
+    | Members | \<Name of your Stream Analytics job> |
 
-   ![Grant account access](./media/stream-analytics-managed-identities-blob-output-preview/stream-analytics-account-access-portal.png)
+    ![Screenshot that shows Add role assignment page in Azure portal.](~/reusable-content/ce-skilling/azure/media/role-based-access-control/add-role-assignment-page.png)
 
 ### Grant access via the command line
 
@@ -247,11 +253,10 @@ Below are the current limitations of this feature:
 
 1. Classic Azure Storage accounts.
 
-2. Azure accounts without Azure Active Directory.
+2. Azure accounts without Microsoft Entra ID.
 
-3. Multi-tenant access is not supported. The Service principal created for a given Stream Analytics job must reside in the same Azure Active Directory tenant in which the job was created, and cannot be used with a resource that resides in a different Azure Active Directory tenant.
+3. Multi-tenant access is not supported. The Service principal created for a given Stream Analytics job must reside in the same Microsoft Entra tenant in which the job was created, and cannot be used with a resource that resides in a different Microsoft Entra tenant.
 
-4. [User Assigned Identity](../active-directory/managed-identities-azure-resources/overview.md) is not supported. This means the user is not able to enter their own service principal to be used by their Stream Analytics job. The service principal must be generated by Azure Stream Analytics.
 
 ## Next steps
 

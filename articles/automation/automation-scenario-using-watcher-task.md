@@ -4,7 +4,10 @@ description: This article tells how to create a watcher task in the Azure Automa
 services: automation
 ms.subservice: process-automation
 ms.topic: how-to
-ms.date: 12/17/2020
+ms.date: 11/17/2025
+ms.service: azure-automation
+ms.author: v-rochak2
+author: RochakSingh-blr
 ---
 
 # Track updated files with a watcher task
@@ -12,7 +15,7 @@ ms.date: 12/17/2020
 Azure Automation uses a watcher task to look for events and trigger actions with PowerShell runbooks. The watcher task contains two parts, the watcher and the action. A watcher runbook runs at an interval defined in the watcher task, and outputs data to an action runbook.
 
 > [!NOTE]
-> Watcher tasks are not supported in Azure China Vianet 21.
+> Watcher tasks are not supported in Microsoft Azure operated by 21Vianet.
 
 > [!IMPORTANT]
 > Starting in May 2020, using Azure Logic Apps is the recommended and supported way to monitor for events, schedule recurring tasks, and trigger actions. See [Schedule and run recurring automated tasks, processes, and workflows with Azure Logic Apps](../logic-apps/concepts-schedule-automated-recurring-tasks-workflows.md).
@@ -30,10 +33,10 @@ This article walks you through creating a watcher task to monitor when a new fil
 
 To complete this article, the following are required:
 
-* Azure subscription. If you don't have one yet, you can [activate your MSDN subscriber benefits](https://azure.microsoft.com/pricing/member-offers/msdn-benefits-details/) or sign up for a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
+* Azure subscription. If you don't have one yet, you can [activate your MSDN subscriber benefits](https://azure.microsoft.com/pricing/member-offers/msdn-benefits-details/) or sign up for a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 * [Automation account](./index.yml) to hold the watcher and action runbooks and the Watcher Task.
 * A [hybrid runbook worker](automation-hybrid-runbook-worker.md) where the watcher task runs.
-* PowerShell runbooks. PowerShell Workflow runbooks aren't supported by watcher tasks.
+* PowerShell runbooks. PowerShell Workflow runbooks and Graphical runbooks aren't supported by watcher tasks.
 
 ## Import a watcher runbook
 
@@ -163,4 +166,4 @@ Passed in data is @{FileName=D:\examplefiles\ExampleFile1.txt; Length=0}
 
 ## Next steps
 
-To learn more about authoring your own runbook, see [Create a PowerShell runbook](learn/automation-tutorial-runbook-textual-powershell.md).
+To learn more about authoring your own runbook, see [Create a PowerShell runbook](./learn/powershell-runbook-managed-identity.md).

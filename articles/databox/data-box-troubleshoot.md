@@ -1,42 +1,47 @@
 ---
-title: Troubleshoot issues on your Azure Data Box, Azure Data Box Heavy
-description: Describes how to troubleshoot issues seen in Azure Data Box and Azure Data Box Heavy when copying data to these devices.
+title: Troubleshoot issues during data copies to your Azure Data Box, Data Box Next-gen, and Azure Data Box Heavy devices
+description: Describes how to troubleshoot issues when copying data to Azure Data Box, Data Box Next-gen, and Azure Data Box Heavy devices.
 services: databox
-author: alkohli
+author: stevenmatthew
 
-ms.service: databox
-ms.subservice: pod
+ms.service: azure-databox
 ms.topic: troubleshooting
-ms.date: 09/10/2020
-ms.author: alkohli
+ms.date: 03/22/2022
+ms.author: shaas
+# Customer intent: "As a data engineer, I want to troubleshoot data copy issues for Azure Data Box, so that I can resolve errors efficiently and ensure successful data uploads to my storage accounts."
 ---
 
-# Troubleshoot issues related to Azure Data Box and Azure Data Box Heavy
+# Troubleshoot data copy issues on Azure Data Box, Data Box Next-gen, and Azure Data Box Heavy
 
-This article details information on how to troubleshoot issues you may see when using the Azure Data Box or Azure Data Box Heavy for import orders. The article includes the list of possible errors seen when data is copied to the Data Box or when data is uploaded from Data Box for an import order.
+This article describes how to troubleshoot issues when performing data copies or data uploads for an Azure Data Box, Azure Data Box Next-gen, or Azure Data Box Heavy import order. The article includes the list of possible errors seen when data is copied to the Data Box or uploaded from Data Box.
 
-The information in this article does not apply to export orders created for Data Box.
+For help on troubleshooting issues with accessing the shares on your device, see [Troubleshoot share connection failure during data copy](data-box-troubleshoot-share-access.md).
+
+> [!NOTE]
+> The information in this article applies to import orders only.
 
 ## Error classes
 
 The errors in Data Box and Data Box Heavy are summarized as follows:
 
-| Error category*        | Description        | Recommended action    |
+| Error category        | Description        | Recommended action    |
 |----------------------------------------------|---------|--------------------------------------|
-| Container or share names | The container or share names do not follow the Azure naming rules.  |Download the error lists. <br> Rename the containers or shares. [Learn more](#container-or-share-name-errors).  |
-| Container or share size limit | The total data in containers or shares exceeds the Azure limit.   |Download the error lists. <br> Reduce the overall data in the container or share. [Learn more](#container-or-share-size-limit-errors).|
-| Object or file size limit | The object or files in containers or shares exceeds the Azure limit.|Download the error lists. <br> Reduce the file size in the container or share. [Learn more](#object-or-file-size-limit-errors). |    
-| Data or file type | The data format or the file type is not supported. |Download the error lists. <br> For page blobs or managed disks, ensure the data is 512-bytes aligned and copied to the pre-created folders. [Learn more](#data-or-file-type-errors). |
-| Non-critical blob or file errors  | The blob or file names do not follow the Azure naming rules or the file type is not supported. | These blob or files may not be copied or the names may be changed. [Learn how to fix these errors](#non-critical-blob-or-file-errors). |
+| Container or share names<sup>*</sup> | The container or share names don't follow the Azure naming rules.  |Download the error lists. <br> Rename the containers or shares. [Learn more](#container-or-share-name-errors).  |
+| Container or share size limit<sup>*</sup> | The total data in containers or shares exceeds the Azure limit.   |Download the error lists. <br> Reduce the overall data in the container or share. [Learn more](#container-or-share-size-limit-errors).|
+| Object or file size limit<sup>*</sup> | The object or files in containers or shares exceeds the Azure limit.|Download the error lists. <br> Reduce the file size in the container or share. [Learn more](#object-or-file-size-limit-errors). |    
+| Data or file type<sup>*</sup> | The data format or the file type isn't supported. |Download the error lists. <br> For page blobs or managed disks, ensure the data is 512-bytes aligned and copied to the pre-created folders. [Learn more](#data-or-file-type-errors). |
+| Folder or file internal errors<sup>*</sup> | The file or folder has an internal error. |Download the error lists. <br> Remove the file and copy again. For a folder, modify it by renaming or adding or deleting a file. The error should go away in 30 minutes.  [Learn more](#folder-or-file-internal-errors). |
+| General error<sup>*</sup> | Internal exceptions or error paths in the code caused a critical error. | Reboot the device and rerun the **Prepare to Ship** operation. If the error doesn't go away, contact Microsoft Support. [Learn more](#general-errors). |
+| Non-critical blob or file errors  | The blob or file names don't follow the Azure naming rules or the file type isn't supported. | These blob or files may not be copied or the names may be changed. [Learn how to fix these errors](#non-critical-blob-or-file-errors). |
 
-\* The first four error categories are critical errors and must be fixed before you can proceed to prepare to ship.
+<sup>*</sup> Errors in this category are critical errors that must be fixed before you can proceed to **Prepare to Ship**.
 
 
 ## Container or share name errors
 
-These are errors related to container and share names.
+These errors are related to container and share names.
 
-### ERROR_CONTAINER_OR_SHARE_NAME_LENGTH     
+### ERROR_CONTAINER_OR_SHARE_NAME_LENGTH
 
 **Error description:** The container or share name must be between 3 and 63 characters. 
 
@@ -104,24 +109,30 @@ For more information, see the Azure naming conventions for [directories](/rest/
 
 ## Container or share size limit errors
 
-These are errors related to data exceeding the size of data allowed in a container or a share.
+These errors are related to data exceeding the size of data allowed in a container or a share.
 
 ### ERROR_CONTAINER_OR_SHARE_CAPACITY_EXCEEDED
 
-**Error description:** Azure file share limits a share to 5 TiB of data, and large file shares are not enabled on the storage account. This limit was exceeded for some shares.
+**Error description:** Large file shares aren't enabled on your storage account(s). 
 
-**Suggested resolution:** On the **Connect and copy** page of the local web UI, download, and review the error files.
+**Suggested resolution:** To disregard this error, follow these steps:
+ 
+1. In the Data Box local UI, go to the **Connect and Copy** page and go to **Settings**. 
 
-- Identify the folders that have this issue from the error logs and make sure that the files in that folder are under 5 TiB.
-- The 5 TiB limit does not apply to a storage account that allows large file shares. However, you must have large file shares configured when you place your order. 
-  - Contact [Microsoft Support](data-box-disk-contact-microsoft-support.md) and request a new shipping label.
-  - [Enable large file shares on the storage account](../storage/files/storage-how-to-create-file-share.md#enable-large-files-shares-on-an-existing-account)
-  - [Expand the file shares in the storage account](../storage/files/storage-how-to-create-file-share.md#expand-existing-file-shares) and set the quota to 100 TiB.
-  
+    :::image type="content" source="media/data-box-troubleshoot/icon-connect-copy.png" alt-text="Connect and copy":::
+
+1. Enable and apply **Disregard Large File Share Errors**. 
+     
+    :::image type="content" source="media/data-box-troubleshoot/icon-connect-copy-settings-2.png" alt-text="Connect and copy settings":::
+
+1. **Enable large file shares** on your storage account(s) in the Azure portal. 
+
+> [!NOTE]
+> If large file shares aren't enabled for the indicated storage accounts on the Azure portal, the data upload to these storage accounts will fail.
   
 ## Object or file size limit errors
 
-These are errors related to data exceeding the maximum size of object or the file that is allowed in Azure. 
+These errors are related to data exceeding the maximum size of object or the file that is allowed in Azure. 
 
 ### ERROR_BLOB_OR_FILE_SIZE_LIMIT
 
@@ -130,11 +141,11 @@ These are errors related to data exceeding the maximum size of object or the fil
 **Suggested resolution:** The blob or the file sizes exceed the maximum limit allowed for upload.
 
 - On the **Connect and copy** page of the local web UI, download, and review the error files.
-- Make sure that the blob and file sizes do not exceed the Azure object size limits.
+- Make sure that the blob and file sizes don't exceed the Azure object size limits.
 
 ## Data or file type errors
 
-These are errors related to unsupported file type or data type found in the container or share. 
+These errors are related to unsupported file type or data type found in the container or share. 
 
 ### ERROR_BLOB_OR_FILE_SIZE_ALIGNMENT
 
@@ -153,25 +164,40 @@ For more information, see [Overview of Page blobs](../storage/blobs/storage-blob
 **Suggested resolution:**
 
 - Make sure that you only upload the fixed VHDs to create managed disks.
-- VHDX files or **dynamic** and **differencing** VHDs are not supported.
+- VHDX files or **dynamic** and **differencing** VHDs aren't supported.
 
 ### ERROR_DIRECTORY_DISALLOWED_FOR_TYPE
 
-**Error description:** A directory is not allowed in any of the pre-existing folders for the managed disks. Only fixed VHDs are allowed in these folders.
+**Error description:** A directory isn't allowed in any of the preexisting folders for the managed disks. Only fixed VHDs are allowed in these folders.
 
 **Suggested resolution:** For managed disks, within each share, the following three folders are created which correspond to containers in your storage account: Premium SSD, Standard HDD, and Standard SSD. These folders correspond to the performance tier for the managed disk.
 
 - Make sure that you copy your page blob data (VHDs) into one of these existing folders.
-- A folder or directory is not allowed in these existing folders. Remove any folders that you have created inside the pre-existing folders.
+- A folder or directory isn't allowed in these existing folders. Remove any folders that you have created inside the preexisting folders.
 
 For more information, see [Copy to managed disks](data-box-deploy-copy-data-from-vhds.md#connect-to-data-box).
 
 ### REPARSE_POINT_ERROR
 
-**Error description:** Symbolic links are not allowed in Linux. 
+**Error description:** Symbolic links aren't allowed in Linux. 
 
 **Suggested resolution:** The symbolic links are usually links, pipes, and other such files. Either remove the links, or resolve the links and copy the data.
 
+## Folder or file internal errors
+
+**Error description:** The file or folder is in an internal error state.
+
+**Suggested resolution:** If this is a file, remove the file and copy it again. If this is a folder, modify the folder. Either rename the folder or add or delete a file from the folder. The error should clear on its own in 30 minutes. Contact Microsoft Support, if the error persists.
+
+## General errors
+
+General errors are caused by internal exceptions or error paths in the code.
+
+### ERROR_GENERAL
+
+**Error description** This general error is caused by internal exceptions or error paths in the code.
+
+**Suggested resolution:** Reboot the device and rerun the **Prepare to Ship** operation. If the error doesn't go away, [contact Microsoft Support](data-box-disk-contact-microsoft-support.md).
 
 ## Non-critical blob or file errors
 
@@ -255,6 +281,13 @@ For more information, see the Azure naming conventions for blob names and file n
 
 For more information, see [Copy to managed disks](data-box-deploy-copy-data-from-vhds.md#connect-to-data-box).
 
+
+## Non-critical container or share errors
+
+### ERROR_CONTAINER_OR_SHARE_CAPACITY_EXCEEDED
+**Error description:**  Large file share errors were disregarded for Data Box. Remember to **enable large file shares** on your storage account(s) in the Azure portal. If you don't enable large file shares on these storage accounts in the portal, the data upload to these accounts will fail.
+
+**Suggested resolution:** Enable Large File Shares on your storage account(s) in the Azure portal. If you don't enable large file shares on these storage accounts in the portal, the data upload to these accounts will fail.
 
 ## Next steps
 

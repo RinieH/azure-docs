@@ -1,10 +1,9 @@
 ---
 title: Bicep comparison operators
 description: Describes Bicep comparison operators that compare values.
-author: mumian
-ms.author: jgao
-ms.topic: conceptual
-ms.date: 06/01/2021
+ms.topic: reference
+ms.custom: devx-track-bicep
+ms.date: 10/30/2025
 ---
 
 # Bicep comparison operators
@@ -186,7 +185,7 @@ The string is `true` because lowercase letters are less than uppercase letters.
 
 `operand1 == operand2`
 
-Evaluates if the values are equal.
+Evaluates if the values are equal. The comparison is case-sensitive.
 
 ### Operands
 
@@ -208,7 +207,7 @@ param firstInt int = 5
 param secondInt int = 5
 
 param firstString string = 'demo'
-param secondString string = 'demo'
+param secondString string = 'Demo'
 
 param firstBool bool = true
 param secondBool bool = true
@@ -220,11 +219,87 @@ output boolEqual bool = firstBool == secondBool
 
 Output from the example:
 
+| Name | Type | Value | Note |
+| ---- | ---- | ----- | ---- |
+| `intEqual` | boolean | true | |
+| `stringEqual` | boolean | false | The result is `false` because the comparison is case-sensitive. |
+| `boolEqual` | boolean | true | |
+
+When comparing arrays, the two arrays must have the same elements and order. The arrays don't need to be assigned to each other.
+
+```bicep
+var array1 = [
+  1
+  2
+  3
+]
+
+var array2 = [
+  1
+  2
+  3
+]
+
+var array3 = array2
+
+var array4 = [
+  3
+  2
+  1
+]
+
+output sameElements bool = array1 == array2 // returns true because arrays are defined with same elements
+output assignArray bool = array2 == array3 // returns true because one array was defined as equal to the other array
+output differentOrder bool = array4 == array1 // returns false because order of elements is different
+```
+
+Output from the example:
+
 | Name | Type | Value |
 | ---- | ---- | ---- |
-| `intEqual` | boolean | true |
-| `stringEqual` | boolean | true |
-| `boolEqual` | boolean | true |
+| sameElements | bool | true |
+| assignArray | bool | true |
+| differentOrder | bool | false |
+
+When comparing objects, the property names and values must be the same. The properties don't need to be defined in the same order.
+
+```bicep
+var object1 = {
+  prop1: 'val1'
+  prop2: 'val2'
+}
+
+var object2 = {
+  prop1: 'val1'
+  prop2: 'val2'
+}
+
+var object3 = {
+  prop2: 'val2'
+  prop1: 'val1'
+}
+
+var object4 = object3
+
+var object5 = {
+  prop1: 'valX'
+  prop2: 'valY'
+}
+
+output sameObjects bool = object1 == object2 // returns true because both objects defined with same properties
+output differentPropertyOrder bool = object3 == object2 // returns true because both objects have same properties even though order is different
+output assignObject bool = object4 == object1 // returns true because one object was defined as equal to the other object
+output differentValues bool = object5 == object1 // returns false because values are different
+```
+
+Output from the example:
+
+| Name | Type | Value |
+| ---- | ---- | ---- |
+| sameObjects | bool | true |
+| differentPropertyOrder | bool | true |
+| assignObject | bool | true |
+| differentValues | bool | false |
 
 ## Not equal !=
 
@@ -269,6 +344,8 @@ Output from the example:
 | `intNotEqual` | boolean | true |
 | `stringNotEqual` | boolean | true |
 | `boolNotEqual` | boolean | true |
+
+For arrays and objects, see examples in [equals](#equals-).
 
 ## Equal case-insensitive =~
 

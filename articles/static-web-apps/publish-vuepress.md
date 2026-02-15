@@ -2,18 +2,17 @@
 title: "Tutorial: Publish a VuePress site to Azure Static Web Apps"
 description: This tutorial shows you how to deploy a VuePress application to Azure Static Web Apps.
 services: static-web-apps
-author: aaronpowell
-ms.service: static-web-apps
+author: cjk7989
+ms.service: azure-static-web-apps
 ms.topic: tutorial
-ms.date: 05/11/2021
-ms.author: aapowell
-ms.custom: devx-track-js
-
+ms.date: 01/10/2024
+ms.author: jikunchen
+ms.custom:
 ---
 
 # Tutorial: Publish a VuePress site to Azure Static Web Apps
 
-This article demonstrates how to create and deploy a [VuePress](https://vuepress.vuejs.org/) web application to [Azure Azure Static Web Apps](overview.md). The final result is a new Azure Static Web Apps application with the associated GitHub Actions that give you control over how the app is built and published.
+This article demonstrates how to create and deploy a [VuePress](https://vuepress.vuejs.org/) web application to [Azure Static Web Apps](overview.md). The final result is a new Azure Static Web Apps application with the associated GitHub Actions that give you control over how the app is built and published.
 
 In this tutorial, you learn how to:
 
@@ -25,8 +24,9 @@ In this tutorial, you learn how to:
 
 ## Prerequisites
 
-- An Azure account with an active subscription. If you don't have one, you can [create an account for free](https://azure.microsoft.com/free/).
+- An Azure account with an active subscription. If you don't have one, you can [create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 - A GitHub account. If you don't have one, you can [create an account for free](https://github.com/join).
+- A Git setup installed. If you don't have one, you can [install Git](https://www.git-scm.com/downloads). 
 - [Node.js](https://nodejs.org) installed.
 
 ## Create a VuePress App
@@ -57,7 +57,7 @@ Create a VuePress app from the Command Line Interface (CLI):
    npm install --save-dev vuepress
    ```
 
-1. Open the _package.json_ file in a text editor and add a build command to the [`scripts`](https://docs.npmjs.com/cli-commands/run-script.html) section.
+1. Open the _package.json_ file in a text editor and add a build command to the [`scripts`](https://docs.npmjs.com/cli/v11/commands/npm-run) section.
 
    ```json
    ...
@@ -105,7 +105,7 @@ The following steps show you how to create a new static site app and deploy it t
 
 ### Create the application
 
-1. Navigate to the [Azure portal](https://portal.azure.com)
+1. Go to the [Azure portal](https://portal.azure.com)
 1. Select **Create a Resource**
 1. Search for **Static Web Apps**
 1. Select **Static Web Apps**
@@ -131,17 +131,21 @@ The following steps show you how to create a new static site app and deploy it t
     | _Repository_ | Select **vuepress-static-app**. |
     | _Branch_ | Select **main**. |
 
+    > [!NOTE]
+    > If you don't see any repositories, you may need to authorize Azure Static Web Apps on GitHub.
+    > Browse to your GitHub repository and go to **Settings > Applications > Authorized OAuth Apps**, select **Azure Static Web Apps**, and then select **Grant**. For organization repositories, you must be an owner of the organization to grant the permissions.
+
 1. In the _Build Details_ section, select **VuePress** from the _Build Presets_ drop-down and keep the default values.
 
 ### Review and create
 
-1. Select the **Review + Create** button to verify the details are all correct.
+1. Select **Review + Create** to verify the details are all correct.
 
-1. Select **Create** to start the creation of the App Service Static Web App and provision a GitHub Action for deployment.
+2. Select **Create** to start the creation of the App Service Static Web App and provision a GitHub Actions for deployment.
 
-1. Once the deployment completes click, **Go to resource**.
+3. Once the deployment completes, select **Go to resource**.
 
-1. On the resource screen, click the _URL_ link to open your deployed application. You may need to wait a minute or two for the GitHub Action to complete.
+4. On the resource screen, select the _URL_ link to open your deployed application. You may need to wait a minute or two for the GitHub Actions to complete.
 
    :::image type="content" source="./media/publish-vuepress/deployed-app.png" alt-text="Deployed application":::
 

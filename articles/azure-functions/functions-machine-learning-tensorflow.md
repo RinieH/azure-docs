@@ -6,7 +6,7 @@ author: anthonychu
 ms.topic: tutorial
 ms.date: 01/15/2020
 ms.author: antchu
-ms.custom: mvc, devx-track-python, devx-track-azurepowershell
+ms.custom: mvc, devx-track-python, py-fresh-zinc
 ---
 
 # Tutorial: Apply machine learning models in Azure Functions with Python and TensorFlow
@@ -21,7 +21,7 @@ In this article, you learn how to use Python, TensorFlow, and Azure Functions wi
 
 ## Prerequisites 
 
-- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio).
+- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 - [Python 3.7.4](https://www.python.org/downloads/release/python-374/). (Python 3.7.4 and Python 3.6.x are verified with Azure Functions; Python 3.8 and later versions are not yet supported.)
 - The [Azure Functions Core Tools](functions-run-local.md#install-the-azure-functions-core-tools)
 - A code editor such as [Visual Studio Code](https://code.visualstudio.com/)
@@ -29,7 +29,7 @@ In this article, you learn how to use Python, TensorFlow, and Azure Functions wi
 ### Prerequisite check
 
 1. In a terminal or command window, run `func --version` to check that the Azure Functions Core Tools are version 2.7.1846 or later.
-1. Run `python --version` (Linux/MacOS) or `py --version` (Windows) to check your Python version reports 3.7.x.
+1. Run `python --version` (Linux/macOS) or `py --version` (Windows) to check your Python version reports 3.7.x.
 
 ## Clone the tutorial repository
 
@@ -59,13 +59,7 @@ Navigate to the *start* folder and run the following commands to create and acti
 
 ```bash
 cd start
-```
-
-```bash
 python -m venv .venv
-```
-
-```bash
 source .venv/bin/activate
 ```
 
@@ -79,13 +73,7 @@ sudo apt-get install python3-venv
 
 ```powershell
 cd start
-```
-
-```powershell
 py -3.7 -m venv .venv
-```
-
-```powershell
 .venv\scripts\activate
 ```
 
@@ -93,13 +81,7 @@ py -3.7 -m venv .venv
 
 ```cmd
 cd start
-```
-
-```cmd
 py -3.7 -m venv .venv
-```
-
-```cmd
 .venv\scripts\activate
 ```
 
@@ -118,7 +100,7 @@ In Azure Functions, a function project is a container for one or more individual
     func init --worker-runtime python
     ```
 
-    After initialization, the *start* folder contains various files for the project, including configurations files named [local.settings.json](functions-run-local.md#local-settings-file) and [host.json](functions-host-json.md). Because *local.settings.json* can contain secrets downloaded from Azure, the file is excluded from source control by default in the *.gitignore* file.
+    After initialization, the *start* folder contains various files for the project, including configurations files named [local.settings.json](functions-develop-local.md#local-settings-file) and [host.json](functions-host-json.md). Because *local.settings.json* can contain secrets downloaded from Azure, the file is excluded from source control by default in the *.gitignore* file.
 
     > [!TIP]
     > Because a function project is tied to a specific runtime, all the functions in the project must be written with the same language.
@@ -129,7 +111,7 @@ In Azure Functions, a function project is a container for one or more individual
     func new --name classify --template "HTTP trigger"
     ```
 
-    This command creates a folder matching the name of the function, *classify*. In that folder are two files: *\_\_init\_\_.py*, which contains the function code, and *function.json*, which describes the function's trigger and its input and output bindings. For details on the contents of these files, see [Examine the file contents](./create-first-function-cli-python.md#optional-examine-the-file-contents) in the Python quickstart.
+    This command creates a folder matching the name of the function, *classify*. In that folder are two files: *\_\_init\_\_.py*, which contains the function code, and *function.json*, which describes the function's trigger and its input and output bindings. For details on the contents of these files, see [Programming model](./functions-reference-python.md?pivots=python-mode-configuration#programming-model) in the Python developer guide.
 
 
 ## Run the function locally
@@ -221,7 +203,7 @@ To build your own model using the free tier of the Custom Vision Service, follow
     On Windows, you may encounter the error, "Could not install packages due to an EnvironmentError: [Errno 2] No such file or directory:" followed by a long pathname to a file like *sharded_mutable_dense_hashtable.cpython-37.pyc*. Typically, this error happens because the depth of the folder path becomes too long. In this case, set the registry key `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem@LongPathsEnabled` to `1` to enable long paths. Alternately, check where your Python interpreter is installed. If that location has a long path, try reinstalling in a folder with a shorter path.
 
 > [!TIP]
-> When calling upon *predict.py* to make its first prediction, a function named `_initialize` loads the TensorFlow model from disk and caches it in global variables. This caching speeds up subsequent predictions. For more information on using global variables, refer to the [Azure Functions Python developer guide](functions-reference-python.md#global-variables).
+> When calling upon *predict.py* to make its first prediction, a function named `_initialize` loads the TensorFlow model from disk and caches it in global variables. This caching speeds up subsequent predictions.
 
 ## Update the function to run predictions
 

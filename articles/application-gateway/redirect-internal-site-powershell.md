@@ -1,19 +1,20 @@
 ---
 title: Internal redirection using PowerShell
 titleSuffix: Azure Application Gateway
-description: Learn how to create an application gateway that redirects internal web traffic to the appropriate backend pool of servers using Azure Powershell.
+description: Learn how to create an application gateway that redirects internal web traffic to the appropriate backend pool of servers using Azure PowerShell.
 services: application-gateway
-author: vhorne
-ms.service: application-gateway
+author: mbender-ms
+ms.service: azure-application-gateway
 ms.topic: how-to
 ms.date: 09/28/2020
-ms.author: victorh 
+ms.author: mbender 
 ms.custom: devx-track-azurepowershell
+# Customer intent: As a network administrator, I want to configure an application gateway for internal redirection using PowerShell, so that I can ensure efficient traffic management across multiple backend pools based on domain requests.
 ---
 
 # Create an application gateway with internal redirection using Azure PowerShell
 
-You can use Azure Powershell to configure [web traffic redirection](multiple-site-overview.md) when you create an [application gateway](overview.md). In this article, you define a backend pool using a virtual machines scale set. You then configure listeners and rules based on domains that you own to make sure web traffic arrives at the appropriate pool. This article assumes that you own multiple domains and uses examples of *www\.contoso.com* and *www\.contoso.org*.
+You can use Azure PowerShell to configure [web traffic redirection](multiple-site-overview.md) when you create an [application gateway](overview.md). In this article, you define a backend pool using a virtual machines scale set. You then configure listeners and rules based on domains that you own to make sure web traffic arrives at the appropriate pool. This article assumes that you own multiple domains and uses examples of *www\.contoso.com* and *www\.contoso.org*.
 
 In this article, you learn how to:
 
@@ -23,13 +24,13 @@ In this article, you learn how to:
 * Create a virtual machine scale set with the backend pool
 * Create a CNAME record in your domain
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
-If you choose to install and use the PowerShell locally, this article requires the Azure PowerShell module version 1.0.0 or later. To find the version, run `Get-Module -ListAvailable Az` . If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-az-ps). If you are running PowerShell locally, you also need to run `Login-AzAccount` to create a connection with Azure.
+If you choose to install and use the PowerShell locally, this article requires the Azure PowerShell module version 1.0.0 or later. To find the version, run `Get-Module -ListAvailable Az` . If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-azure-powershell). If you're running PowerShell locally, you also need to run `Login-AzAccount` to create a connection with Azure.
 
 ## Create a resource group
 

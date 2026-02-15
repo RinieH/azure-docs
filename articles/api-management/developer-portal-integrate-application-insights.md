@@ -1,15 +1,17 @@
 ---
-title: Integrate Application Insights to developer portal
+title: Integrate Application Insights to Developer Portal
 titleSuffix: Azure API Management
 description: Learn how to integrate Application Insights into your managed or self-hosted developer portal.
 author: dlepow
-ms.author: apimpm
-ms.date: 03/25/2021
-ms.service: api-management
+ms.author: danlep
+ms.date: 10/03/2025
+ms.service: azure-api-management
 ms.topic: how-to
 ---
 
 # Integrate Application Insights to developer portal
+
+[!INCLUDE [api-management-availability-premium-dev-standard-basic-premiumv2-standardv2-basicv2](../../includes/api-management-availability-premium-dev-standard-basic-premiumv2-standardv2-basicv2.md)]
 
 A popular feature of Azure Monitor is Application Insights. It's an extensible Application Performance Management (APM) service for developers and DevOps professionals. Use it to monitor your developer portal and detect performance anomalies. Application Insights includes powerful analytics tools to help you learn what users actually do while visiting your developer portal.
 
@@ -18,7 +20,7 @@ A popular feature of Azure Monitor is Application Insights. It's an extensible A
 Follow these steps to plug Application Insights into your managed or self-hosted developer portal.
 
 > [!IMPORTANT]
-> Steps 1 and 2 are not required for managed portals. If you have a managed portal, skip to step 4.
+> Steps 1 -3 aren't required for managed portals. If you have a managed portal, skip to step 4.
 
 1. Set up a [local environment](developer-portal-self-host.md#step-1-set-up-local-environment) for the latest release of the developer portal.
 
@@ -28,23 +30,33 @@ Follow these steps to plug Application Insights into your managed or self-hosted
     npm install @paperbits/azure --save
     ```
 
-1. In the `startup.publish.ts` file in the `src` folder, import and register the Application Insights module:
+1. In the `startup.publish.ts` file in the `src` folder, import and register the Application Insights module. Add the `AppInsightsPublishModule` after the existing modules in the dependency injection container:
 
     ```typescript
     import { AppInsightsPublishModule } from "@paperbits/azure";
     ...
+    const injector = new InversifyInjector();
+    injector.bindModule(new CoreModule());
+    ...
     injector.bindModule(new AppInsightsPublishModule());
+    injector.resolve("autostart");
     ```
 
-1. Retrieve the portal's configuration:
+1. Retrieve the portal's configuration using the [Content Item - Get](/rest/api/apimanagement/current-ga/content-item/get) REST API:
 
     ```http
-    GET /contentTypes/document/contentItems/configuration
+    GET https://management.azure.com/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}/providers/Microsoft.ApiManagement/service/{api-management-service-name}/contentTypes/document/contentItems/configuration?api-version=2021-08-01
     ```
+    
+    Output is similar to:
 
     ```json
     {
-        "nodes": [
+        "id": "/contentTypes/document/contentItems/configuration",
+        "type": "Microsoft.ApiManagement/service/contentTypes/contentItems",
+          "name": "configuration",
+          "properties": {
+          "nodes": [
             {
                 "site": {
                     "title": "Microsoft Azure API Management - developer portal",
@@ -55,17 +67,23 @@ Follow these steps to plug Application Insights into your managed or self-hosted
                 }
             }
         ]
+        }
     }
     ```
 
-1. Extend the site configuration from the previous step with Application Insights configuration:
+1. Extend the site configuration from the previous step with Application Insights configuration. Update the configuration using the [Content Item - Create Or Update](/rest/api/apimanagement/current-ga/content-item/create-or-update) REST API. Pass the Application Insights instrumentation key in an `integration` node in the request body.
+
 
     ```http
-    PUT /contentTypes/document/contentItems/configuration
+    PUT https://management.azure.com/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}/providers/Microsoft.ApiManagement/service/{api-management-service-name}/contentTypes/document/contentItems/configuration?api-version=2021-08-01
     ```
 
     ```json
     {
+        "id": "/contentTypes/document/contentItems/configuration",
+        "type": "Microsoft.ApiManagement/service/contentTypes/contentItems",
+        "name": "configuration",
+        "properties": {  
         "nodes": [
             {
                 "site": { ... },
@@ -76,10 +94,13 @@ Follow these steps to plug Application Insights into your managed or self-hosted
                 }
             }
         ]
+        }
     }
     ```
 
-## Next steps
+1. After you update the configuration, [republish the portal](developer-portal-overview.md#publish-the-portal) for the changes to take effect.
+
+## Related content
 
 Learn more about the developer portal:
 

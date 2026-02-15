@@ -1,9 +1,8 @@
 ---
-author: linda33wj
-ms.service: data-factory
+author: jianleishen
 ms.topic: include
-ms.date: 07/13/2020
-ms.author: jingwang
+ms.date: 10/20/2023
+ms.author: jianleishen
 ---
 <!--
     Separate the generic requirement on Self-hosted Integration Runtime setup from connector articles.

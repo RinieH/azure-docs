@@ -4,6 +4,7 @@ description: Learn how to code and configure Durable Functions to run in WebJobs
 ms.topic: conceptual
 ms.date: 05/12/2021
 ms.author: azfuncdf
+ms.devlang: csharp
 #Customer intent: As a developer, I want to understand how to use the WebJobs SDK to create, publish, and manage Durable Functions as part of my Web Apps in Azure App Service, not as standalone Azure Functions.
 ---
 
@@ -19,7 +20,7 @@ The chaining Durable Functions sample is available in a WebJobs SDK 2.x version:
 
 ## Prerequisites
 
-This article assumes you're familiar with the basics of the WebJobs SDK, C# class library development for Azure Functions, and Durable Functions. If you need an introduction to these topics, see the following resources:
+This article assumes you're familiar with the basics of the WebJobs SDK, C# class library development for Azure Functions, and Durable Functions. If you need an introduction to these concepts, see the following resources:
 
 * [Get started with the WebJobs SDK](../../app-service/webjobs-sdk-get-started.md)
 * [Create your first function using Visual Studio](../functions-create-your-first-function-visual-studio.md)
@@ -33,7 +34,7 @@ To complete the steps in this article:
 
   (You can use [Visual Studio Code](https://code.visualstudio.com/) instead, but some of the instructions are specific to Visual Studio.)
 
-* Install and run an [Azure Storage Emulator](../../storage/common/storage-use-emulator.md). An alternative is to update the *App.config* file with a real Azure Storage connection string.
+* Install and run the [Azurite storage emulator](../../storage/common/storage-use-azurite.md). An alternative is to update the *App.config* file with a real Azure Storage connection string.
 
 ## WebJobs SDK versions
 
@@ -131,7 +132,7 @@ In a WebJobs SDK project, the method name of a function is the function name. Th
 
 ### HTTP trigger
 
-The WebJobs SDK does not have an HTTP trigger. The sample project's orchestration client uses a timer trigger:
+The WebJobs SDK doesn't have an HTTP trigger. The sample project's orchestration client uses a timer trigger:
 
 ```cs
 public static async Task CronJob(
@@ -198,7 +199,7 @@ This section provides an overview of how to run the [sample project](https://git
 
 1. Create a web app and a storage account.
 
-1. In the web app, save the storage connection string in an app setting named `AzureWebJobsStorage`.
+1. In the web app, save the storage connection information in an app setting named `AzureWebJobsStorage`. For the highest level of security, you should use a [managed identity connection](../../app-service/overview-managed-identity.md) to your storage account.
 
 1. Create an Application Insights resource, and use the **General** app type for it.
 
@@ -228,6 +229,9 @@ The main change introduced is the use of .NET Core instead of .NET Framework. To
             "APPINSIGHTS_INSTRUMENTATIONKEY": "<replace with Application Insights instrumentation key>"
         }
     ```
+
+    >[!IMPORTANT]  
+    >For the highest level of security, you should use a managed identity connection to your storage account. For more information, see [How to use managed identities for App Service and Azure Functions](../../app-service/overview-managed-identity.md).
 
 1. Change the `Main` method code to do this. Here's an example:
 

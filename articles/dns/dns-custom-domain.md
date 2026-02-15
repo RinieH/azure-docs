@@ -2,26 +2,28 @@
 title: Integrate Azure DNS with your Azure resources - Azure DNS
 description: In this article, learn how to use Azure DNS along to provide DNS for your Azure resources.
 services: dns
-author: rohinkoul
-ms.service: dns
+author: asudbring
+ms.service: azure-dns
 ms.topic: how-to
-ms.date: 05/06/2021
-ms.author: rohink
+ms.date: 07/22/2024
+ms.author: allensu
+ms.custom: sfi-image-nochange
+# Customer intent: As a cloud administrator, I want to configure custom domain settings for various Azure services using Azure DNS, so that I can provide user-friendly access to those services via personalized domain names.
 ---
 
 # Use Azure DNS to provide custom domain settings for an Azure service
 
-Azure DNS provides naming resolution for any of your Azure resources that support custom domains or that have a fully qualified domain name (FQDN). For example, you have an Azure web app you want your users to access using `contoso.com` or `www.contoso.com` as the FQDN. This article walks you through configuring your Azure service with Azure DNS for using custom domains.
+Azure DNS provides name resolution for any of your Azure resources that support custom domains, or that have a fully qualified domain name (FQDN). For example, you might have an Azure web app you want your users to access using `contoso.com` or `www.contoso.com` as the FQDN. This article walks you through configuring Azure DNS to access your Azure service with custom domains.
+
+You can configure a vanity or custom domain for Azure Function Apps, Public IP addresses, App Service (Web Apps), Blob storage, and Azure CDN
 
 ## Prerequisites
 
 To use Azure DNS for your custom domain, you must first delegate your domain to Azure DNS. See [Delegate a domain to Azure DNS](./dns-delegate-domain-azure-dns.md) for instructions on how to configure your name servers for delegation. Once your domain is delegated to your Azure DNS zone, you now can configure your DNS records needed.
 
-You can configure a vanity or custom domain for Azure Function Apps, Public IP addresses, App Service (Web Apps), Blob storage, and Azure CDN.
-
 ## Azure Function App
 
-To configure a custom domain for Azure function apps, a CNAME record is created and configured on the function app itself.
+To configure a custom domain for Azure function apps, a [CNAME record](dns-zones-records.md#cname-records) is created and configured on the function app itself. A CNAME record maps a domain name to another domain or subdomain. In this case, you create a CNAME in your public domain and provision the CNAME alias to be the FQDN of your custom domain.
  
 1. Navigate to **Function App** and select your function app. Select **Custom domains** under *Settings*. Note the **current url** under *assigned custom domains*, this address is used as the alias for the DNS record created.
 
@@ -49,7 +51,7 @@ To configure a custom domain for Azure function apps, a CNAME record is created 
 
 ## Public IP address
 
-To configure a custom domain for services that use a public IP address resource such as Application Gateway, Load Balancer, Cloud Service, Resource Manager VMs, and, Classic VMs, an A record is used.
+To configure a custom domain for services that use a public IP address resource such as Application Gateway, Load Balancer, Cloud Service, Resource Manager VMs, and, Classic VMs, an A record is used. An A record (address record) maps a domain name to an IP address. In this case, you create a new A record in your public domain and configure it to have an IP address corresponding to the public IP address of your Azure service. 
 
 1. Navigate to the Public IP resource and select **Configuration**. Note the IP address shown.
 
@@ -81,7 +83,7 @@ The following steps take you through configuring a custom domain for an app serv
 
 1. Navigate to your DNS Zone and select **+ Record set**. Enter the following information on the **Add record set** page and select **OK** to create it.
 
-    :::image type="content" source="./media/dns-custom-domain/web-app.png" alt-text="Screenshot of web app record set page.":::
+    :::image type="content" source="./media/dns-custom-domain/web-app-record.png" alt-text="Screenshot of web app record set page.":::
 
     | Property  | Value | Description |
     |---------- | ----- | ----------- |
@@ -103,7 +105,7 @@ The following steps take you through configuring a custom domain for an app serv
 
     :::image type="content" source="./media/dns-custom-domain/app-service-nslookup.png" alt-text="Screenshot of nslookup for web app."::: 
 
-To learn more about mapping a custom domain to App Service, visit [map an existing custom DNS name to Azure Web Apps](../app-service/app-service-web-tutorial-custom-domain.md?toc=%dns%2ftoc.json).
+To learn more about mapping a custom domain to App Service, visit [map an existing custom DNS name to Azure Web Apps](../app-service/app-service-web-tutorial-custom-domain.md).
 
 To learn how to migrate an active DNS name, see [migrate an active DNS name to Azure App Service](../app-service/manage-custom-dns-migrate-domain.md).
 
@@ -139,7 +141,7 @@ The following steps take you through configuring a CNAME record for a blob stora
 
 1. Validate DNS resolution by running `nslookup`.
 
-To learn more about mapping a custom domain to a blob storage endpoint visit [Configure a custom domain name for your Blob storage endpoint](../storage/blobs/storage-custom-domain-name.md?toc=%dns%2ftoc.json)
+To learn more about mapping a custom domain to a blob storage endpoint visit [Configure a custom domain name for your Blob storage endpoint](../storage/blobs/storage-custom-domain-name.md)
 
 ## Azure CDN
 
@@ -169,7 +171,7 @@ The following steps take you through configuring a CNAME record for a CDN endpoi
 
     :::image type="content" source="./media/dns-custom-domain/cdn-record-set.png" alt-text="Screenshot of CDN record without cdnverify prefix.":::
 
-For more information on CDN and how to configure a custom domain without the intermediate registration step visit [Map Azure CDN content to a custom domain](../cdn/cdn-map-content-to-custom-domain.md?toc=%dns%2ftoc.json).
+For more information on CDN and how to configure a custom domain without the intermediate registration step visit [Map Azure CDN content to a custom domain](../cdn/cdn-map-content-to-custom-domain.md).
 
 ## Next steps
 

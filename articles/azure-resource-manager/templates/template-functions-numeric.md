@@ -1,8 +1,9 @@
 ---
 title: Template functions - numeric
 description: Describes the functions to use in an Azure Resource Manager template (ARM template) to work with numbers.
-ms.topic: conceptual
-ms.date: 05/13/2021
+ms.topic: reference
+ms.custom: devx-track-arm-template
+ms.date: 08/01/2025
 ---
 
 # Numeric functions for ARM templates
@@ -20,13 +21,16 @@ Resource Manager provides the following functions for working with integers in y
 * [mul](#mul)
 * [sub](#sub)
 
+> [!TIP]
+> [Bicep](../bicep/overview.md) is recommended since it offers the same capabilities as ARM templates, and the syntax is easier to use. To learn more about using `int`, `min`, and `max` in Bicep, see [`numeric`](../bicep/bicep-functions-numeric.md) functions. For other numeric values, see [numeric](../bicep/operators-numeric.md) operators.
+
 ## add
 
 `add(operand1, operand2)`
 
 Returns the sum of the two provided integers.
 
-The `add` function in not supported in Bicep. Use the [`+` operator](../bicep/operators-numeric.md#add-) instead.
+The `add` function isn't supported in Bicep. Use the [`+` operator](../bicep/operators-numeric.md#add-) instead.
 
 ### Parameters
 
@@ -41,7 +45,7 @@ An integer that contains the sum of the parameters.
 
 ### Example
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/add.json) adds two parameters.
+The following example adds two parameters:
 
 ```json
 {
@@ -74,7 +78,7 @@ The following [example template](https://github.com/Azure/azure-docs-json-sample
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -85,6 +89,8 @@ The output from the preceding example with the default values is:
 `copyIndex(loopName, offset)`
 
 Returns the index of an iteration loop.
+
+In Bicep, use [iterative loops](../bicep/loops.md).
 
 ### Parameters
 
@@ -97,7 +103,7 @@ Returns the index of an iteration loop.
 
 This function is always used with a **copy** object. If no value is provided for **offset**, the current iteration value is returned. The iteration value starts at zero.
 
-The **loopName** property enables you to specify whether copyIndex is referring to a resource iteration or property iteration. If no value is provided for **loopName**, the current resource type iteration is used. Provide a value for **loopName** when iterating on a property.
+The **loopName** property enables you to specify if `copyIndex` is referring to a resource iteration or property iteration. If no value is provided for **loopName**, the current resource type iteration is used. Provide a value for **loopName** when iterating on a property.
 
 For more information about using copy, see:
 
@@ -108,7 +114,7 @@ For more information about using copy, see:
 
 ### Example
 
-The following example shows a copy loop and the index value included in the name.
+The following example shows a copy loop and the index value included in the name:
 
 ```json
 {
@@ -118,14 +124,18 @@ The following example shows a copy loop and the index value included in the name
     "storageCount": {
       "type": "int",
       "defaultValue": 2
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
     }
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-04-01",
-      "name": "[concat(copyIndex(),'storage', uniqueString(resourceGroup().id))]",
-      "location": "[resourceGroup().location]",
+      "apiVersion": "2025-06-01",
+      "name": "[format('{0}storage{1}', range(0, parameters('storageCount'))[copyIndex()], uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
       "sku": {
         "name": "Standard_LRS"
       },
@@ -136,8 +146,7 @@ The following example shows a copy loop and the index value included in the name
         "count": "[parameters('storageCount')]"
       }
     }
-  ],
-  "outputs": {}
+  ]
 }
 ```
 
@@ -151,14 +160,14 @@ An integer representing the current index of the iteration.
 
 Returns the integer division of the two provided integers.
 
-The `div` function in not supported in Bicep. Use the [`/` operator](../bicep/operators-numeric.md#divide-) instead.
+The `div` function isn't supported in Bicep. Use the [`/` operator](../bicep/operators-numeric.md#divide-) instead.
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
 | operand1 |Yes |int |The number being divided. |
-| operand2 |Yes |int |The number that is used to divide. Can't be 0. |
+| operand2 |Yes |int |The number that's used to divide. Can't be 0. |
 
 ### Return value
 
@@ -166,7 +175,7 @@ An integer representing the division.
 
 ### Example
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/div.json) divides one parameter by another parameter.
+The following example divides one parameter by another one:
 
 ```json
 {
@@ -199,7 +208,7 @@ The following [example template](https://github.com/Azure/azure-docs-json-sample
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -211,7 +220,7 @@ The output from the preceding example with the default values is:
 
 Converts the value to a floating point number. You only use this function when passing custom parameters to an application, such as a Logic App.
 
-The `float` function is not supported in Bicep.
+The `float` function isn't supported in Bicep.
 
 ### Parameters
 
@@ -247,6 +256,8 @@ The following example shows how to use float to pass parameters to a Logic App:
 
 Converts the specified value to an integer.
 
+In Bicep, use the [`int`](../bicep/bicep-functions-numeric.md#int) function.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
@@ -259,7 +270,7 @@ An integer of the converted value.
 
 ### Example
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/int.json) converts the user-provided parameter value to integer.
+The following example template converts the user-provided parameter value to an integer:
 
 ```json
 {
@@ -282,7 +293,7 @@ The following [example template](https://github.com/Azure/azure-docs-json-sample
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -290,9 +301,11 @@ The output from the preceding example with the default values is:
 
 ## max
 
-`max (arg1)`
+`max(arg1)`
 
 Returns the maximum value from an array of integers or a comma-separated list of integers.
+
+In Bicep, use the [`max`](../bicep/bicep-functions-numeric.md#max) function.
 
 ### Parameters
 
@@ -306,7 +319,7 @@ An integer representing the maximum value from the collection.
 
 ### Example
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/max.json) shows how to use max with an array and a list of integers:
+The following example shows how to use `max` with an array and a list of integers:
 
 ```json
 {
@@ -332,7 +345,7 @@ The following [example template](https://github.com/Azure/azure-docs-json-sample
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -341,9 +354,11 @@ The output from the preceding example with the default values is:
 
 ## min
 
-`min (arg1)`
+`min(arg1)`
 
 Returns the minimum value from an array of integers or a comma-separated list of integers.
+
+In Bicep, use the [`min`](../bicep/bicep-functions-numeric.md#min) function.
 
 ### Parameters
 
@@ -357,7 +372,7 @@ An integer representing minimum value from the collection.
 
 ### Example
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/min.json) shows how to use min with an array and a list of integers:
+The following example shows how to use `min` with an array and a list of integers:
 
 ```json
 {
@@ -383,7 +398,7 @@ The following [example template](https://github.com/Azure/azure-docs-json-sample
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -394,16 +409,16 @@ The output from the preceding example with the default values is:
 
 `mod(operand1, operand2)`
 
-Returns the remainder of the integer division using the two provided integers.
+Returns the quotient of the integer division using the two provided integers.
 
-The `mod` function is not supported in Bicep. Use the [% operator](../bicep/operators-numeric.md#modulo-) instead.
+The `mod` function isn't supported in Bicep. Use the [% operator](../bicep/operators-numeric.md#modulo-) instead.
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
 | operand1 |Yes |int |The number being divided. |
-| operand2 |Yes |int |The number that is used to divide, Can't be 0. |
+| operand2 |Yes |int |The number that's used to divide, Can't be 0. |
 
 ### Return value
 
@@ -411,7 +426,7 @@ An integer representing the remainder.
 
 ### Example
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/mod.json) returns the remainder of dividing one parameter by another parameter.
+The following example returns the quotient of dividing one parameter by another one:
 
 ```json
 {
@@ -444,7 +459,7 @@ The following [example template](https://github.com/Azure/azure-docs-json-sample
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
@@ -456,7 +471,7 @@ The output from the preceding example with the default values is:
 
 Returns the multiplication of the two provided integers.
 
-The `mul` function is not supported in Bicep. Use the [* operator](../bicep/operators-numeric.md#multiply-) instead.
+The `mul` function isn't supported in Bicep. Use the [* operator](../bicep/operators-numeric.md#multiply-) instead.
 
 ### Parameters
 
@@ -471,7 +486,7 @@ An integer representing the multiplication.
 
 ### Example
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/mul.json) multiplies one parameter by another parameter.
+The following example multiplies one parameter by another one:
 
 ```json
 {
@@ -498,17 +513,17 @@ The following [example template](https://github.com/Azure/azure-docs-json-sample
   "outputs": {
     "mulResult": {
       "type": "int",
-      "value": "[mul(parameters('first'), parameters('second'))]"
+      "value": "[mul(mul(parameters('first'), parameters('second')), 3)]"
     }
   }
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
-| mulResult | Int | 15 |
+| mulResult | Int | 45 |
 
 ## sub
 
@@ -516,12 +531,14 @@ The output from the preceding example with the default values is:
 
 Returns the subtraction of the two provided integers.
 
+The `sub` function isn't supported in Bicep. Use the [- operator](../bicep/operators-numeric.md#subtract--) instead.
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| operand1 |Yes |int |The number that is subtracted from. |
-| operand2 |Yes |int |The number that is subtracted. |
+| operand1 |Yes |int |The number that's subtracted from. |
+| operand2 |Yes |int |The number that's subtracted. |
 
 ### Return value
 
@@ -529,7 +546,7 @@ An integer representing the subtraction.
 
 ### Example
 
-The following [example template](https://github.com/Azure/azure-docs-json-samples/blob/master/azure-resource-manager/functions/sub.json) subtracts one parameter from another parameter.
+The following example subtracts one parameter from another one:
 
 ```json
 {
@@ -562,7 +579,7 @@ The following [example template](https://github.com/Azure/azure-docs-json-sample
 }
 ```
 
-The output from the preceding example with the default values is:
+The output of default values from the preceding example is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |

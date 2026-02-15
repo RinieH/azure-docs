@@ -2,7 +2,7 @@
 title: Use PowerShell to manage Azure Service Bus resources | Microsoft Docs
 description: This article explains how to use Azure PowerShell module to create and manage Service Bus entities (namespaces, queues, topics, subscriptions).
 ms.topic: article
-ms.date: 06/23/2020 
+ms.date: 09/20/2021
 ms.custom: devx-track-azurepowershell
 ---
 
@@ -12,7 +12,7 @@ Microsoft Azure PowerShell is a scripting environment that you can use to contro
 
 You can also manage Service Bus entities using Azure Resource Manager templates. For more information, see the article [Create Service Bus resources using Azure Resource Manager templates](service-bus-resource-manager-overview.md).
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 ## Prerequisites
 
@@ -125,7 +125,7 @@ else
 {
     Write-Host "The $QueueName queue does not exist."
     Write-Host "Creating the $QueueName queue in the $Location region..."
-    New-AzServiceBusQueue -ResourceGroup $ResGrpName -NamespaceName $Namespace -QueueName $QueueName -EnablePartitioning $True
+    New-AzServiceBusQueue -ResourceGroup $ResGrpName -NamespaceName $Namespace -QueueName $QueueName
     $CurrentQ = Get-AzServiceBusQueue -ResourceGroup $ResGrpName -NamespaceName $Namespace -QueueName $QueueName
     Write-Host "The $QueueName queue in Resource Group $ResGrpName in the $Location region has been successfully created."
 }

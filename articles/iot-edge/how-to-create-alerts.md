@@ -1,35 +1,37 @@
 ---
 title: Get notified about issues using alerts - Azure IoT Edge
 description: Use Azure Monitor alert rules to monitor at scale
-author: veyalla
-manager: philmea
-ms.author: veyalla
-ms.date: 06/08/2021
-ms.topic: conceptual
-ms.reviewer: kgremban
-ms.service: iot-edge 
+author: sethmanheim
+ms.author: sethm
+ms.date: 08/08/2025
+ms.topic: concept-article
+ms.reviewer: sonialopez
+ms.service: azure-iot-edge
 services: iot-edge
 ---
 
-# Get notified about issues using alerts (Preview)
+# Get notified about issues using alerts
 
-[!INCLUDE [iot-edge-version-all-supported](../../includes/iot-edge-version-all-supported.md)]
+[!INCLUDE [iot-edge-version-all-supported](includes/iot-edge-version-all-supported.md)]
 
-Use [Azure Monitor Log alerts](../azure-monitor/alerts/alerts-unified-log.md) to monitor IoT Edge devices at scale. As highlighted in the [solution architecture](how-to-collect-and-transport-metrics.md#architecture), Azure Monitor Log Analytics is used as the metrics database. This integration unlocks powerful and flexible alerting capabilities using resource-centric log alerts.
+Use [Azure Monitor Log alerts](/azure/azure-monitor/alerts/alerts-unified-log) to monitor IoT Edge devices at scale. As highlighted in the [solution architecture](how-to-collect-and-transport-metrics.md#architecture), Azure Monitor Log Analytics is used as the metrics database. This integration unlocks powerful and flexible alerting capabilities using resource-centric log alerts.
+
+> [!IMPORTANT]
+> This feature is currently only available for IoT Hub and not for IoT Central.
 
 ## Create an alert rule
 
-You can [create a log alert rule](../azure-monitor/alerts/alerts-log.md) for monitoring a broad range of conditions across your device fleet.
+You can [create a log alert rule](/azure/azure-monitor/alerts/alerts-log) for monitoring a broad range of conditions across your device fleet.
 
-Sample [KQL](https://aka.ms/kql) alert queries are provided under the IoT Hub resource. Queries that operate on metrics data from edge devices are prefixed with *IoT Edge:* in their title. Use these examples as-is or modify them as needed to create a query for your exact need.
+Sample [KQL](/azure/data-explorer/kusto/query/) alert queries are provided under the IoT Hub resource. Queries that operate on metrics data from edge devices are prefixed with *IoT Edge:* in their title. Use these examples as-is or modify them as needed to create a query for your exact need.
 
 To access the example alert queries, use the following steps:
 
 1. Sign in to the [Azure portal](https://portal.azure.com) and navigate to your IoT hub.
 1. Select **Logs** from the **Monitoring** section of the menu.
-1. Select **Queries** to open the example query browser.
+1. The **Queries** example query browser will automatically open. If this is your first time to **Logs** you may have to close a video tutorial before you can see the query browser. The **Queries** tab can be used to bring up the example query browser again if you don't see it.
 
-:::image type="content" source="./media/how-to-create-alerts/example-alerts.png" alt-text="Access example alert queries." lightbox="./media/how-to-create-alerts/example-alerts.png":::
+:::image type="content" source="./media/how-to-create-alerts/example-alerts.png" alt-text="Screenshot of how to access the example alert queries." lightbox="./media/how-to-create-alerts/example-alerts.png":::
 
 The [metrics-collector module](how-to-collect-and-transport-metrics.md#metrics-collector-module) ingests all data into the standard [InsightsMetrics](/azure/azure-monitor/reference/tables/insightsmetrics) table. You can create alert rules based on metrics data from custom modules by querying the same table.
 
@@ -39,7 +41,7 @@ All the example alert rule queries aggregate values by device ID. This grouping 
 
 ### Choose notification preferences
 
-Configure your notification preferences in an [action group](../azure-monitor/alerts/action-groups.md) and associate it with an alert rule when creating an alert rule.
+Configure your notification preferences in an [action group](/azure/azure-monitor/alerts/action-groups) and associate it with an alert rule when creating an alert rule.
 
 ## Select alert rule scope
 
@@ -55,10 +57,10 @@ Aggregate values by the `_ResourceId` field and choose it as the *Resource ID co
 
 ## Viewing alerts
 
-See alerts generated for devices across multiple IoT Hubs in **Alerts** tab of the [IoT Edge fleet view workbook](how-to-explore-curated-visualizations.md#iot-edge-fleet-view-workbook).
+See alerts generated for devices across multiple IoT Hubs in **Alerts** tab of the [IoT Edge fleet view workbook](how-to-explore-curated-visualizations.md#fleet-view-workbook).
 
 Click the alert rule name to see more context about the alert. Clicking the device name link will show you the detailed metrics for the device around the time when the alert fired.
 
 ## Next steps
 
-Enhance your monitoring solution with [metrics from custom modules](how-to-add-custom-metrics.md). 
+Enhance your monitoring solution with [metrics from custom modules](how-to-add-custom-metrics.md).

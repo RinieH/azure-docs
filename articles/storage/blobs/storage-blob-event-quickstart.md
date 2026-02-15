@@ -1,14 +1,16 @@
 ---
-title: Send Azure Blob storage events to web endpoint - Azure CLI | Microsoft Docs
+title: Send Azure Blob storage events to web endpoint - Azure CLI
 description: Use Azure Event Grid to subscribe to Blob storage events. Send the events to a Webhook. Handle the events in a web application.
 author: normesta
 ms.author: normesta
 ms.reviewer: dineshm
-ms.date: 03/05/2020
+ms.date: 08/11/2021
 ms.topic: how-to
-ms.service: storage
-ms.subservice: blobs 
-ms.custom: devx-track-azurecli
+ms.service: azure-blob-storage
+ms.custom:
+  - devx-track-azurecli
+  - sfi-image-nochange
+# Customer intent: "As a developer, I want to route Azure Blob storage events to a web endpoint using Event Grid, so that I can handle and display these events in my web application."
 ---
 
 # Quickstart: Route storage events to web endpoint with Azure CLI
@@ -21,9 +23,9 @@ When you complete the steps described in this article, you see that the event da
 
 ![Screenshot of the Azure Event Grid Viewer that shows event data that has been sent to the web app.](./media/storage-blob-event-quickstart/view-results.png)
 
-[!INCLUDE [quickstarts-free-trial-note.md](../../../includes/quickstarts-free-trial-note.md)]
+[!INCLUDE [quickstarts-free-trial-note.md](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
-[!INCLUDE [azure-cli-prepare-your-environment.md](../../../includes/azure-cli-prepare-your-environment.md)]
+[!INCLUDE [azure-cli-prepare-your-environment.md](~/reusable-content/azure-cli/azure-cli-prepare-your-environment.md)]
 
 - This article requires version 2.0.70 or later of the Azure CLI. If using Azure Cloud Shell, the latest version is already installed.
 
@@ -31,7 +33,7 @@ When you complete the steps described in this article, you see that the event da
 
 Event Grid topics are Azure resources, and must be placed in an Azure resource group. The resource group is a logical collection into which Azure resources are deployed and managed.
 
-Create a resource group with the [az group create](/cli/azure/group) command. 
+Create a resource group with the [az group create](/cli/azure/group) command.
 
 The following example creates a resource group named `<resource_group_name>` in the *westcentralus* location.  Replace `<resource_group_name>` with a unique name for your resource group.
 
@@ -74,7 +76,7 @@ The deployment may take a few minutes to complete. After the deployment has succ
 
 You should see the site with no messages currently displayed.
 
-[!INCLUDE [event-grid-register-provider-cli.md](../../../includes/event-grid-register-provider-cli.md)]
+[!INCLUDE [register-provider-cli.md](../../event-grid/includes/register-provider-cli.md)]
 
 ## Subscribe to your storage account
 
@@ -112,7 +114,6 @@ az storage blob upload --file testfile.txt --container-name testcontainer --name
 
 You've triggered the event, and Event Grid sent the message to the endpoint you configured when subscribing. View your web app to see the event you just sent.
 
-
 ```json
 [{
   "topic": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/myrg/providers/Microsoft.Storage/storageAccounts/myblobstorageaccount",
@@ -128,7 +129,7 @@ You've triggered the event, and Event Grid sent the message to the endpoint you 
     "contentType": "text/plain",
     "contentLength": 0,
     "blobType": "BlockBlob",
-    "url": "https://myblobstorageaccount.blob.core.windows.net/testcontainer/testblob1.txt",
+    "url": "https://myblobstorageaccount.blob.core.windows.net/testcontainer/testfile.txt",
     "sequencer": "00000000000000EB0000000000046199",
     "storageDiagnostics": {
       "batchId": "dffea416-b46e-4613-ac19-0371c0c5e352"
@@ -141,6 +142,7 @@ You've triggered the event, and Event Grid sent the message to the endpoint you 
 ```
 
 ## Clean up resources
+
 If you plan to continue working with this storage account and event subscription, do not clean up the resources created in this article. If you do not plan to continue, use the following command to delete the resources you created in this article.
 
 Replace `<resource_group_name>` with the resource group you created above.
@@ -155,3 +157,4 @@ Now that you know how to create topics and event subscriptions, learn more about
 
 - [Reacting to Blob storage events](storage-blob-event-overview.md)
 - [About Event Grid](../../event-grid/overview.md)
+- [Run an Azure Function in response to a blob rehydration event](archive-rehydrate-handle-event.md)

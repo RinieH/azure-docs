@@ -1,14 +1,13 @@
 ---
 title: Understand scope for Azure RBAC
 description: Learn about scope for Azure role-based access control (Azure RBAC) and how to determine the scope for a resource.
-services: active-directory
 author: rolyon
-manager: mtillman
+manager: pmwongera
 ms.service: role-based-access-control
 ms.topic: how-to
-ms.workload: identity
-ms.date: 10/08/2020
+ms.date: 03/30/2025
 ms.author: rolyon
+ms.custom: sfi-image-nochange
 ---
 
 # Understand scope for Azure RBAC
@@ -19,11 +18,11 @@ ms.author: rolyon
 
 In Azure, you can specify a scope at four levels: [management group](../governance/management-groups/overview.md), subscription, [resource group](../azure-resource-manager/management/overview.md#resource-groups), and resource. Scopes are structured in a parent-child relationship. Each level of hierarchy makes the scope more specific. You can assign roles at any of these levels of scope. The level you select determines how widely the role is applied. Lower levels inherit role permissions from higher levels. 
 
-![Scope for a role assignment](./media/scope-overview/rbac-scope-no-label.png)
+:::image type="content" source="./media/scope-overview/rbac-scope-no-label.png" alt-text="Diagram of scope for a role assignment." lightbox="./media/scope-overview/rbac-scope-no-label.png":::
 
-Management groups are a level of scope above subscriptions, but management groups support more complex hierarchies. The following diagram shows an example of a hierarchy of management groups and subscriptions that you can define. For more information about management groups, see [What are Azure management groups?](../governance/management-groups/overview.md).
+Management groups are a level of scope above subscriptions, but management groups support more complex hierarchies. The following diagram shows an example of a hierarchy of management groups and subscriptions that you can define. For more information about management groups, see [What are Azure management groups?](../governance/management-groups/overview.md)
 
-![Management group and subscription hierarchy](./media/scope-overview/rbac-scope-management-groups.png)
+:::image type="content" source="./media/scope-overview/rbac-scope-management-groups.png" alt-text="Diagram of management group and subscription hierarchy." lightbox="./media/scope-overview/rbac-scope-management-groups.png":::
 
 ## Scope format
 
@@ -45,7 +44,7 @@ The scope consists of a series of identifiers separated by the slash (/) charact
 ```
 
 - `{subscriptionId}` is the ID of the subscription to use (a GUID).
-- `{resourcesGroupName}` is the name of the containing resource group.
+- `{resourceGroupName}` is the name of the containing resource group.
 - `{providerName}` is the name of the [resource provider](../azure-resource-manager/management/azure-services-resource-providers.md) that handles the resource, then `{resourceType}` and `{resourceSubType*}` identify further levels within that resource provider.
 - `{resourceName}` is the last part of the string that identifies a specific resource.
 
@@ -55,7 +54,7 @@ Management groups are a level above subscriptions and have the broadest (least s
 /providers
     /Microsoft.Management
         /managementGroups
-            /{managmentGroupName}
+            /{managementGroupName}
 ```
 
 ## Scope examples
@@ -76,9 +75,9 @@ It's fairly simple to determine the scope for a management group, subscription, 
 
 - In the Azure portal, open the resource and then look at the properties. The resource should list the **Resource ID** where you can determine the scope. For example, here are the resource IDs for a storage account.
 
-    ![Resource IDs for a storage account in Azure portal](./media/scope-overview/scope-resource-id.png)
+    :::image type="content" source="./media/scope-overview/scope-resource-id.png" alt-text="Screenshot of resource IDs for a storage account in Azure portal." lightbox="./media/scope-overview/scope-resource-id.png":::
 
-- Another way is to use the Azure portal to assign a role temporarily at the resource scope and then use [Azure PowerShell](role-assignments-list-powershell.md) or [Azure CLI](role-assignments-list-cli.md) to list the role assignment. In the output, the scope will be listed as a property.
+- Another way is to use the Azure portal to assign a role temporarily at the resource scope and then use [Azure PowerShell](/azure/role-based-access-control/role-assignments-list-powershell) or [Azure CLI](/azure/role-based-access-control/role-assignments-list-cli) to list the role assignment. In the output, the scope will be listed as a property.
 
     ```azurepowershell
     RoleAssignmentId   : /subscriptions/<subscriptionId>/resourceGroups/test-rg/providers/Microsoft.Storage/storageAccounts/azurestorage12345/blobServices/default/containers/blob-container-01/pro
@@ -114,6 +113,18 @@ It's fairly simple to determine the scope for a management group, subscription, 
         "type": "Microsoft.Authorization/roleAssignments"
       }
     ```
+
+## Scope and ARM templates
+
+A role assignment is a special type in Azure Resource Manager called an *extension resource*. An extension resource is a resource that adds to another resource's capabilities. They always exist as an extension (like a child) of another resource. For example, a role assignment at subscription scope is an extension resource of the subscription. The name of a role assignment is always the name of the resource you are extending plus `/Microsoft.Authorization/roleAssignments/{roleAssignmentId}`. When assigning roles using Azure Resource Manager template (ARM template), you typically don't need to provide the scope. The reason is that the scope field ends up always being the ID of the resource you are extending. The scope can be determined from the ID of the role assignment itself. The following table shows examples of a role assignment ID and the corresponding scope:
+
+> [!div class="mx-tableFixed"]
+> | Role assignment ID | Scope |
+> | --- | --- |
+> | `/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentId}` | `/subscriptions/{subscriptionId}` |
+> | `/subscriptions/{subscriptionId}/resourceGroups/Example-Storage-rg/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentId}` | `/subscriptions/{subscriptionId}/resourceGroups/Example-Storage-rg` |
+
+For more information about scope and ARM templates, see [Assign Azure roles using Azure Resource Manager templates](role-assignments-template.md). For a full list of extension resource types, see [Resource types that extend capabilities of other resources](../azure-resource-manager/management/extension-resource-types.md).
 
 ## Next steps
 

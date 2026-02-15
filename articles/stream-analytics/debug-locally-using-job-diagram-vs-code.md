@@ -4,18 +4,19 @@ description: This article describes how to debug queries locally using job diagr
 author: su-jie
 ms.author: sujie
 
-ms.service: stream-analytics
+ms.service: azure-stream-analytics
 ms.topic: how-to
 ms.date: 06/23/2020
+ms.custom: sfi-image-nochange
 ---
 
-# Debug Azure Stream Analytics queries locally using job diagram in Visual Studio Code
+# Debug Azure Stream Analytics queries locally using job diagram in Visual Studio Code (Preview)
 
 Streaming jobs that output no result or unexpected results often need troubleshooting. The Visual Studio Code extension for Azure Stream Analytics integrates job diagrams, metrics, diagnostic logs, and intermediate results to help you quickly isolate the source of a problem. You can use the job diagram while testing your query locally to examine the intermediate result set and metrics for each step.
 
 ## Debug a query using job diagram
 
-An Azure Stream Analytics script is used to transform input data to output data. The job diagram shows how data flows from input sources, like Event Hub or IoT Hub, through multiple query steps to output sinks. Each query step is mapped to a temporary result set defined in the script using a `WITH` statement. You can view the data as well as metrics of each query step in each intermediate result set to find the source of an issue.
+An Azure Stream Analytics script is used to transform input data to output data. The job diagram shows how data flows from input sources, like Event Hubs or IoT Hub, through multiple query steps to output sinks. Each query step is mapped to a temporary result set defined in the script using a `WITH` statement. You can view the data as well as metrics of each query step in each intermediate result set to find the source of an issue.
 
 > [!NOTE]
 > This job diagram only shows the data and metrics for local testing in a single node. It should not be used for performance tuning and troubleshooting.
@@ -51,7 +52,7 @@ In this section, you explore the metrics available for each part of the diagram.
    > [!div class="mx-imgBorder"]
    > ![Job diagram metrics](./media/debug-locally-using-job-diagram-vs-code/job-metrics.png)
 
-3. Select the name of the input data source from the dropdown to see input metrics. The input source in the screenshot below is called *quotes*. For more information about input metrics, see [Understand Stream Analytics job monitoring and how to monitor queries](stream-analytics-monitoring.md).
+3. Select the name of the input data source from the dropdown to see input metrics. The input source in the screenshot below is called *quotes*. For more information about input metrics, see [Azure Stream Analytics job metrics](monitor-azure-stream-analytics-reference.md#metrics).
 
    > [!div class="mx-imgBorder"]
    > ![Job diagram input metrics](./media/debug-locally-using-job-diagram-vs-code/input-metrics.png)
@@ -61,7 +62,7 @@ In this section, you explore the metrics available for each part of the diagram.
    > [!div class="mx-imgBorder"]
    > ![Step metrics](./media/debug-locally-using-job-diagram-vs-code/step-metrics.png)
 
-5. Select an output in the diagram or from the dropdown to see output-related metrics. For more information about output metrics, see [Understand Stream Analytics job monitoring and how to monitor queries](stream-analytics-monitoring.md). Live output sinks aren't supported.
+5. Select an output in the diagram or from the dropdown to see output-related metrics. For more information about output metrics, see [Azure Stream Analytics job metrics](monitor-azure-stream-analytics-reference.md#metrics). Live output sinks aren't supported.
 
    > [!div class="mx-imgBorder"]
    > ![Output metrics](./media/debug-locally-using-job-diagram-vs-code/output-metrics.png)
@@ -93,11 +94,9 @@ Select **Job Summary** at the top-right of the job diagram to see properties and
 
 ## Limitations
 
-* Live output sinks aren't supported in local run.
-
 * Run job locally with JavaScript function is only supported on the Windows operating system.
 
-* C# custom code and Azure Machine Learning functions aren't supported. 
+* Azure Machine Learning functions aren't supported. 
 
 * Only cloud input options have [time policies](./stream-analytics-time-handling.md) support, while local input options don't.
 

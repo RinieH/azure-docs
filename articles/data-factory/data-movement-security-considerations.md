@@ -1,19 +1,15 @@
 ---
 title: Security considerations
-description: Describes basic security infrastructure that data movement services in Azure Data Factory use to help secure your data.  
-ms.author: abnarain
-author: nabhishek
-ms.service: data-factory
+description: Describes basic security infrastructure that data movement services in Azure Data Factory use to help secure your data.
+ms.author: susabat
+author: ssabat
+ms.subservice: security
 ms.topic: conceptual
-ms.custom: seo-lt-2019
-ms.date: 05/03/2021
+ms.date: 02/13/2025
 ---
 
 # Security considerations for data movement in Azure Data Factory
 
-> [!div class="op_single_selector" title1="Select the version of Data Factory service you are using:"]
->
-> * [Version 1](v1/data-factory-data-movement-security-considerations.md)
 > * [Current version](data-movement-security-considerations.md)
 
  [!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
@@ -47,7 +43,7 @@ In this article, we review security considerations in the following two data mov
 - **Cloud scenario**: In this scenario, both your source and your destination are publicly accessible through the internet. These include managed cloud storage services such as Azure Storage, Azure Synapse Analytics, Azure SQL Database, Azure Data Lake Store, Amazon S3, Amazon Redshift, SaaS services such as Salesforce, and web protocols such as FTP and OData. Find a complete list of supported data sources in  [Supported data stores and formats](copy-activity-overview.md#supported-data-stores-and-formats).
 - **Hybrid scenario**: In this scenario, either your source or your destination is behind a firewall or inside an on-premises corporate network. Or, the data store is in a private network or virtual network (most often the source) and is not publicly accessible. Database servers hosted on virtual machines also fall under this scenario.
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 ## Cloud scenarios
 
@@ -55,6 +51,8 @@ In this article, we review security considerations in the following two data mov
 
 - **Store encrypted credentials in an Azure Data Factory managed store**. Data Factory helps protect your data store credentials by encrypting them with certificates managed by Microsoft. These certificates are rotated every two years (which includes certificate renewal and the migration of credentials). For more information about Azure Storage security, see [Azure Storage security overview](../storage/blobs/security-recommendations.md).
 - **Store credentials in Azure Key Vault**. You can also store the data store's credential in [Azure Key Vault](https://azure.microsoft.com/services/key-vault/). Data Factory retrieves the credential during the execution of an activity. For more information, see [Store credential in Azure Key Vault](store-credentials-in-key-vault.md).
+
+Centralizing storage of application secrets in Azure Key Vault allows you to control their distribution. Key Vault greatly reduces the chances that secrets may be accidentally leaked. Instead of storing the connection string in the app's code, you can store it securely in Key Vault. Your applications can securely access the information they need by using URIs. These URIs allow the applications to retrieve specific versions of a secret. There's no need to write custom code to protect any of the secret information stored in Key Vault. 
 
 ### Data encryption in transit
 If the cloud data store supports HTTPS or TLS, all data transfers between data movement services in Data Factory and a cloud data store are via secure channel HTTPS or TLS.
@@ -107,7 +105,7 @@ Salesforce supports Shield Platform Encryption that allows encryption of all fil
 
 Hybrid scenarios require self-hosted integration runtime to be installed in an on-premises network, inside a virtual network (Azure), or inside a virtual private cloud (Amazon). The self-hosted integration runtime must be able to access the local data stores. For more information about self-hosted integration runtime, see [How to create and configure self-hosted integration runtime](./create-self-hosted-integration-runtime.md). 
 
-![self-hosted integration runtime channels](media/data-movement-security-considerations/data-management-gateway-channels.png)
+:::image type="content" source="media/data-movement-security-considerations/data-management-gateway-channels.png" alt-text="self-hosted integration runtime channels":::
 
 The command channel allows communication between data movement services in Data Factory and self-hosted integration runtime. The communication contains information related to the activity. The data channel is used for transferring data between on-premises data stores and cloud data stores.    
 
@@ -135,27 +133,27 @@ By default, when remote access from intranet is enabled, PowerShell uses port 80
 
 All data transfers are via secure channel HTTPS and TLS over TCP to prevent man-in-the-middle attacks during communication with Azure services.
 
-You can also use [IPSec VPN](../vpn-gateway/vpn-gateway-about-vpn-devices.md) or [Azure ExpressRoute](../expressroute/expressroute-introduction.md) to further secure the communication channel between your on-premises network and Azure.
+You can also use [IPsec VPN](../vpn-gateway/vpn-gateway-about-vpn-devices.md) or [Azure ExpressRoute](../expressroute/expressroute-introduction.md) to further secure the communication channel between your on-premises network and Azure.
 
-Azure Virtual Network is a logical representation of your network in the cloud. You can connect an on-premises network to your virtual network by setting up IPSec VPN (site-to-site) or ExpressRoute (private peering).
+Azure Virtual Network is a logical representation of your network in the cloud. You can connect an on-premises network to your virtual network by setting up IPsec VPN (site-to-site) or ExpressRoute (private peering).
 
 The following table summarizes the network and self-hosted integration runtime configuration recommendations based on different combinations of source and destination locations for hybrid data movement.
 
 | Source      | Destination                              | Network configuration                    | Integration runtime setup                |
 | ----------- | ---------------------------------------- | ---------------------------------------- | ---------------------------------------- |
-| On-premises | Virtual machines and cloud services deployed in virtual networks | IPSec VPN (point-to-site or site-to-site) | The self-hosted integration runtime should be installed on an Azure virtual machine in the virtual network.  |
+| On-premises | Virtual machines and cloud services deployed in virtual networks | IPsec VPN (point-to-site or site-to-site) | The self-hosted integration runtime should be installed on an Azure virtual machine in the virtual network.  |
 | On-premises | Virtual machines and cloud services deployed in virtual networks | ExpressRoute (private peering)           | The self-hosted integration runtime should be installed on an Azure virtual machine in the virtual network.  |
 | On-premises | Azure-based services that have a public endpoint | ExpressRoute (Microsoft peering)            | The self-hosted integration runtime can be installed on-premises or on an Azure virtual machine. |
 
-The following images show the use of self-hosted integration runtime for moving data between an on-premises database and Azure services by using ExpressRoute and IPSec VPN (with Azure Virtual Network):
+The following images show the use of self-hosted integration runtime for moving data between an on-premises database and Azure services by using ExpressRoute and IPsec VPN (with Azure Virtual Network):
 
 #### Express Route
 
-![Use ExpressRoute with gateway](media/data-movement-security-considerations/express-route-for-gateway.png) 
+:::image type="content" source="media/data-movement-security-considerations/express-route-for-gateway.png" alt-text="Use ExpressRoute with gateway"::: 
 
-#### IPSec VPN
+#### IPsec VPN
 
-![IPSec VPN with gateway](media/data-movement-security-considerations/ipsec-vpn-for-gateway.png)
+:::image type="content" source="media/data-movement-security-considerations/ipsec-vpn-for-gateway.png" alt-text="IPsec VPN with gateway":::
 
 ### Firewall configurations and allow list setting up for IP addresses
 
@@ -182,7 +180,7 @@ The following table provides inbound port requirements for Windows Firewall:
 | ------------- | ---------------------------------------- |
 | 8060 (TCP)    | Required by the PowerShell encryption cmdlet as described in [Encrypt credentials for on-premises data stores in Azure Data Factory](encrypt-credentials-self-hosted-integration-runtime.md), and by the credential manager application to securely set credentials for on-premises data stores on the self-hosted integration runtime. |
 
-![Gateway port requirements](media/data-movement-security-considerations/gateway-port-requirements.png) 
+:::image type="content" source="media/data-movement-security-considerations/gateway-port-requirements.png" alt-text="Gateway port requirements"::: 
 
 #### IP configurations and allow list setting up in data stores
 
@@ -190,10 +188,10 @@ Some data stores in the cloud also require that you allow the IP address of the 
 
 The following cloud data stores require that you allow the IP address of the self-hosted integration runtime machine. Some of these data stores, by default, might not require allow list.
 
-* [Azure SQL Database](../azure-sql/database/firewall-configure.md)
+* [Azure SQL Database](/azure/azure-sql/database/firewall-configure)
 * [Azure Synapse Analytics](../synapse-analytics/sql-data-warehouse/create-data-warehouse-portal.md)
 * [Azure Data Lake Store](../data-lake-store/data-lake-store-secure-data.md#set-ip-address-range-for-data-access)
-* [Azure Cosmos DB](../cosmos-db/how-to-configure-firewall.md)
+* [Azure Cosmos DB](/azure/cosmos-db/how-to-configure-firewall)
 * [Amazon Redshift](https://docs.aws.amazon.com/redshift/latest/gsg/rs-gsg-authorize-cluster-access.html) 
 
 ## Frequently asked questions
@@ -206,6 +204,6 @@ Yes. More details [here](https://azure.microsoft.com/blog/sharing-a-self-hosted-
 
 The self-hosted integration runtime makes HTTP-based connections to access the internet. The outbound ports 443 must be opened for the self-hosted integration runtime to make this connection. Open inbound port 8060 only at the machine level (not the corporate firewall level) for credential manager application. If Azure SQL Database or Azure Synapse Analytics is used as the source or the destination, you need to open port 1433 as well. For more information, see the [Firewall configurations and allow list setting up for IP addresses](#firewall-configurations-and-allow-list-setting-up-for-ip-addresses) section.
 
-## Next steps
+## Related content
 
 For information about Azure Data Factory Copy Activity performance, see [Copy Activity performance and tuning guide](copy-activity-performance.md).

@@ -1,123 +1,99 @@
 ---
-title: 'Create an Azure AD tenant for P2S VPN connections: Azure AD authentication'
+title: 'Configure a P2S VPN - Microsoft Entra ID authentication - manually registered Azure VPN Client App ID'
 titleSuffix: Azure VPN Gateway
-description: Learn how to set up an Azure AD tenant for P2S Azure AD authentication - OpenVPN protocol.
-services: vpn-gateway
+description: Learn how to set up a Microsoft Entra tenant and P2S gateway for P2S Microsoft Entra authentication - OpenVPN protocol.
 author: cherylmc
-
-ms.service: vpn-gateway
+ms.service: azure-vpn-gateway
 ms.topic: how-to
-ms.date: 05/27/2021
+ms.date: 02/25/2025
 ms.author: cherylmc
+ms.custom: sfi-image-nochange
 
+#Note that Audience values are not sensitive data. 
+
+# Customer intent: As a network administrator, I want to configure a point-to-site VPN gateway for Microsoft Entra ID authentication, so that I can securely connect users to the virtual network using OpenVPN protocol.
 ---
-# Create an Azure Active Directory tenant for P2S OpenVPN protocol connections
 
-When you connect to your VNet using Point-to-Site, you have a choice of which protocol to use. The protocol you use determines the authentication options that are available to you. If you want to use Azure Active Directory authentication, you can do so when using the OpenVPN protocol. This article helps you set up an Azure AD tenant. For more information about Point-to-Site protocols and authentication, see [About Point-to-Site VPN](point-to-site-about.md).
+# Configure P2S VPN gateway for Microsoft Entra ID authentication – manually registered app
 
-[!INCLUDE [OpenVPN note](../../includes/vpn-gateway-openvpn-auth-include.md)]
+This article helps you configure a point-to-site (P2S) VPN gateway for Microsoft Entra ID authentication and manually register the Azure VPN client. This type of configuration is supported only for OpenVPN protocol connections. While the steps and Audience values in this article do result in a working configuration, we recommend that you use the [Configure P2S VPN Gateway for Microsoft Entra ID authentication](point-to-site-entra-gateway.md) article instead.
 
-## <a name="tenant"></a>1. Verify Azure AD tenant
+> [!IMPORTANT]
+> We recommend using the new [Configure P2S VPN Gateway for Microsoft Entra ID authentication](point-to-site-entra-gateway.md) article. The new article offers a more efficient setup process using the new **Microsoft-registered Azure VPN Client App ID** Audience value. Additionally, the new Audience value now supports the Azure VPN Client for Linux. If your P2S User VPN gateway is already set up with the manually configured Azure VPN Client Audience values, you can [migrate](point-to-site-entra-gateway-update.md) to the new Microsoft-registered App ID.
 
-Verify that you have an Azure AD tenant. If you don't have an Azure AD tenant, you can create one using the steps in the [Create a new tenant](../active-directory/fundamentals/active-directory-access-create-new-tenant.md) article:
+## Prerequisites
+
+The steps in this article require a Microsoft Entra tenant. If you don't have a Microsoft Entra tenant, you can create one using the steps in the [Create a new tenant](../active-directory/fundamentals/active-directory-access-create-new-tenant.md) article. Note the following fields when creating your directory:
 
 * Organizational name
 * Initial domain name
 
-   :::image type="content" source="./media/openvpn-create-azure-ad-tenant/newtenant.png" alt-text="Screenshot of Create Directory page." border="false":::
+If you already have an existing P2S gateway, the steps in this article help you configure the gateway for Microsoft Entra ID authentication. You can also create a new VPN gateway. The link to create a new gateway is included in this article.
 
-## <a name="users"></a>2. Create Azure AD tenant users
+[!INCLUDE [OpenVPN note](../../includes/vpn-gateway-openvpn-auth-include.md)]
 
-Your Azure AD tenant needs the following accounts: a Global Admin account and a user account. The user account is used as your embedding account (service account). When you create an Azure AD tenant user account, you adjust the Directory role for the type of user that you want to create.
+## <a name='create-azure-ad-tenant-users'></a>Create Microsoft Entra tenant users
 
-Use the steps in [Add or delete users - Azure Active Directory](../active-directory/fundamentals/add-users-azure-active-directory.md) to create at least two users for your Azure AD tenant. Be sure to change the **Directory Role** to create the account types:
+1. Create two accounts in the newly created Microsoft Entra tenant. For steps, see [Add or delete a new user](../active-directory/fundamentals/add-users-azure-active-directory.md).
 
-* Global Admin
-* User
+   * [Cloud Application Administrator role](/entra/identity/role-based-access-control/permissions-reference#cloud-application-administrator)
+   * User account
 
-## <a name="enable-authentication"></a>3. Enable Azure AD authentication on the VPN gateway
+   The Cloud Application Administrator role is used to grant consent to the Azure VPN app registration. The user account can be used to test OpenVPN authentication.
+1. Assign one of the accounts the **Cloud Application Administrator** role. For steps, see  [Assign administrator and non-administrator roles to users with Microsoft Entra ID](/azure/active-directory-b2c/tenant-management-read-tenant-name).
 
-1. Locate the Directory ID of the directory that you want to use for authentication. It's listed in the properties section of the Active Directory page.
+## Authorize the Azure VPN application
 
-   :::image type="content" source="./media/openvpn-create-azure-ad-tenant/directory-id.png" alt-text="Screenshot that shows the Directory Properties." lightbox="./media/openvpn-create-azure-ad-tenant/directory-id.png":::
+[!INCLUDE [Steps to authorize the Azure VPN app](../../includes/vpn-gateway-vwan-azure-ad-tenant.md)]
 
-1. Copy the Directory ID.
+## <a name="enable-authentication"></a>Configure the VPN gateway
 
-1. Sign in to the Azure portal as a user that is assigned the **Global administrator** role.
+> [!IMPORTANT]
+> [!INCLUDE [Entra ID note for portal pages](../../includes/vpn-gateway-entra-portal-note.md)]
 
-1. Next, give admin consent. Copy and paste the URL that pertains to your deployment location in the address bar of your browser:
+1. Locate the tenant ID of the directory that you want to use for authentication. It's listed in the properties section of the Active Directory page. For help with finding your tenant ID, see [How to find your Microsoft Entra tenant ID](../active-directory/fundamentals/how-to-find-tenant.md).
 
-   Public
+1. If you don't already have a functioning point-to-site environment, follow the instruction to create one. See [Create a point-to-site VPN](point-to-site-certificate-gateway.md) to create and configure a point-to-site VPN gateway. When you create a VPN gateway, the Basic SKU isn't supported for OpenVPN.
 
-   ```
-   https://login.microsoftonline.com/common/oauth2/authorize?client_id=41b23e61-6c1e-4545-b367-cd054e0ed4b4&response_type=code&redirect_uri=https://portal.azure.com&nonce=1234&prompt=admin_consent
-   ````
+1. Go to the virtual network gateway. In the left pane, click **Point-to-site configuration**.
 
-   Azure Government
+   :::image type="content" source="./media/openvpn-create-azure-ad-tenant/configuration.png" alt-text="Screenshot showing settings for Tunnel type, Authentication type, and Microsoft Entra settings.":::
 
-   ```
-   https://login.microsoftonline.us/common/oauth2/authorize?client_id=51bb15d4-3a4f-4ebf-9dca-40096fe32426&response_type=code&redirect_uri=https://portal.azure.us&nonce=1234&prompt=admin_consent
-   ````
+   Configure the following values:
 
-   Microsoft Cloud Germany
+   * **Address pool**: client address pool
+   * **Tunnel type:** OpenVPN (SSL)
+   * **Authentication type**: Microsoft Entra ID
 
-   ```
-   https://login-us.microsoftonline.de/common/oauth2/authorize?client_id=538ee9e6-310a-468d-afef-ea97365856a9&response_type=code&redirect_uri=https://portal.microsoftazure.de&nonce=1234&prompt=admin_consent
-   ````
+   For **Microsoft Entra ID** values, use the following guidelines for **Tenant**, **Audience**, and **Issuer** values. Replace {TenantID} with your tenant ID, taking care to remove **{}** from the examples when you replace this value.
 
-    Azure China 21Vianet
+   * **Tenant:** TenantID for the Microsoft Entra tenant. Enter the tenant ID that corresponds to your configuration. Make sure the Tenant URL doesn't have a `\` (backslash) at the end. Forward slash is permissible.
 
-    ```
-    https://login.chinacloudapi.cn/common/oauth2/authorize?client_id=49f817b6-84ae-4cc0-928c-73f27289b3aa&response_type=code&redirect_uri=https://portal.azure.cn&nonce=1234&prompt=admin_consent
-    ```
+     * Azure Public AD: `https://login.microsoftonline.com/{TenantID}`
+     * Azure Government AD: `https://login.microsoftonline.us/{TenantID}`
+     * Azure Germany AD: `https://login-us.microsoftonline.de/{TenantID}`
+     * China 21Vianet AD: `https://login.chinacloudapi.cn/{TenantID}`
 
-   > [!NOTE]
-   > If you using a global admin account that is not native to the Azure AD tenant to provide consent, please replace “common” with the Azure AD directory id in the URL. You may also have to replace “common” with your directory id in certain other cases as well.
-   >
+   * **Audience**: The Application ID of the "Azure VPN" Microsoft Entra Enterprise App.
 
-1. Select the **Global Admin** account if prompted.
+     * Azure Public: `41b23e61-6c1e-4545-b367-cd054e0ed4b4`
+     * Azure Government: `51bb15d4-3a4f-4ebf-9dca-40096fe32426`
+     * Azure Germany: `538ee9e6-310a-468d-afef-ea97365856a9`
+     * Microsoft Azure operated by 21Vianet: `49f817b6-84ae-4cc0-928c-73f27289b3aa`
 
-   :::image type="content" source="./media/openvpn-create-azure-ad-tenant/pick.png" alt-text="Screnshot showing Pick an account page." border="false":::
-1. Select **Accept** when prompted.
+   * **Issuer**: URL of the Secure Token Service. Include a trailing slash at the end of the **Issuer** value. Otherwise, the connection might fail. Example:
 
-   :::image type="content" source="./media/openvpn-create-azure-ad-tenant/accept.jpg" alt-text="Screenshot shows the message Permissions requested Accept for your organization with details and the option to accept." border="false":::
-1. Under your Azure AD, in **Enterprise applications**, you see **Azure VPN** listed.
+     * `https://sts.windows.net/{TenantID}/`
 
-   :::image type="content" source="./media/openvpn-create-azure-ad-tenant/azurevpn.png" alt-text="Screenshot that shows the All applications page." lightbox="./media/openvpn-create-azure-ad-tenant/azurevpn.png" :::
-1. If you don't already have a functioning point-to-site environment, follow the instruction to create one. See [Create a point-to-site VPN](vpn-gateway-howto-point-to-site-resource-manager-portal.md) to create and configure a point-to-site VPN gateway.
+1. Once you finish configuring settings, click **Save** at the top of the page.
 
-    > [!IMPORTANT]
-    > The Basic SKU is not supported for OpenVPN.
+## Download the Azure VPN Client profile configuration package
 
-1. Enable Azure AD authentication on the VPN gateway by navigating to **Point-to-site configuration** and picking **OpenVPN (SSL)** as the **Tunnel type**. Select **Azure Active Directory** as the **Authentication type**, then fill in the information under the **Azure Active Directory** section.
+In this section, you generate and download the Azure VPN Client profile configuration package. This package contains the settings that you can use to configure the Azure VPN Client profile on client computers.
 
-   * **Tenant:** TenantID for the Azure AD tenant ```https://login.microsoftonline.com/{AzureAD TenantID}/```
-
-   * **Audience:** Application ID of the "Azure VPN" Azure AD Enterprise App
-
-	   * Enter 41b23e61-6c1e-4545-b367-cd054e0ed4b4 for Azure Public
-	   * Enter 51bb15d4-3a4f-4ebf-9dca-40096fe32426 for Azure Government
-	   * Enter 538ee9e6-310a-468d-afef-ea97365856a9 for Azure Germany
-	   * Enter 49f817b6-84ae-4cc0-928c-73f27289b3aa for Azure China 21Vianet
-
-
-   * **Issuer**: URL of the Secure Token Service ```https://sts.windows.net/{AzureAD TenantID}/```
-
-
-   :::image type="content" source="./media/openvpn-create-azure-ad-tenant/azure-ad-auth-portal.png" alt-text="Screenshot showing settings for Tunnel type, Authentication type, and Azure Active Directory settings." border="false":::
-
-   > [!NOTE]
-   > Make sure you include a trailing slash at the end of the `AadIssuerUri` value. Otherwise, the connection may fail.
-   >
-
-1. Create and download the profile by clicking on the **Download VPN client** link.
-
-1. Extract the downloaded zip file.
-
-1. Browse to the unzipped “AzureVPN” folder.
-
-1. Make a note of the location of the “azurevpnconfig.xml” file. The azurevpnconfig.xml contains the setting for the VPN connection and can be imported directly into the Azure VPN Client application. You can also distribute this file to all the users that need to connect via e-mail or other means. The user will need valid Azure AD credentials to connect successfully.
+[!INCLUDE [Azure VPN Client profile configuration package](../../includes/vpn-gateway-point-to-site-client-package-download.md)]
 
 ## Next steps
 
-Create and configure a VPN client profile. See [Configure a VPN client for P2S VPN connections](openvpn-azure-ad-client.md).
+* To connect to your virtual network, you must configure the Azure VPN client on your client computers. See [Configure a VPN client for P2S VPN connections- Windows](point-to-site-entra-vpn-client-windows.md) or [Configure a VPN client for P2S VPN connections- macOS](point-to-site-entra-vpn-client-mac.md).
+* For frequently asked questions, see the **Point-to-site** section of the [VPN Gateway FAQ](vpn-gateway-vpn-faq.md#P2S).

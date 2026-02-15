@@ -1,12 +1,14 @@
 ---
-title: Deploy CAF Foundation blueprint sample
+title: Deploy the CAF Foundation blueprint sample
 description: Deploy steps for the CAF Foundation blueprint sample including blueprint artifact parameter details.
-ms.date: 03/12/2021
+ms.date: 09/07/2023
 ms.topic: sample
 ---
-# Deploy the Microsoft Cloud Adoption Framework for Azure Foundation blueprint sample
+# Deploy the CAF Foundation blueprint sample
 
-To deploy the Microsoft Cloud Adoption Framework for Azure (CAF) Foundation blueprint sample, the
+[!INCLUDE [Blueprints deprecation note](../../../../../includes/blueprints-deprecation-note.md)]
+
+To deploy the CAF Foundation blueprint sample (provided by the Microsoft Cloud Adoption Framework for Azure), the
 following steps must be taken:
 
 > [!div class="checklist"]
@@ -14,7 +16,7 @@ following steps must be taken:
 > - Mark your copy of the sample as **Published**
 > - Assign your copy of the blueprint to an existing subscription
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free)
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn)
 before you begin.
 
 ## Create blueprint from sample
@@ -82,7 +84,7 @@ to make each deployment of the copy of the blueprint sample unique.
      - **Assignment name**: The name is pre-populated for you based on the name of the blueprint.
        Change as needed or leave as is.
      - **Location**: Select a region for the managed identity to be created in.
-     - Azure Blueprint uses this managed identity to deploy all artifacts in the assigned blueprint.
+     - Azure Blueprints uses this managed identity to deploy all artifacts in the assigned blueprint.
        To learn more, see
        [managed identities for Azure resources](../../../../active-directory/managed-identities-azure-resources/overview.md).
      - **Blueprint definition version**: Pick a **Published** version of your copy of the blueprint
@@ -134,7 +136,7 @@ The following table provides a list of the blueprint artifact parameters:
 |Allowed virtual machine SKUs|Policy assignment|Policy_Allowed-VM-SKUs|Allowed virtual machine SKUs|
 |Append CostCenter TAG to Resource Groups|Policy assignment|Policy_CostCenter_Tag|Append CostCenter TAG and its value from the Resource Group|
 |Resource Types that you do not want to allow in your environment|Policy assignment|Policy _Allowed-Resource-Types|Which Azure Resources you want to allow in your environment|
-|Deploy Key Vault|Resource Manager template|KV-AccessPolicy|**Locked** - Azure AD Group or User <Object ID> to grant permissions to in Key Vault|
+|Deploy Key Vault|Resource Manager template|KV-AccessPolicy|**Locked** - Azure AD Group or User \<Object ID\> to grant permissions to in Key Vault|
 |Deploy Log Analytics|Resource Manager template|LogAnalytics_DataRetention|**Locked** - Number of days data will be retained in Log Analytics|
 |Deploy Log Analytics|Resource Manager template|LogAnalytics_Location|**Locked** - Region used when establishing the workspace|
 

@@ -1,13 +1,17 @@
 ---
 title: Restore Azure Managed Disks via Azure PowerShell
 description: Learn how to restore Azure Managed Disks using Azure PowerShell.
-ms.topic: conceptual
-ms.date: 03/26/2021
+ms.topic: how-to
+ms.custom: devx-track-azurepowershell
+ms.date: 02/13/2026
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+# Customer intent: "As a cloud administrator, I want to restore Azure Managed Disks using PowerShell, so that I can efficiently recover data from backup while ensuring minimal disruption to existing resources."
 ---
 
 # Restore Azure Managed Disks using Azure PowerShell
 
-This article explains how to restore [Azure Managed Disks](../virtual-machines/managed-disks-overview.md) from a restore point created by Azure Backup.
+This article describes how to restore [Azure Managed Disks](/azure/virtual-machines/managed-disks-overview) from a restore point created by Azure Backup. You can also restore Managed Disk using [Azure portal](restore-managed-disks.md), [Azure CLI](restore-managed-disks-cli.md), [REST API](backup-azure-dataprotection-use-rest-api-restore-disks.md).
 
 Currently, the Original-Location Recovery (OLR) option of restoring by replacing existing the source disk from where the backups were taken isn't supported. You can restore from a recovery point to create a new disk either in the same resource group as that of the source disk from where the backups were taken or in any other resource group. This is known as Alternate-Location Recovery (ALR) and this helps to keep both the source disk and the restored (new) disk.
 
@@ -23,6 +27,8 @@ We will refer to an existing backup vault "TestBkpVault" under the resource grou
 $TestBkpVault = Get-AzDataProtectionBackupVault -VaultName TestBkpVault -ResourceGroupName "testBkpVaultRG"
 ```
 
+To view the supported Azure Disk backup and restore scenarios, region availability, and limitations, see the [support matrix](disk-backup-support-matrix.md). For common questions, see the [frequently asked questions](disk-backup-faq.yml).
+
 ## Restore to create a new disk
 
 ### Setting up permissions
@@ -31,17 +37,17 @@ Backup Vault uses Managed Identity to access other Azure resources. To restore f
 
 Backup vault uses a system assigned managed identity, which is restricted to one per resource and is tied to the lifecycle of this resource. You can grant permissions to the managed identity by using Azure role-based access control (Azure RBAC). Managed identity is a service principal of a special type that may only be used with Azure resources. Learn more about [Managed Identities](../active-directory/managed-identities-azure-resources/overview.md).
 
-Assign the relevant permissions for vault's system assigned managed identity on the target resource group where the disks will be restored/created as mentioned [here](restore-managed-disks.md#restore-to-create-a-new-disk).
+Assign the relevant permissions for vault's system assigned managed identity on the target resource group where the disks will be restored/created as mentioned [here](restore-managed-disks.md#restore-a-new-disk-from-a-recovery-point).
 
 ### Fetching the relevant recovery point
 
-Fetch all instances using [Get-AzDataProtectionBackupInstance](/powershell/module/az.dataprotection/get-azdataprotectionbackupinstance?view=azps-5.7.0&preserve-view=true) command and identify the relevant instance.
+Fetch all instances using [Get-AzDataProtectionBackupInstance](/powershell/module/az.dataprotection/get-azdataprotectionbackupinstance) command and identify the relevant instance.
 
 ```azurepowershell-interactive
 $AllInstances = Get-AzDataProtectionBackupInstance -ResourceGroupName "testBkpVaultRG" -VaultName $TestBkpVault.Name
 ```
 
-You can also use **Az.Resourcegraph** and the [Search-AzDataProtectionBackupInstanceInAzGraph](/powershell/module/az.dataprotection/search-azdataprotectionbackupinstanceinazgraph?view=azps-5.7.0&preserve-view=true) command to search across instances in many vaults and subscriptions.
+You can also use **Az.Resourcegraph** and the [Search-AzDataProtectionBackupInstanceInAzGraph](/powershell/module/az.dataprotection/search-azdataprotectionbackupinstanceinazgraph) command to search across instances in many vaults and subscriptions.
 
 ```azurepowershell-interactive
 $AllInstances = Search-AzDataProtectionBackupInstanceInAzGraph -ResourceGroupName "testBkpVaultRG" -VaultName $TestBkpVault.Name -DatasourceType AzureDisk -ProtectionStatus ProtectionConfigured
@@ -61,7 +67,7 @@ Construct the ARM ID of the new disk to be created with the target resource grou
 $targetDiskId = /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx/resourceGroups/targetrg/providers/Microsoft.Compute/disks/PSTestDisk2
 ```
 
-Use the [Initialize-AzDataProtectionRestoreRequest](/powershell/module/az.dataprotection/initialize-azdataprotectionrestorerequest?view=azps-5.7.0&preserve-view=true) command to prepare the restore request with all relevant details.
+Use the [Initialize-AzDataProtectionRestoreRequest](/powershell/module/az.dataprotection/initialize-azdataprotectionrestorerequest) command to prepare the restore request with all relevant details.
 
 ```azurepowershell-interactive
 $restorerequest = Initialize-AzDataProtectionRestoreRequest -DatasourceType AzureDisk -SourceDataStore OperationalStore -RestoreLocation $TestBkpVault.Location  -RestoreType AlternateLocation -TargetResourceId $targetDiskId -RecoveryPoint $rp[0].Name
@@ -69,7 +75,7 @@ $restorerequest = Initialize-AzDataProtectionRestoreRequest -DatasourceType Azur
 
 ### Trigger the restore
 
-Use the [Start-AzDataProtectionBackupInstanceRestore](/powershell/module/az.dataprotection/start-azdataprotectionbackupinstancerestore?view=azps-5.7.0&preserve-view=true) command to trigger the restore with the request prepared above.
+Use the [Start-AzDataProtectionBackupInstanceRestore](/powershell/module/az.dataprotection/start-azdataprotectionbackupinstancerestore) command to trigger the restore with the request prepared above.
 
 ```azurepowershell-interactive
 Start-AzDataProtectionBackupInstanceRestore -BackupInstanceName $AllInstances[2].BackupInstanceName -ResourceGroupName "testBkpVaultRG" -VaultName $TestBkpVault.Name -Parameter $restorerequest
@@ -77,9 +83,9 @@ Start-AzDataProtectionBackupInstanceRestore -BackupInstanceName $AllInstances[2]
 
 ## Tracking job
 
-Track all the jobs using the [Get-AzDataProtectionJob](/powershell/module/az.dataprotection/get-azdataprotectionjob?view=azps-5.7.0&preserve-view=true) command. You can list all jobs and fetch a particular job detail.
+Track all the jobs using the [Get-AzDataProtectionJob](/powershell/module/az.dataprotection/get-azdataprotectionjob) command. You can list all jobs and fetch a particular job detail.
 
-You can also use **Az.ResourceGraph** to track all jobs across all backup vaults. Use the [Search-AzDataProtectionJobInAzGraph](/powershell/module/az.dataprotection/search-azdataprotectionjobinazgraph?view=azps-5.7.0&preserve-view=true) command to get the relevant job, which can be across any backup vault.
+You can also use **Az.ResourceGraph** to track all jobs across all backup vaults. Use the [Search-AzDataProtectionJobInAzGraph](/powershell/module/az.dataprotection/search-azdataprotectionjobinazgraph) command to get the relevant job, which can be across any backup vault.
 
 ```azurepowershell-interactive
 $job = Search-AzDataProtectionJobInAzGraph -Subscription $sub -ResourceGroupName "testBkpVaultRG" -Vault $TestBkpVault.Name -DatasourceType AzureDisk -Operation OnDemandBackup
@@ -87,4 +93,5 @@ $job = Search-AzDataProtectionJobInAzGraph -Subscription $sub -ResourceGroupName
 
 ## Next steps
 
-- [Azure Disk Backup FAQ](disk-backup-faq.yml)
+- [Azure Disk Backup FAQ](disk-backup-faq.yml).
+- [Troubleshoot Azure Disk backup](disk-backup-troubleshoot.md).

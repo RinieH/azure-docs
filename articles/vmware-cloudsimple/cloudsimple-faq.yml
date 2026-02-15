@@ -2,15 +2,16 @@
 metadata:
   title: "FAQ - Azure VMware Solution by CloudSimple"
   description: "These frequently asked questions for Azure VMware Solution by CloudSimple include connectivity, networking, security, storage, Azure integration, and others."
-  author: shortpatti
-  ms.author: v-patsho
+  author: suzizuber
+  ms.author: v-szuber
   ms.date: 08/15/2019 
-  ms.topic: article 
-  ms.service: azure-vmware-cloudsimple 
+  ms.topic: faq
+  ms.service: azure-vmware
   ms.reviewer: cynthn 
   manager: dikamath
-  ms.custom: references_regions
-    
+  ms.custom:
+    - sfi-ga-nochange
+    - references_regions
 title: Frequently asked questions about VMware Solution by CloudSimple
 summary: |
 
@@ -176,7 +177,7 @@ sections:
         answer: |
           CloudSimple provides an Azure ExpressRoute connection to your subscription on Azure.  All services running in your subscription can connect to your Private Cloud.  Examples include:
           
-          * **Azure Active Directory** as an identity source for your CloudSimple vCenter.
+          * **Microsoft Entra ID** as an identity source for your CloudSimple vCenter.
           * **Azure storage** for storing backups, images, and other data from your Private Cloud.
           * **Hybrid applications** with an application architecture that spans public and Private Clouds.  For example, you can create webservers in Azure that access application and database servers on your Private Cloud.
           * **Azure monitor** and **Azure security center** for workloads running on VMware support logging, performance metrics, and security management.
@@ -190,4 +191,3 @@ sections:
           What licensing benefits do I get with Azure?
         answer: |
           With CloudSimple, you can take advantage of the Azure Hybrid Usage Benefit and save up to 90% on licenses. This benefit preserves your investment in Microsoft licenses and lowers your TCO relative to other cloud solutions. You also get extended security updates for Windows Server 2008 and Microsoft SQL Server 2008.  The bring-your-own-license (BYOL) model helps you keep costs low for common apps such as Veeam and Zerto.  
-

@@ -1,7 +1,7 @@
 ---
 title: Deploy SWIFT CSP-CSCF v2020 blueprint sample
 description: Deploy steps for the SWIFT CSP-CSCF v2020 blueprint sample including blueprint artifact parameter details.
-ms.date: 04/02/2021
+ms.date: 09/07/2023
 ms.topic: sample
 ---
 # Deploy the SWIFT CSP-CSCF v2020 blueprint sample
@@ -14,7 +14,7 @@ be taken:
 > - Mark your copy of the sample as **Published**
 > - Assign your copy of the blueprint to an existing subscription
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free)
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn)
 before you begin.
 
 ## Create blueprint from sample
@@ -86,7 +86,7 @@ provided to make each deployment of the copy of the blueprint sample unique.
        assignment will be created for each using the parameters entered.
      - **Assignment name**: The name is pre-populated for you based on the name of the blueprint.
        Change as needed or leave as is.
-     - **Location**: Select a region for the managed identity to be created in. Azure Blueprint uses
+     - **Location**: Select a region for the managed identity to be created in. Azure Blueprints uses
        this managed identity to deploy all artifacts in the assigned blueprint. To learn more, see
        [managed identities for Azure resources](../../../../active-directory/managed-identities-azure-resources/overview.md).
      - **Blueprint definition version**: Pick a **Published** version of your copy of the blueprint
@@ -122,7 +122,7 @@ The following table provides a list of the blueprint artifact parameters:
 
 |Artifact name|Artifact type|Parameter name|Description|
 |-|-|-|-|
-|\[Preview\]: Audit SWIFT CSP-CSCF v2020 controls and deploy specific VM Extensions to support audit requirements|Policy assignment|List of resource types that should have diagnostic logs enabled|List of resource types to audit if diagnostic log setting is not enabled. Acceptable values can be found at [Azure Monitor resource logs categories](../../../../azure-monitor/essentials/resource-logs-categories.md#supported-log-categories-per-resource-type).|
+|\[Preview\]: Audit SWIFT CSP-CSCF v2020 controls and deploy specific VM Extensions to support audit requirements|Policy assignment|List of resource types that should have diagnostic logs enabled|List of resource types to audit if diagnostic log setting is not enabled. Acceptable values can be found at [Azure Monitor resource logs categories](/azure/azure-monitor/essentials/resource-logs-categories#supported-log-categories-per-resource-type).|
 |\[Preview\]: Audit SWIFT CSP-CSCF v2020 controls and deploy specific VM Extensions to support audit requirements|Policy assignment|Connected workspace IDs|A semicolon-separated list of the workspace IDs that the Log Analytics agent should be connected to|
 |\[Preview\]: Audit SWIFT CSP-CSCF v2020 controls and deploy specific VM Extensions to support audit requirements|Policy assignment|List of users that should be included in Windows VM Administrators group|A semicolon-separated list of members that should be included in the Administrators local group. Ex: Administrator; myUser1; myUser2|
 |\[Preview\]: Audit SWIFT CSP-CSCF v2020 controls and deploy specific VM Extensions to support audit requirements|Policy assignment|Domain Name (FQDN) |The fully qualified domain name (FQDN) that the Windows VMs should be joined to|

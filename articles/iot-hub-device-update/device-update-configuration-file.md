@@ -1,49 +1,90 @@
 ---
-title: Understand Device Update for Azure IoT Hub Configuration File| Microsoft Docs
-description: Understand Device Update for Azure IoT Hub  Configuration File.
-author: ValOlson
-ms.author: valls
-ms.date: 2/12/2021
-ms.topic: conceptual
-ms.service: iot-hub-device-update
+title: Azure Device Update for IoT Hub configuration file
+description: Understand the Azure Device Update for IoT Hub du-config.json configuration file.
+author: cwatson-cat
+ms.author: cwatson
+ms.date: 12/30/2024
+ms.topic: concept-article
+ms.service: azure-iot-hub
+ms.subservice: device-update
 ---
 
-# Device Update for IoT Hub Configuration File
+# Device Update configuration file
 
-The "adu-conf.txt" is an optional file that can be created to manage the following configurations.
+The Azure Device Update for IoT Hub agent uses configuration information from a *du-config.json* file on the device. The agent reads the file and reports the following values to the Device Update service:
 
 * AzureDeviceUpdateCore:4.ClientMetadata:4.deviceProperties["manufacturer"]
 * AzureDeviceUpdateCore:4.ClientMetadata:4.deviceProperties["model"]
 * DeviceInformation.manufacturer
 * DeviceInformation.model
-* Device Connection String (if it is not known by the Device Update Agent).
+* additionalProperties
+* connectionData
+* connectionType
 
-## Purpose
-The Device Update Agent will first try to get the `manufacturer` and `model` values from the device to use for the [Interface Layer](device-update-agent-overview.md#the-interface-layer). If that fails, the Device Update Agent will next look for the "adu-conf.txt" file and use the values from there. If both attempts are not successful, the Device Update Agent will use [default](https://github.com/Azure/iot-hub-device-update/blob/main/CMakeLists.txt) values.
+To update or create the *du-config.json* configuration file:
 
-Learn more about [ADU Core Interface](https://github.com/Azure/iot-hub-device-update/tree/main/src/agent/adu_core_interface) and [Device Information Interface](https://github.com/Azure/iot-hub-device-update/tree/main/src/agent/device_info_interface).
+- When you install the Debian agent on an IoT device with a Linux OS, modify the */etc/adu/du-config.json* file to update the values.
+- For a Yocto build system, create a JSON file in the `adu` partition or disk called */adu/du-config.json*.
 
-## File location
+## Configuration file fields and values
 
-Within Linux system, in the partition or disk called `adu`, create a text file called "adu-conf.txt" with the following fields.
-
-## List of fields
-
-|Name|Description|
+| Name |Description |
 |-----------|--------------------|
-|connection_string|Pre-provisioned connection string the device can use to connect to the IoT Hub. Note: Not required if you are provisioning Device Update Agent through the [Azure IoT Identity Service](https://azure.github.io/iot-identity-service/)|
-|aduc_manufacturer|Reported by the `AzureDeviceUpdateCore:4.ClientMetadata:4` interface to classify the device for targeting the update deployment.|
-|aduc_model|Reported by the `AzureDeviceUpdateCore:4.ClientMetadata:4` interface to classify the device for targeting the update deployment.|
-|manufacturer|Reported by the Device Update Agent as part of the `DeviceInformation` interface.|
-|model|Reported by the Device Update Agent as part of the `DeviceInformation` interface.|
+| SchemaVersion | Schema version that maps the current configuration file format version. |
+| aduShellTrustedUsers | List of users that can launch adu-shell, a broker program that performs various update actions as `'root'`. The Device Update default content update handlers invoke adu-shell to do tasks that require super user privilege, such as `apt-get install` or executing a privileged script. |
+| iotHubProtocol| Protocol used to connect with Azure IoT Hub. Accepted values are `mqtt` or `mqtt/ws`. Default value is `'mqtt'`. |
+| compatPropertyNames | Properties used to check for device compatibility to target the update deployment. All values must be lowercase. |
+| manufacturer | Value reported by the `AzureDeviceUpdateCore:4.ClientMetadata:4` interface to classify the device for targeting the update deployment. |
+| model | Value reported by the `AzureDeviceUpdateCore:4.ClientMetadata:4` interface to classify the device for targeting the update deployment. |
+| additionalProperties | Optional, up to five more lowercase-only device-reported properties to use for compatibility checking. |
+| agents | Information about each Device Update agent, including `connectionSource` type and data. |
+| name | Device Update agent name. |
+| runas | User identity to run the Device Update agent under. |
+| connectionType | Connection type to use for connecting the device to IoT Hub. Accepted values are `string` or `AIS`. Use `AIS` for production scenarios that use the IoT Identity Service to connect. Use `string` to connect using a connection string for testing purposes. |
+| connectionData  | Data to use for connecting the device to IoT Hub. If `connectionType = "AIS"`, set the `connectionData` to an empty string: `"connectionData": ""`. If `connectionType = "string"`, provide your IoT device's device or module connection string. |
+| manufacturer | Value reported by the Device Update agent as part of the `DeviceInformation` interface. |
+| model | Value reported by the Device Update agent as part of the `DeviceInformation` interface. |
+| additionalDeviceProperties | Optional, up to five more device properties. |
+| extensionsFolder | Optional, sets the path for the Device Update *extensions* folder. Default path is `'/var/lib/adu/extensions'`. |
+| downloadsFolder | Optional, sets the path for the Device Update *downloads* folder. Default path is `'/var/lib/adu/downloads'`. |
+| dataFolder | Optional, sets the path for the Device Update *data* folder. Default path is `'/var/lib/adu'`. If you update this value in the configuration file, you must update `CheckDataDir()` in the [health management check](https://github.com/Azure/iot-hub-device-update/blob/develop/src/agent/src/health_management.c) accordingly.
+| aduShellFilePath | Optional, sets the path for the Device Update shell. Default path is `'/usr/lib/adu'`. |
+| downloadTimeoutInMinutes | Optional, sets the update download timeout in minutes. Value `0` means the default of 8 hours. |
 
-## Example "adu-conf.txt" file contents
+<a name="example-du-configjson-file-contents"></a>
+## Example "du-config.json" file
 
-```markdown
-
-connection_string = `HostName=<yourIoTHubName>;DeviceId=<yourDeviceId>;SharedAccessKey=<yourSharedAccessKey>`
-aduc_manufacturer = <value to send through `AzureDeviceUpdateCore:4.ClientMetadata:4.deviceProperties["manufacturer"]`
-aduc_model = <value to send through `AzureDeviceUpdateCore:4.ClientMetadata:4.deviceProperties["model"]`
-manufacturer = <value to send through `DeviceInformation.manufacturer`
-model = <value to send through `DeviceInformation.manufacturer`
+```json
+{
+  "schemaVersion": "1.1",
+  "aduShellTrustedUsers": [
+    "adu",
+    "do"
+  ],
+  "iotHubProtocol": "mqtt",
+  "compatPropertyNames":"manufacturer,model,location,environment",
+  "manufacturer": "contoso",
+  "model": "virtual-vacuum-2",
+  "agents": [
+    {
+      "name": "main",
+      "runas": "adu",
+      "connectionSource": {
+        "connectionType": "string",
+        "connectionData": "HostName=<hub_name>.azure-devices.net;DeviceId=<device_id>;SharedAccessKey=<device_key>"
+      },
+      "manufacturer": "contoso",
+      "model": "virtual-vacuum-2",
+      "additionalDeviceProperties": {
+        "location": "usa",
+        "environment": "development"
+      }
+    }
+  ]
+}
 ```
+
+## Related content
+
+- [Configuring the Azure IoT Identity Service](https://azure.github.io/iot-identity-service/configuration.html)
+- [Tutorial: Azure Device Update for IoT Hub using a Raspberry Pi image](device-update-raspberry-pi.md)

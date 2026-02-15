@@ -2,21 +2,24 @@
 title: Configure password complexity requirements
 titleSuffix: Azure AD B2C
 description: How to configure complexity requirements for passwords supplied by consumers in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
 
-ms.service: active-directory
-ms.workload: identity
+author: kengaderdus
+manager: CelesteDG
+
+ms.service: azure-active-directory
+
 ms.topic: how-to
-ms.date: 03/12/2021
-ms.custom: project-no-code
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 02/17/2025
+ms.author: kengaderdus
+ms.subservice: b2c
 zone_pivot_groups: b2c-policy-type
+
+#Customer intent: As a developer or IT admin, I want to configure the complexity requirements for passwords, so that I can enforce strong password policies and customize password complexity rules for my user flows and custom policies.
+
 ---
 
 # Configure complexity requirements for passwords in Azure Active Directory B2C
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-choose-user-flow-or-custom-policy](../../includes/active-directory-b2c-choose-user-flow-or-custom-policy.md)]
 
@@ -30,32 +33,32 @@ Azure Active Directory B2C (Azure AD B2C) supports changing the complexity requi
 
 ## Password rule enforcement
 
-During sign-up or password reset, an end user must supply a password that meets the complexity rules. Password complexity rules are enforced per user flow. It is possible to have one user flow require a four-digit pin during sign-up while another user flow requires an eight character string during sign-up. For example, you may use a user flow with different password complexity for adults than for children.
+During sign-up or password reset, an end user must supply a password that meets the complexity rules. Password complexity rules are enforced per user flow. It's possible to have one user flow require a four-digit pin during sign-up while another user flow requires an eight character string during sign-up. For example, you may use a user flow with different password complexity for adults than for children.
 
 Password complexity is never enforced during sign-in. Users are never prompted during sign-in to change their password because it doesn't meet the current complexity requirement.
 
-Password complexity can be configured in the following types of user flows:
+You can configure password complexity in the following types of user flows:
 
 - Sign-up or Sign-in user flow
 - Password Reset user flow
 
-If you are using custom policies, you can ([configure password complexity in a custom policy](password-complexity.md)).
+If you're using custom policies, you can [configure password complexity in a custom policy](password-complexity.md).
 
 ## Configure password complexity
 
 1. Sign in to the [Azure portal](https://portal.azure.com).
-2. Select the **Directory + Subscription** icon in the portal toolbar, and then select the directory that contains your Azure AD B2C tenant.
-3. In the Azure portal, search for and select **Azure AD B2C**.
-4. Select **User flows**.
-2. Select a user flow, and click **Properties**.
-3. Under **Password complexity**, change the password complexity for this user flow to **Simple**, **Strong**, or **Custom**.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
+1. In the Azure portal, search for and select **Azure AD B2C**.
+1. Select **User flows**.
+1. Select a user flow, and select **Properties**.
+1. Under **Password complexity**, change the password complexity for this user flow to **Simple**, **Strong**, or **Custom**.
 
 ### Comparison Chart
 
 | Complexity | Description |
 | --- | --- |
-| Simple | A password that is at least 8 to 64 characters. |
-| Strong | A password that is at least 8 to 64 characters. It requires 3 out of 4 of lowercase, uppercase, numbers, or symbols. |
+| Simple | A password that's at least *8* to *64* characters. |
+| Strong | A password that's at least *8* to *64* characters. It requires *3* out of *4* of lowercase, uppercase, numbers, or symbols. |
 | Custom | This option provides the most control over password complexity rules.  It allows configuring a custom length.  It also allows accepting number-only passwords (pins). |
 
 ## Custom options
@@ -80,10 +83,10 @@ Allows you to control the different character types used in the password.
 
 - **2 of 4: Lowercase character, Uppercase character, Number (0-9), Symbol** ensures the password contains at least two character types. For example, a number and a lowercase character.
 - **3 of 4: Lowercase character, Uppercase character, Number (0-9), Symbol** ensures the password contains at least three character types. For example, a number, a lowercase character and an uppercase character.
-- **4 of 4: Lowercase character, Uppercase character, Number (0-9), Symbol** ensures the password contains all for character types.
+- **4 of 4: Lowercase character, Uppercase character, Number (0-9), Symbol** ensures the password contains all four character types.
 
     > [!NOTE]
-    > Requiring **4 of 4** can result in end-user frustration. Some studies have shown that this requirement does not improve password entropy. See [NIST Password Guidelines](https://pages.nist.gov/800-63-3/sp800-63b.html#appA)
+    > Requiring **4 of 4** can result in end-user frustration. Some studies have shown that this requirement doesn't improve password entropy. See [NIST Password Guidelines](https://pages.nist.gov/800-63-3/sp800-63b.html#appA)
 
 ::: zone-end
 
@@ -185,7 +188,7 @@ To configure the password complexity, override the `newPassword` and `reenterPas
 
 ## Disable strong password 
 
-The following technical profiles are [Active Directory technical profiles](active-directory-technical-profile.md), which read and write data to Azure Active Directory. Override these technical profiles in the extension file. Use `PersistedClaims` to disable the strong password policy. Find the **ClaimsProviders** element.  Add the following claim providers as follows:
+The following technical profiles are [Active Directory technical profiles](active-directory-technical-profile.md), which read and write data to Microsoft Entra ID. Override these technical profiles in the extension file. Use `PersistedClaims` to disable the strong password policy. Find the **ClaimsProviders** element.  Add the following claim providers as follows:
 
 ```xml
 <!-- 
@@ -218,21 +221,21 @@ Save the policy file.
 ### Upload the files
 
 1. Sign in to the [Azure portal](https://portal.azure.com/).
-2. Make sure you're using the directory that contains your Azure AD B2C tenant by selecting the **Directory + subscription** filter in the top menu and choosing the directory that contains your tenant.
-3. Choose **All services** in the top-left corner of the Azure portal, and then search for and select **Azure AD B2C**.
-4. Select **Identity Experience Framework**.
-5. On the Custom Policies page, click **Upload Policy**.
-6. Select **Overwrite the policy if it exists**, and then search for and select the *TrustFrameworkExtensions.xml* file.
-7. Click **Upload**.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
+1. Choose **All services** in the top-left corner of the Azure portal, and then search for and select **Azure AD B2C**.
+1. Select **Identity Experience Framework**.
+1. On the Custom Policies page, select **Upload Policy**.
+1. Select **Overwrite the policy if it exists**, and then search for and select the *TrustFrameworkExtensions.xml* file.
+1. Select **Upload**.
 
 ### Run the policy
 
-1. Open the sign-up or sign-in policy. For example, *B2C_1A_signup_signin*.
+1. Open the sign-up or sign-in policy such as *B2C_1A_signup_signin*.
 2. For **Application**, select your application that you previously registered. To see the token, the **Reply URL** should show `https://jwt.ms`.
-3. Click **Run now**.
-4. Select **Sign up now**, enter an email address, and enter a new password. Guidance is presented on password restrictions. Finish entering the user information, and then click **Create**. You should see the contents of the token that was returned.
+3. Select **Run now**.
+4. Select **Sign up now**, enter an email address, and enter a new password. Guidance is presented on password restrictions. Finish entering the user information, and then select **Create**. You should see the contents of the token that was returned.
 
-## Next steps
+## Related content
 
 - Learn how to [Configure password change in Azure Active Directory B2C](add-password-change-policy.md).
 - Learn more about the [Predicates](predicates.md) and [PredicateValidations](predicates.md#predicatevalidations) elements in the IEF reference.

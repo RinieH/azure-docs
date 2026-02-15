@@ -1,7 +1,7 @@
 ---
 title: "Tutorial: Manage queries in the Azure portal"
 description: In this tutorial, you create a Resource Graph Query and share the new query with others in the Azure portal.
-ms.date: 05/01/2021
+ms.date: 10/06/2022
 ms.topic: tutorial
 ---
 # Tutorial: Create and share an Azure Resource Graph query in the Azure portal
@@ -27,7 +27,7 @@ In this tutorial, you'll complete the following tasks:
 ## Prerequisites
 
 To complete this tutorial, you need an Azure subscription. If you don't have one, create a
-[free account](https://azure.microsoft.com/free/) before you begin.
+[free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Create and delete a Private query
 
@@ -50,7 +50,7 @@ follow these steps:
    Select **Run query** to see the query results in the bottom pane.
 
    For more information about this query, see
-   [Samples - Count virtual machines by OS type](../samples/starter.md#count-os).
+   [Samples - Count virtual machines by OS type](../samples/starter.md#count-virtual-machines-by-os-type).
 
 1. Select **Save** or **Save as**, enter **Count VMs by OS** as the name, leave the type as
    **Private query**, and then select **Save** at the bottom of the **Save query** pane. The tab
@@ -94,7 +94,7 @@ use it. To create a new Shared query, follow these steps:
    Select **Run query** to see the query results in the bottom pane.
 
    For more information about this query, see
-   [Samples - Count virtual machines by OS type](../samples/starter.md#count-os).
+   [Samples - Count virtual machines by OS type](../samples/starter.md#count-virtual-machines-by-os-type).
 
 1. Select **Save** or **Save as**.
 
@@ -183,7 +183,7 @@ Resources
 ## Run a shared query
 
 A Resource Graph shared query can be run with the `{{shared-query-uri}}` syntax (preview). For more
-information, see [Shared query syntax](../concepts/query-language.md#shared-query-syntax).
+information, see [Shared query syntax](../concepts/query-language.md#shared-query-syntax-preview).
 
 ## Delete a Shared query
 

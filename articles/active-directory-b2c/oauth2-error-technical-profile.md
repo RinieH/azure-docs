@@ -2,21 +2,27 @@
 title: Define an OAuth2 custom error technical profile in a custom policy
 titleSuffix: Azure AD B2C
 description: Define an OAuth2 custom error technical profile in a custom policy in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
 
-ms.service: active-directory
-ms.workload: identity
+author: kengaderdus
+manager: CelesteDG
+
+ms.service: azure-active-directory
+
 ms.topic: reference
-ms.date: 05/26/2021
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 05/07/2024
+ms.author: kengaderdus
+ms.subservice: b2c
+
+
+#Customer intent: As a developer using Azure Active Directory B2C, I want to define an OAuth2 custom error technical profile, so that I can handle and return custom error messages to my OAuth2 or OpenId Connect relying party application when something goes wrong within my policy.
+
 ---
 
 # Define an OAuth2 custom error technical profile in an Azure Active Directory B2C custom policy
 
-This article describes how to handle an OAuth2 custom error with Azure Active Directory B2C (Azure AD B2C). Use this technical profile if something logic goes wrong within your policy. The technical profile returns error to your OAuth2 or OpenId Connect relying party application.
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
+
+This article describes how to handle an OAuth2 custom error with Azure Active Directory B2C (Azure AD B2C). Use this technical profile if something logic goes wrong within your policy. The technical profile returns error to your OAuth2 or OpenId Connect relying party application. Check out the [Live demo](https://github.com/azure-ad-b2c/unit-tests/tree/main/technical-profiles/oauth2-error) of the OAuth2 custom error technical profile. 
 
 To handle custom OAuth2 error message:
 
@@ -41,7 +47,7 @@ https://jwt.ms/#error=access_denied&error_description=AAD_Custom_1234%3a+My+cust
   
 ## Protocol
 
-The **Name** attribute of the **Protocol** element needs to be set to `None`. Set the **OutputTokenFormat** element to `OAuth2Error`.
+The **Name** attribute of the **Protocol** element needs to be set to `OAuth2`. Set the **OutputTokenFormat** element to `OAuth2Error`.
 
 The following example shows a technical profile for `ReturnOAuth2Error`:
 
@@ -53,7 +59,7 @@ The following example shows a technical profile for `ReturnOAuth2Error`:
     <TechnicalProfiles>
       <TechnicalProfile Id="ReturnOAuth2Error">
         <DisplayName>Return OAuth2 error</DisplayName>
-        <Protocol Name="None" />
+        <Protocol Name="OAuth2" />
         <OutputTokenFormat>OAuth2Error</OutputTokenFormat>
         <CryptographicKeys>
           <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
@@ -69,6 +75,43 @@ The following example shows a technical profile for `ReturnOAuth2Error`:
 </ClaimsProviders> -->
 ```
 
+## Define claims transformation to generate custom values of error code and error message
+
+Use these steps to generate custom values of error code and error message:
+
+1. Locate the `ClaimsTransformations` element, then add the following code inside it
+
+    ```xml
+    <!--
+     <ClaimsTransformations> -->
+    <ClaimsTransformation Id="GenerateErrorCode" TransformationMethod="CreateStringClaim">
+            <InputParameters>
+              <InputParameter Id="value" DataType="string" Value="Error_001" />
+            </InputParameters>
+            <OutputClaims>
+              <OutputClaim ClaimTypeReferenceId="errorCode" TransformationClaimType="createdClaim" />
+            </OutputClaims>
+          </ClaimsTransformation>
+          <ClaimsTransformation Id="GenerateErrorMessage" TransformationMethod="CreateStringClaim">
+            <InputParameters>
+              <InputParameter Id="value" DataType="string" Value="Insert error description." />
+            </InputParameters>
+            <OutputClaims>
+              <OutputClaim ClaimTypeReferenceId="errorMessage" TransformationClaimType="createdClaim" />
+            </OutputClaims>
+          </ClaimsTransformation>
+    <!--
+    </ClaimsTransformations> -->
+    ```
+
+1. Add the two claims transformations in the `OutputClaimsTransformations` element of any technical profile before OAuth2 technical that you define:
+
+    ```xml
+        <OutputClaimsTransformations>
+          <OutputClaimsTransformation ReferenceId="generateErrorCode" />
+          <OutputClaimsTransformation ReferenceId="generateErrorMessage" />
+        </OutputClaimsTransformations>
+    ```
 ## Input claims
 
 The **InputClaims** element contains a list of claims required to return OAuth2 error. 
@@ -89,7 +132,7 @@ The CryptographicKeys element contains the following key:
 
 ## Invoke the technical profile
 
-You can call the OAuth2 error technical profile from a user journey, or sub journey. Set the [orchestration step](userjourneys.md#orchestrationsteps) type to `SendClaims` with a reference to your OAuth2 error technical profile.
+You can call the OAuth2 error technical profile from a [user journey](userjourneys.md), or [sub journey](subjourneys.md) (type of `transfer`). Set the [orchestration step](userjourneys.md#orchestrationsteps) type to `SendClaims` with a reference to your OAuth2 error technical profile.
 
 If your user journey or sub journey already has another `SendClaims` orchestration step, set the `DefaultCpimIssuerTechnicalProfileReferenceId` attribute to the token issuer technical profile.
 
@@ -118,6 +161,20 @@ In the following example:
   <ClientDefinition ReferenceId="DefaultWeb" />
 </UserJourney>
 ```
+
+Optionally, you can use preconditions to manipulate the OAuth2 error technical profile. For example, if there is no email claim, you can set to call OAuth2 error technical profile:
+
+```xml
+<OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="ReturnOAuth2Error">
+      <Preconditions>
+        <Precondition Type="ClaimsExist" ExecuteActionsIf="false">
+          <Value>email</Value>
+          <Action>SkipThisOrchestrationStep</Action>
+        </Precondition>
+      </Preconditions>
+    </OrchestrationStep>
+```
+
 
 ## Next steps
 

@@ -1,10 +1,14 @@
 ---
 title: Create Apache Hadoop clusters using PowerShell - Azure HDInsight
-description: Learn how to create Apache Hadoop, Apache HBase, Apache Storm, or Apache Spark clusters on Linux for HDInsight by using Azure PowerShell.
-ms.service: hdinsight
+description: Learn how to create Apache Hadoop, Apache HBase, or Apache Spark clusters on Linux for HDInsight by using Azure PowerShell.
+ms.service: azure-hdinsight
 ms.topic: how-to
-ms.custom: hdinsightactive
-ms.date: 12/18/2019
+ms.tool: azure-powershell
+ms.custom: hdinsightactive, devx-track-azurepowershell, linux-related-content
+author: hareshg
+ms.author: hgowrisankar
+ms.reviewer: nijelsf
+ms.date: 01/02/2025
 ---
 
 # Create Linux-based clusters in HDInsight using Azure PowerShell
@@ -13,13 +17,13 @@ ms.date: 12/18/2019
 
 Azure PowerShell is a powerful scripting environment that you can use to control and automate the deployment and management of your workloads in Microsoft Azure. This document provides information about how to create a Linux-based HDInsight cluster by using Azure PowerShell. It also includes an example script.
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Prerequisites
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
-[Azure PowerShell](/powershell/azure/install-Az-ps) Az module.
+[Azure PowerShell](/powershell/azure/install-azure-powershell) Az module.
 
 ## Create cluster
 
@@ -37,11 +41,11 @@ To create an HDInsight cluster by using Azure PowerShell, you must complete the 
 
 The following script demonstrates how to create a new cluster:
 
-[!code-powershell[main](../../powershell_scripts/hdinsight/create-cluster/create-cluster.ps1?range=5-71)]
+[!Code-powershell[main](../../azure_powershell_scripts/hdinsight/create-cluster/create-cluster.ps1?range=5-74)]
 
 The values you specify for the cluster login are used to create the Hadoop user account for the cluster. Use this account to connect to services hosted on the cluster such as web UIs or REST APIs.
 
-The values you specify for the SSH user are used to create the SSH user for the cluster. Use this account to start a remote SSH session on the cluster and run jobs. For more information, see the [Use SSH with HDInsight](hdinsight-hadoop-linux-use-ssh-unix.md) document.
+The values you specify for the SSH user are used to create the SSH user for the cluster. Use this account to start a remote SSH session on the cluster and run jobs. For more information, see [Use SSH with HDInsight](hdinsight-hadoop-linux-use-ssh-unix.md).
 
 > [!IMPORTANT]  
 > If you plan to use more than 32 worker nodes (either at cluster creation or by scaling the cluster after creation), you must also specify a head node size with at least 8 cores and 14 GB of RAM.
@@ -80,12 +84,6 @@ Now that you've successfully created an HDInsight cluster, use the following res
 
 * [Get started with Apache HBase on HDInsight](hbase/apache-hbase-tutorial-get-started-linux.md)
 * [Develop Java applications for Apache HBase on HDInsight](hbase/apache-hbase-build-java-maven-linux.md)
-
-### Storm clusters
-
-* [Develop Java topologies for Storm on HDInsight](storm/apache-storm-develop-java-topology.md)
-* [Use Python components in Storm on HDInsight](storm/apache-storm-develop-python-topology.md)
-* [Deploy and monitor topologies with Storm on HDInsight](storm/apache-storm-deploy-monitor-topology-linux.md)
 
 ### Apache Spark clusters
 

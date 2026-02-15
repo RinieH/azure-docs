@@ -4,8 +4,7 @@ description: Describes how to get a replacement Azure Stack Edge device.
 services: databox
 author: alkohli
 
-ms.service: databox
-ms.subservice: edge
+ms.service: azure-stack-edge
 ms.topic: how-to
 ms.date: 02/22/2021
 ms.author: alkohli
@@ -58,7 +57,7 @@ Follow all the steps to return the original device:
 1. [Erase the data on the device](azure-stack-edge-return-device.md#erase-data-from-the-device).
 2. [Initiate device return](azure-stack-edge-return-device.md#initiate-device-return) for the original device.
 3. [Schedule a pickup](azure-stack-edge-return-device.md#schedule-a-pickup).
-4. Once the device is received at Microsoft, you can [Delete the resource](azure-stack-edge-return-device.md#delete-the-resource) associated with the returned device.
+4. Once the device is received at Microsoft, you can [Delete the resource](azure-stack-edge-return-device.md#complete-return) associated with the returned device.
 
 
 ## Next steps

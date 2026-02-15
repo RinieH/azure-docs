@@ -6,9 +6,11 @@ ms.date: 07/30/2019
 ms.author: erhopf
 ---
 
-The following limits are for the number of Cognitive Services resources per Azure subscription. Each of the Cognitive Services may have additional limitations, for more information see [Azure Cognitive Services](../articles/cognitive-services/index.yml).
+The following limits are for the number of Azure AI services resources per Azure subscription. 
+There is a limit of only one allowed 'Free' account, per resource type, per subscription.
+Each of the Foundry Tools may have other limitations, for more information, see [Foundry Tools](/azure/ai-services/).
 
 | Type | Limit | Example |
 |------|-------|---------|
-| A mixture of Cognitive Services resources | Maximum of 200 total Cognitive Services resources. | 100 Computer Vision resources in West US 2, 50 Speech Service resources in West US, and 50 Text Analytics resources in East US. |
-| A single type of Cognitive Services resources. | Maximum of 100 resources per region, with a maximum of 200 total Cognitive Services resources. | 100 Computer Vision resources in West US 2, and 100 Computer Vision resources in East US. |
+| A mixture of Azure AI services resources | Maximum of 200 total Azure AI services resources per region. | 100 Azure Vision in Foundry Tools resources in West US, 50 Azure Speech in Foundry Tools resources in West US, and 50 Azure Language in Foundry Tools resources in West US. |
+| A single type of Azure AI services resources. | Maximum of 100 resources per region | 100 Vision resources in West US 2, and 100 Vision resources in East US. |

@@ -1,294 +1,88 @@
 ---
-title: Set up a custom domain in Azure Static Web Apps
-description: Learn to map a custom domain with free SSL/TLS certificate to Azure Static Web Apps
+title: Custom domains with Azure Static Web Apps
+description: Using a custom domain with Azure Static Web Apps
 services: static-web-apps
-author: burkeholland
-ms.service: static-web-apps
-ms.topic: conceptual
-ms.date: 05/12/2021
-ms.author: buhollan
+author: cjk7989
+ms.service: azure-static-web-apps
+ms.topic: article
+ms.date: 06/24/2024
+ms.author: jikunchen
 ---
 
-# Set up a custom domain with free certificate in Azure Static Web Apps
-
-By default, Azure Static Web Apps provides an auto-generated domain name. This article shows you how to map a custom domain name to an Azure Static Web Apps application.
-
-## Free SSL/TLS certificate
-
-Azure Static Web Apps automatically provides a free SSL/TLS certificate for the auto-generated domain name and any custom domains you may add.
-
-## Walkthrough Video
-
-> [!VIDEO https://channel9.msdn.com/Shows/5-Things/Configuring-a-custom-domain-with-Azure-Static-Web-Apps/player?format=ny]
-
-## Prerequisites
-
-- A purchased domain name
-- Access to the DNS configuration properties for your domain
-
-## DNS configuration options
-
-There are a few different types of DNS configurations available for an application.
-
-| Scenario                                                                                 | Example                                | Domain validation method | DNS record type |
-| ---------------------------------------------------------------------------------------- | -------------------------------------- | ------------------------ | --------------- |
-| [Add a root/apex domain](#add-domain-using-txt-record-validation)                        | `mydomain.com`, `example.co.uk`        | TXT                      | ALIAS           |
-| [Add a subdomain](#add-domain-using-cname-record-validation)                             | `www.mydomain.com`, `foo.mydomain.com` | CNAME                    | CNAME           |
-| [Transfer a subdomain that is currently in use](#add-domain-using-txt-record-validation) | `www.mydomain.com`, `foo.mydomain.com` | TXT                      | CNAME           |
-
-## Add domain using CNAME record validation
-
-CNAME record validation is the recommended way to add a custom domain, however, it only works for subdomains. If you would like to add a root domain (`mydomain.com`), please skip to [Add domain using TXT record validation](#add-domain-using-txt-record-validation) and then [create an ALIAS record](#create-an-alias-record).
-
-> [!IMPORTANT]
-> If your subdomain is currently associated to a live site, and you aren't ready to transfer it to your static web app, use [TXT record validation](#add-domain-using-txt-record-validation).
-
-### Enter your subdomain
-
-1. Open your static web app in the [Azure portal](https://portal.azure.com).
-
-1. Select **Custom domains** in the menu.
-
-1. Select the **Add** button.
-
-1. In the _Domain name_ field, enter your subdomain. Make sure that you enter it without any protocols. For example, `www.mydomain.com`.
-
-   :::image type="content" source="media/custom-domain/add-subdomain.png" alt-text="Add domain screen showing the custom subdomain in the input box":::
-
-1. Select the **Next** button to move to the _Validate + configure_ step.
-
-### Configure CNAME with your domain provider
-
-You'll need to configure a CNAME with your domain provider. Azure DNS is recommended, but these steps will work with any domain provider.
-
-# [Azure DNS](#tab/azure-dns)
-
-1. Make sure **CNAME** is selected from the _Hostname record type_ dropdown list.
-
-1. Copy the value in the _Value_ field to your clipboard by selecting the **copy** icon.
-
-   :::image type="content" source="media/custom-domain/copy-cname.png" alt-text="Validate + add screen showing CNAME selected and the copy icon outlined":::
-
-1. In a separate browser tab or window, open your Azure DNS Zone in the Azure portal.
-
-1. Select the **+ Record Set** button.
-
-1. Create a new **CNAME** record set with the following values.
-
-   | Setting          | Value                                     |
-   | ---------------- | ----------------------------------------- |
-   | Name             | Your subdomain, such as `www`             |
-   | Type             | CNAME                                     |
-   | Alias Record Set | No                                        |
-   | TTL              | Leave as default value                    |
-   | TTL Unit         | Leave as default value                    |
-   | Alias            | Paste the domain name from your clipboard |
-
-1. Select **OK**.
-
-   :::image type="content" source="media/custom-domain/azure-dns-cname.png" alt-text="Azure DNS record set screen with name, type and alias fields highlighted":::
-
-[!INCLUDE [validate CNAME](../../includes/static-web-apps-validate-cname.md)]
-
-# [Other DNS](#tab/other-dns)
-
-1. Make sure **CNAME** is selected from the _Hostname record type_ dropdown list.
-
-1. Copy the value in the _Value_ field to your clipboard by selecting the **copy** icon.
-
-   :::image type="content" source="media/custom-domain/copy-cname.png" alt-text="Validate + add screen showing CNAME selected and the copy icon outlined":::
-
-1. In a separate browser tab or window, sign in to the website of your domain provider.
-
-1. Find the page for managing DNS records. Every domain provider has its own DNS records interface, so consult the provider's documentation. Look for areas of the site labeled **Domain Name**, **DNS**, or **Name Server Management**.
-
-1. Often, you can find the DNS records page by viewing your account information, and then looking for a link such as **My domains**. Go to that page and then look for a link that is named similar to **Zone file**, **DNS Records**, or **Advanced configuration**.
-
-   The following screenshot is an example of a DNS records page:
-
-   :::image type="content" source="media/custom-domain/example-record-ui.png" alt-text="Sample DNS provider configuration":::
-
-1. Create a new **CNAME** record with the following values.
-
-   | Setting             | Value                                     |
-   | ------------------- | ----------------------------------------- |
-   | Type                | CNAME                                     |
-   | Host                | Your subdomain, such as `www`             |
-   | Value               | Paste the domain name from your clipboard |
-   | TTL (if applicable) | Leave as default value                    |
-
-1. Save the changes with your DNS provider.
-
-[!INCLUDE [validate CNAME](../../includes/static-web-apps-validate-cname.md)]
-
----
-
-## Add domain using TXT record validation
-
-Azure uses a TXT record to validate that you own a domain. This is useful when you want to do one of the following...
-
-1. You want to configure a root domain (i.e. `mydomain.com`). Validating that you own the domain is required before you can create an ALIAS record that configures the root domain.
-
-1. You want to transfer a subdomain without downtime. The TXT record validation method allows you to validate that you own the domain, and for static web apps to go through the process of issuing you a certificate for that domain. You can then switch your domain to point to your static web app at any time with a CNAME record.
-
-#### Enter your domain
-
-1. Open your static web app in the [Azure portal](https://portal.azure.com).
-
-1. Select **Custom domains** in the menu.
-
-1. Select the **Add** button.
-
-1. In the _Domain name_ field, enter either your root domain (i.e. `mydomain.com`) or your subdomain (i.e. `www.mydomain.com`).
-
-   :::image type="content" source="media/custom-domain/add-domain.png" alt-text="Add domain screen showing the custom domain in the input box":::
-
-1. Click on the **Next** button to move to the _Validate + configure_ step.
-
-#### Configure TXT record with your domain provider
-
-You'll need to configure a TXT record with your domain provider. Azure DNS is recommended, but these steps will work with any domain provider.
-
-# [Azure DNS](#tab/azure-dns)
-
-1. Ensure that the "Hostname record type" dropdown is set to "TXT".
-
-1. Select the **Generate code** button.
-
-   :::image type="content" source="media/custom-domain/generate-code.png" alt-text="Add custom screen with generate code button highlighted":::
-
-   This action generates a unique code, which may take up to a minute to process.
-
-1. Select the clipboard icon next to the code to copy the value to your clipboard.
-
-   :::image type="content" source="media/custom-domain/copy-code.png" alt-text="Add custom domain screen with copy code button highlighted":::
-
-1. In a separate browser tab or window, open your Azure DNS Zone in the Azure portal.
-
-1. Select the **+ Record Set** button.
-
-1. Create a new **TXT** record set with the following values.
-
-   | Setting  | Value                                       |
-   | -------- | ------------------------------------------- |
-   | Name     | `@` for root domain, or enter the subdomain |
-   | Type     | TXT                                         |
-   | TTL      | Leave as default value                      |
-   | TTL Unit | Leave as default value                      |
-   | Value    | Paste the code from your clipboard          |
-
-1. Select **OK**.
-
-   :::image type="content" source="media/custom-domain/azure-dns-txt.png" alt-text="Azure DNS record set screen with name, type and value fields highlighted":::
-
-[!INCLUDE [validate TXT record](../../includes/static-web-apps-validate-txt.md)]
-
-# [Other DNS](#tab/other-dns)
-
-1. Ensure that the "Hostname record type" dropdown is set to "TXT".
-
-1. Select the **Generate code** button.
-
-   :::image type="content" source="media/custom-domain/generate-code.png" alt-text="Add custom screen with generate code button highlighted":::
-
-   This action generates a unique code, which may take up to a minute to process.
-
-1. Select the clipboard icon next to the code to copy the value to your clipboard.
-
-   :::image type="content" source="media/custom-domain/copy-code.png" alt-text="Add custom domain screen with copy code button highlighted":::
-
-1. In a separate browser tab or window, sign in to the website of your domain provider.
-
-1. Find the page for managing DNS records. Every domain provider has its own DNS records interface, so consult the provider's documentation. Look for areas of the site labeled **Domain Name**, **DNS**, or **Name Server Management**.
-
-   > [!NOTE]
-   > Often, you can find the DNS records page by viewing your account information, and then looking for a link such as **My domains**. Go to that page and then look for a link that is named similar to **Zone file**, **DNS Records**, or **Advanced configuration**.
-
-1. Create a new **TXT** record with the following values...
-
-   | Setting             | Value                                       |
-   | ------------------- | ------------------------------------------- |
-   | Type                | TXT                                         |
-   | Host                | `@` for root domain, or enter the subdomain |
-   | Value               | Paste the code from your clipboard          |
-   | TTL (if applicable) | Leave as default value                      |
+# Custom domains with Azure Static Web Apps
 
 > [!NOTE]
-> Some DNS providers will change the "@" to your root domain (i.e. mydomain.com) automatically. This is expected and the validation process will still work.
+> Custom domain validation for Enterprise Grade Edge Static Web Apps now requires TXT token method - CNAME validation is no longer supported for new domains.
 
-[!INCLUDE [create repository from template](../../includes/static-web-apps-validate-txt.md)]
+By default, Azure Static Web Apps provides an autogenerated domain name for your website, but you can point a custom domain to your site. Free SSL/TLS certificates are automatically created for the autogenerated domain name and any custom domains you may add.
 
----
+When you map a custom domain to a static web app, you have a few options available, which include configuring subdomains and an apex domain.
 
-## Create an ALIAS record
+The following table includes links to articles that demonstrate how to configure a custom domain based provider type. <sup>1</sup>
 
-An ALIAS record maps one domain to another. It is used specifically for root domains (i.e. `mydomain.com`). In this section, you will create an ALIAS record that maps your root domain to the auto-generated URL of your static web app.
+| Action | Using... | Using... |
+|--|--|--|
+| Set up a domain with the `www` subdomain | [Azure DNS](custom-domain-azure-dns.md) | [External provider](custom-domain-external.md) |
+| Set up an apex domain | [Azure DNS](apex-domain-azure-dns.md) | [External provider](apex-domain-external.md) |
 
-# [Azure DNS](#tab/azure-dns)
+<sup>1</sup> Some registrars like GoDaddy don't support domain records that affect how you configure your apex domain. Consider using [Azure DNS](custom-domain-azure-dns.md) with these registrars to set up your apex domain.
 
-> [!IMPORTANT]
-> Your Azure DNS Zone should be in the same subscription as your static web app.
+> [!NOTE]
+> Adding a custom domain to a [preview environment](preview-environments.md) is not supported. Unicode domains, including Punycode domains and the `xn--` prefix are also not supported.
 
-1. Open your domain's Azure DNS Zone in the Azure portal.
+## About domains
 
-1. Select the **+ Record Set** button.
+Setting up an apex domain is a common scenario to configure once your domain name is set up. Creating an apex domain is achieved by configuring an `ALIAS` or `ANAME` record or through `CNAME` flattening. Some domain registrars like GoDaddy and Squarespace (formerly Google) don't support these DNS records. If your domain registrar doesn't support all the DNS records you need, consider using [Azure DNS to configure your domain](custom-domain-azure-dns.md). 
 
-1. Create a new **A** record set with the following values.
+Alternatively, for domain registrars that don't support `ALIAS` records, `ANAME` records or `CNAME` flattening, you can configure an `A` record for your static web app. This configuration directs traffic to a single regional host of your static web app. Using `A` records isn't recommended as your application no longer benefits from global distribution, and this type of setup could affect application performance if your traffic is globally distributed.
 
-   | Setting          | Value                              |
-   | ---------------- | ---------------------------------- |
-   | Name             | @                                  |
-   | Type             | A - Alias record to IPv4 Address   |
-   | Alias Record Set | Yes                                |
-   | Alias type       | Azure resource                     |
-   | Subscription     | \<Your Subscription>               |
-   | Azure resource   | \<Your Static Web App>             |
-   | TTL              | Leave as default value             |
-   | TTL Unit         | Leave as default value             |
+> [!NOTE]  
+> `CNAME` record maps a domain name to another domain (or subdomain) whereas `A` record maps a domain name to an IP address. If the IP address changes, a `CNAME` entry is still valid, unlike `A` record. Let’s say you have WebApp1 and you would like users to access it from https://www.contoso.com. You can do it in two possible ways: you can create a `CNAME` record and map it to WebApp1.azurestaticapps.net. Alternatively, you can create an `A` record and map it to the IP address of WebApp1.
 
-1. Select **OK**.
+The following are terms you might encounter as you set up a custom domain.
 
-   :::image type="content" source="media/custom-domain/azure-dns-alias.png" alt-text="Azure DNS record set screen with name, type, alias and resource fields highlighted":::
+* **Apex or root domains**: Given the domain `www.example.com`, the `www` prefix is known as the subdomain, while the remaining segment of `example.com` is referred to as the apex domain.
 
-Now that the root domain is configured, it may take several hours for the DNS provider to propagate the changes worldwide.
+* **Domain registrar**: A registrar verifies the availability of a domain sells the rights to purchase a domain name.
 
-# [Other DNS](#tab/other-dns)
+* **DNS zone**: A Domain Name System (DNS) zone hosts the DNS records associated to a specific domain. There are various records available which direct traffic for different purposes. For example, the domain `example.com` may contain several DNS records. One record handles traffic for `mail.example.com` (for a mail server), and another `www.example.com` (for a website).
 
-> [!IMPORTANT]
-> Your domain provider must support [ALIAS](../dns/dns-alias.md) or ANAME records, or CNAME flattening.
+* **DNS hosting**: A DNS host maintains DNS servers that resolve a domain name to a specific IP address.
 
-1. Open your static web app in the [Azure portal](https://portal.azure.com).
+* **Name server**: A name server is responsible for storing the DNS records for a domain.
 
-1. Select **Custom domain** in the menu.
+For custom domain verification to work with Static Web Apps, the DNS must be publicly resolvable. For automatic certificate renewal to work, the custom domain must resolve to the static web app over public internet. Automatic certificate renewal is supported even when you enable private endpoints. The purpose of a private endpoint for Static Web Apps is to block internet access to the site contents, but not to block internet DNS resolution to the site.
 
-1. Copy the auto-generated URL of your static web app from the custom domain screen.
+## Zero downtime migration
 
-   :::image type="content" source="media/custom-domain/auto-generated.png" alt-text="Overview page of a static web app with the copy URL icon highlighted":::
+You may want to migrate a custom domain currently serving a production website to your static web app with zero downtime. DNS providers don't accept multiple records for the same name and host, so you can separately validate your ownership of the domain and route traffic to your web app.
 
-1. Sign in to the website of your domain provider.
+1. Open your static web app in the Azure portal.
 
-1. Find the page for managing DNS records. Every domain provider has its own DNS records interface, so consult the provider's documentation. Look for areas of the site labeled **Domain Name**, **DNS**, or **Name Server Management**.
+1. Add a **TXT record** for your custom domain (APEX or subdomain). Instead of entering the *Host* value as displayed, enter the *Host* in your DNS provider as follows:
+   * For APEX domains, enter `_dnsauth.www.<YOUR-DOMAIN.COM>`.
+   * For subdomains, enter `_dnsauth.<SUBDOMAIN>.<YOUR-DOMAIN.COM>`.
 
-   > [!NOTE]
-   > Often, you can find the DNS records page by viewing your account information, and then looking for a link such as **My domains**. Go to that page and then look for a link that is named similar to **Zone file**, **DNS Records**, or **Advanced configuration**.
+1. Once your domain is validated, you can migrate your traffic to your static web app by updating your `CNAME`, `ALIAS`, or `A` record to point to your [default host name](./apex-domain-external.md)
 
-1. Create a new **ALIAS** record with the following values...
+## Migrating domains between instances
 
-   | Setting             | Value                                                          |
-   | ------------------- | -------------------------------------------------------------- |
-   | Type                | ALIAS or ANAME (use CNAME if ALIAS is not available)                    |
-   | Host                | @                                                              |
-   | Value               | Paste the domain name from your clipboard                      |
-   | TTL (if applicable) | Leave as default value                                         |
+Azure Static Web Apps only permit binding a unique domain to a single resource within a slice. Attempting to bind a domain already bound to another resource without first disassociating from the original resource will result in failure.
 
-> [!IMPORTANT]
-> If your domain provider doesn't offer an ALIAS or ANAME record type, use a CNAME type instead. Many providers offer the same functionality as the ALIAS record type via the CNAME record type and a feature called "CNAME Flattening".
+The slice your resource is placed in can be determined by inspecting the default URL assigned to it:
 
-Now that the root domain is configured, it may take several hours for the DNS provider to propagate the changes worldwide.
+`<random-prefix>.<slice>.azurestaticapps.net`
 
----
+For example, a Static Web App site with the default URL of `orange-pond-0a04b7203.2.azurestaticapps.net` has been placed in slice number 2. 
+
+If the static app you're migrating the domain from and to are both in the same slice you must either:
+
+* Remove the domain from one instance, then add it to your new instance. This will result in some downtime.
+* Delete and redeploy the new instance until the resulting resource is placed into a slice different from the source instance.
 
 ## Next steps
 
-> [!div class="nextstepaction"]
-> [Configure app settings](application-settings.md)
+Use the following links for steps on how to set up your domain based on your provider.
+
+* [Use Azure DNS](custom-domain-azure-dns.md)
+* [Use an external DNS provider](custom-domain-external.md)

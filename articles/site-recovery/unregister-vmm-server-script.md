@@ -1,15 +1,19 @@
 ---
-title: Unregister a VMM server script
-description: This article describes the cleanup script on the VMM server
-manager: evansma
-ms.service: site-recovery
-ms.topic: conceptual
-ms.date: 03/25/2021
+title: Unregister a Virtual Machine Manager server script
+ms.reviewer: v-gajeronika
+description: This article describes the cleanup script on the Virtual Machine Manager server
+ms.service: azure-site-recovery
+ms.topic: concept-article
+ms.date: 11/05/2025
+ms.author: v-gajeronika
+author: Jeronika-MS
+ms.custom: sfi-ropc-nochange
+# Customer intent: "As a systems administrator, I want to execute a cleanup script on a VMM server, so that I can remove old recovery settings and unregister a VMM to ensure proper operational state and restore functionality."
 ---
 
 # Cleanup script on a VMM server
-If your VMM server was in a Disconnected state, then download and run the cleanup script on the VMM server.
 
+If your VMM server was in a Disconnected state, then download and run the cleanup script on the VMM server.
 
 ```
 pushd .
@@ -39,7 +43,7 @@ try
         }
         catch
         {
-            Write-Host "Error occured" -ForegroundColor "Red"
+            Write-Host "Error occurred" -ForegroundColor "Red"
             $error[0]
             return
         }
@@ -479,7 +483,7 @@ try
                     $cmd = New-Object System.Data.SqlClient.SqlCommand($sql,$conn)
                     $cmd.Transaction = $transaction
                     $cmd.ExecuteNonQuery() | Out-Null
-                    # Done removing stale enteries
+                    # Done removing stale entries
 
                     # Cloud publish settings and registration details are cleaned up even if there are no paired clouds.
                     if($SCVMM2012R2Detected)
@@ -625,7 +629,7 @@ try
                     else
                     {
                         $transaction.Rollback()
-                        Write-Error "Error occured"
+                        Write-Error "Error occurred"
                         $error[0]
                         ""
                         Write-Error "FAILED"
@@ -651,7 +655,7 @@ try
             catch
             {
                 $transaction.Rollback()
-                Write-Host "Error occured" -ForegroundColor "Red"
+                Write-Host "Error occurred" -ForegroundColor "Red"
                 $error[0]
                 Write-Error "FAILED"
                 "All updates to the VMM database have been rolled back."
@@ -667,7 +671,7 @@ try
 
 catch
 {
-    Write-Error "Error occured"
+    Write-Error "Error occurred"
     $error[0]
     Write-Error "FAILED"
 }

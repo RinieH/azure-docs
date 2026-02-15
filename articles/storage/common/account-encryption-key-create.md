@@ -3,15 +3,16 @@ title: Create an account that supports customer-managed keys for tables and queu
 titleSuffix: Azure Storage
 description: Learn how to create a storage account that supports configuring customer-managed keys for tables and queues. Use the Azure CLI or an Azure Resource Manager template to create a storage account that relies on the account encryption key for Azure Storage encryption. You can then configure customer-managed keys for the account.
 services: storage
-author: tamram
+author: akashdubey-ms
 
-ms.service: storage
+ms.service: azure-storage
 ms.topic: how-to
 ms.date: 06/09/2021
-ms.author: tamram
+ms.author: akashdubey
 ms.reviewer: ozgun
-ms.subservice: common 
-ms.custom: devx-track-azurecli, devx-track-azurepowershell
+ms.subservice: storage-common-concepts
+ms.custom: devx-track-azurecli, devx-track-azurepowershell, devx-track-arm-template
+# Customer intent: "As a cloud administrator, I want to create a storage account that supports customer-managed keys for tables and queues, so that I can ensure data encryption meets our organization's security and compliance requirements."
 ---
 
 # Create an account that supports customer-managed keys for tables and queues
@@ -44,7 +45,7 @@ To create a storage account that relies on the account encryption key with the A
 
 # [PowerShell](#tab/powershell)
 
-To use PowerShell to create a storage account that relies on the account encryption key, make sure you have installed the Azure PowerShell module, version 3.4.0 or later. For more information, see [Install the Azure PowerShell module](/powershell/azure/install-az-ps).
+To use PowerShell to create a storage account that relies on the account encryption key, make sure you have installed the Azure PowerShell module, version 3.4.0 or later. For more information, see [Install the Azure PowerShell module](/powershell/azure/install-azure-powershell).
 
 Next, create a general-purpose v2 storage account by calling the [New-AzStorageAccount](/powershell/module/az.storage/new-azstorageaccount) command, with the appropriate parameters:
 
@@ -67,7 +68,7 @@ New-AzStorageAccount -ResourceGroupName <resource_group> `
 
 To use Azure CLI to create a storage account that relies on the account encryption key, make sure you have installed Azure CLI version 2.0.80 or later. For more information, see [Install the Azure CLI](/cli/azure/install-azure-cli).
 
-Next, create a general-purpose v2 storage account by calling the [az storage account create](/cli/azure/storage/account#az_storage_account_create) command, with the appropriate parameters:
+Next, create a general-purpose v2 storage account by calling the [az storage account create](/cli/azure/storage/account#az-storage-account-create) command, with the appropriate parameters:
 
 - Include the `--encryption-key-type-for-queue` option and set its value to `Account` to use the account encryption key to encrypt data in Queue storage.
 - Include the `--encryption-key-type-for-table` option and set its value to `Account` to use the account encryption key to encrypt data in Table storage.
@@ -153,11 +154,11 @@ $account.Encryption.Services.Table
 
 # [Azure CLI](#tab/azure-cli)
 
-To verify that a service in a storage account is using the account encryption key with Azure CLI, call the [az storage account show](/cli/azure/storage/account#az_storage_account_show) command. This command returns a set of storage account properties and their values. Look for the `keyType` field for each service within the encryption property and verify that it is set to `Account`.
+To verify that a service in a storage account is using the account encryption key with Azure CLI, call the [az storage account show](/cli/azure/storage/account#az-storage-account-show) command. This command returns a set of storage account properties and their values. Look for the `keyType` field for each service within the encryption property and verify that it is set to `Account`.
 
 ```azurecli
-az storage account show /
-    --name <storage-account> /
+az storage account show \
+    --name <storage-account> \
     --resource-group <resource-group>
 ```
 

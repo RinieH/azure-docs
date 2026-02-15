@@ -1,10 +1,12 @@
 ---
 title: Canada Federal PBMM blueprint sample
 description: Overview of the Canada Federal PBMM blueprint sample. This blueprint sample helps customers assess specific controls.
-ms.date: 05/04/2021
+ms.date: 09/07/2023
 ms.topic: sample
 ---
 # Canada Federal PBMM blueprint sample
+
+[!INCLUDE [Blueprints deprecation note](../../../../includes/blueprints-deprecation-note.md)]
 
 The Canada Federal PBMM blueprint sample provides governance guardrails using
 [Azure Policy](../../policy/overview.md) that help you assess specific
@@ -14,7 +16,7 @@ architecture that must implement controls for Canada Federal PBMM.
 
 ## Control mapping
 
-The [Azure Policy control mapping](../../policy/samples/canada-federal-pbmm.md) provides details on
+The [Azure Policy control mapping](/azure/governance/policy/samples/canada-federal-pbmm) provides details on
 policy definitions included within this blueprint and how these policy definitions map to the
 **controls** in the Canada Federal PBMM framework. When assigned to an architecture, resources are
 evaluated by Azure Policy for non-compliance with assigned policy definitions. For more information,
@@ -30,7 +32,7 @@ the following steps must be taken:
 > - Mark your copy of the sample as **Published**
 > - Assign your copy of the blueprint to an existing subscription
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free)
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn)
 before you begin.
 
 ### Create blueprint from sample
@@ -98,7 +100,7 @@ to make each deployment of the copy of the blueprint sample unique.
        assignment will be created for each using the parameters entered.
      - **Assignment name**: The name is pre-populated for you based on the name of the blueprint.
        Change as needed or leave as is.
-     - **Location**: Select a region for the managed identity to be created in. Azure Blueprint uses
+     - **Location**: Select a region for the managed identity to be created in. Azure Blueprints uses
        this managed identity to deploy all artifacts in the assigned blueprint. To learn more, see
        [managed identities for Azure resources](../../../active-directory/managed-identities-azure-resources/overview.md).
      - **Blueprint definition version**: Pick a **Published** version of your copy of the blueprint
@@ -136,12 +138,12 @@ The following table provides a list of the blueprint artifact parameters:
 
 |Artifact name|Artifact type|Parameter name|Description|
 |-|-|-|-|
-|\[Preview\]: Deploy Log Analytics Agent for Linux VMs |Policy assignment |Log Analytics workspace for Linux VMs |For more information, see [Create a Log Analytics workspace in the Azure portal](../../../azure-monitor/logs/quick-create-workspace.md). |
+|\[Preview\]: Deploy Log Analytics Agent for Linux VMs |Policy assignment |Log Analytics workspace for Linux VMs |For more information, see [Create a Log Analytics workspace in the Azure portal](/azure/azure-monitor/logs/quick-create-workspace). |
 |\[Preview\]: Deploy Log Analytics Agent for Linux VMs |Policy assignment |Optional: List of VM images that have supported Linux OS to add to scope |An empty array may be used to indicate no optional parameters: `[]` |
 |\[Preview\]: Deploy Log Analytics Agent for Windows VMs |Policy assignment |Optional: List of VM images that have supported Windows OS to add to scope |An empty array may be used to indicate no optional parameters: `[]` |
-|\[Preview\]: Deploy Log Analytics Agent for Windows VMs |Policy assignment |Log Analytics workspace for Windows VMs |For more information, see [Create a Log Analytics workspace in the Azure portal](../../../azure-monitor/logs/quick-create-workspace.md). |
+|\[Preview\]: Deploy Log Analytics Agent for Windows VMs |Policy assignment |Log Analytics workspace for Windows VMs |For more information, see [Create a Log Analytics workspace in the Azure portal](/azure/azure-monitor/logs/quick-create-workspace). |
 |\[Preview\]: Audit Canada Federal PBMM controls and deploy specific VM Extensions to support audit requirements |Policy assignment |Log Analytics workspace ID that VMs should be configured for |This is the ID (GUID) of the Log Analytics workspace that the VMs should be configured for. |
-|\[Preview\]: Audit Canada Federal PBMM controls and deploy specific VM Extensions to support audit requirements |Policy assignment |List of resource types that should have diagnostic logs enabled |List of resource types to audit if diagnostic log setting isn't enabled. Acceptable values can be found at [Azure Monitor diagnostic logs schemas](../../../azure-monitor/essentials/resource-logs-schema.md#service-specific-schemas). |
+|\[Preview\]: Audit Canada Federal PBMM controls and deploy specific VM Extensions to support audit requirements |Policy assignment |List of resource types that should have diagnostic logs enabled |List of resource types to audit if diagnostic log setting isn't enabled. Acceptable values can be found at [Azure Monitor diagnostic logs schemas](/azure/azure-monitor/essentials/resource-logs-schema#service-specific-schemas). |
 |\[Preview\]: Audit Canada Federal PBMM controls and deploy specific VM Extensions to support audit requirements |Policy assignment |Administrators group |Group. Example: `Administrator; myUser1; myUser2` |
 |\[Preview\]: Audit Canada Federal PBMM controls and deploy specific VM Extensions to support audit requirements |Policy assignment |List of users that should be included in Windows VM Administrators group |A semicolon-separated list of members that should be included in the Administrators local group. Example: `Administrator; myUser1; myUser2` |
 |Deploy Advanced Threat Protection on Storage Accounts |Policy assignment |Effect |Information about policy effects can be found at [Understand Azure Policy Effects](../../policy/concepts/effects.md). |

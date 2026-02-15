@@ -1,173 +1,186 @@
 ---
-title: How to add a new update | Microsoft Docs
-description: How-To guide for adding a new update into Device Update for IoT Hub.
-author: andrewbrownmsft
-ms.author: andbrown
-ms.date: 4/19/2021
+title: Import an update to Azure Device Update for IoT Hub
+description: Learn how to import update files into Azure Device Update for IoT Hub by using the Azure portal, Azure CLI, or programmatically.
+author: cwatson-cat
+ms.author: cwatson
+ms.date: 01/08/2025
 ms.topic: how-to
-ms.service: iot-hub-device-update
+ms.service: azure-iot-hub
+ms.subservice: device-update
+ms.custom: sfi-image-nochange
 ---
 
-# Add an update to Device Update for IoT Hub
-Learn how to add a new update into Device Update for IoT Hub.
+# Import an update to Azure Device Update for IoT Hub
+
+To deploy an update to devices using Azure Device Update for IoT Hub, you first import the update files into the Device Update service, which stores the imported update for deployment to devices. In this article, you learn how to import an update into the Device Update service by using the Azure portal, Azure CLI, or Device Update APIs.
 
 ## Prerequisites
 
-* [Access to an IoT Hub with Device Update for IoT Hub enabled](create-device-update-account.md). 
-* An IoT device (or simulator) [provisioned for Device Update](device-update-agent-provisioning.md) within IoT Hub.
-* [PowerShell 5](/powershell/scripting/install/installing-powershell) or later (includes Linux, macOS and Windows installs)
-* Supported browsers:
-  * [Microsoft Edge](https://www.microsoft.com/edge)
-  * Google Chrome
+- A [Device Update account and instance configured with an IoT hub](create-device-update-account.md).
+- An IoT device or simulator [provisioned for Device Update](device-update-agent-provisioning.md) within the IoT hub.
+- Update files for your device, and an associated import manifest file created by following the instructions in [Prepare an update to import into Device Update](create-update.md).
+- An Azure Storage account and container to hold the imported files. Or, you can create a new storage account and container as part of the Azure portal based import process.
 
-> [!NOTE]
-> Some data submitted to this service might be processed in a region outside the region this instance was created in.
+  > [!IMPORTANT]
+  > Make sure the storage account you use or create doesn't have private endpoints enabled. To see if private endpoints are enabled, you can check for your Azure Storage account name under **Private endpoints** in the [Private Link Center](https://portal.azure.com/#blade/Microsoft_Azure_Network/PrivateLinkCenterBlade/overview).
 
-## Obtain an update for your devices
+# [Azure portal](#tab/portal)
 
-Now that you've set up Device Update and provisioned your devices, you will need the update file(s) that you will be deploying to those devices.
+- Supported browsers Microsoft Edge or Google Chrome.
 
-If you’ve purchased devices from an OEM or solution integrator, that organization will most likely provide update files for you, without you needing to create the updates. Contact the OEM or solution integrator to find out how they make updates available.
+# [Azure CLI](#tab/cli)
 
-If your organization already creates software for the devices you use, that same group will be the ones to create the updates for that software. When creating an update to be deployed using Device Update for IoT Hub, start with either the [image-based or package-based approach](understand-device-update.md#support-for-a-wide-range-of-update-artifacts) depending on your scenario. Note: if you want to create your own updates but are just starting out, GitHub is an excellent option to manage your development. You can store and manage your source code, and do Continuous Integration (CI) and Continuous Deployment (CD) using [GitHub Actions](https://docs.github.com/en/actions/guides/about-continuous-integration).
+- A Bash environment.
 
-## Create a Device Update import manifest
+  You can use the Bash environment in [Azure Cloud Shell](/azure/cloud-shell/quickstart) to run the commands in this article. Select **Launch Cloud Shell** to open Cloud Shell, or select the Cloud Shell icon in the top toolbar of the Azure portal.
 
-If you haven't already done so, be sure to familiarize yourself with the basic [import concepts](import-concepts.md).
+  :::image type="icon" source="~/reusable-content/ce-skilling/azure/media/cloud-shell/launch-cloud-shell-button.png" alt-text="Button to launch the Azure Cloud Shell." border="false" link="https://shell.azure.com":::
 
-1. Ensure that your update file(s) are located in a directory accessible from PowerShell.
+  Or, if you prefer, you can run the Azure CLI commands locally:
 
-2. Create a text file named **AduUpdate.psm1** in the directory where your update image file or APT Manifest file is located. Then open the [AduUpdate.psm1](https://github.com/Azure/iot-hub-device-update/tree/main/tools/AduCmdlets) PowerShell cmdlet, copy the contents to your text file, and then save the text file.
+  1. [Install Azure CLI](/cli/azure/install-azure-cli). Run [az version](/cli/azure/reference-index#az-version) to see the installed Azure CLI version and dependent libraries, and run [az upgrade](/cli/azure/reference-index#az-upgrade) to install the latest version.
+  1. Sign in to Azure by running [az login](/cli/azure/reference-index#az-login).
+  1. Install the `azure-iot` extension when prompted on first use. To make sure you're using the latest version of the extension, run `az extension update --name azure-iot`.
 
-3. In PowerShell, navigate to the directory where you created your PowerShell cmdlet from step 2. Use the Copy option below and then paste into PowerShell to run the commands:
+>[!TIP]
+>The Azure CLI commands in this article use the backslash \\ character for line continuation so that the command arguments are easier to read. This syntax works in Bash environments. If you run these commands in PowerShell, replace each backslash with a backtick \`, or remove them entirely.
 
-    ```powershell
-    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-    Import-Module .\AduUpdate.psm1
-    ```
-
-4. Run the following commands by replacing the sample parameter values to generate an import manifest, a JSON file that describes the update:
-    ```powershell
-    $compat = New-AduUpdateCompatibility -DeviceManufacturer 'deviceManufacturer' -DeviceModel 'deviceModel'
-
-    $importManifest = New-AduImportManifest -Provider 'updateProvider' -Name 'updateName' -Version 'updateVersion' `
-                                            -UpdateType 'updateType' -InstalledCriteria 'installedCriteria' `
-                                            -Compatibility $compat -Files 'updateFilePath(s)'
-
-    $importManifest | Out-File '.\importManifest.json' -Encoding UTF8
-    ```
-
-    The following table is a quick reference for how to populate the above parameters. If you need more information, you can also view the complete [import manifest schema](import-schema.md).
-
-    | Parameter | Description |
-    | --------- | ----------- |
-    | deviceManufacturer | Manufacturer of the device the update is compatible with, for example, Contoso. Must match _manufacturer_ [device property](./device-update-plug-and-play.md#device-properties).
-    | deviceModel | Model of the device the update is compatible with, for example, Toaster. Must match _model_ [device property](./device-update-plug-and-play.md#device-properties).
-    | updateProvider | Entity who is creating or directly responsible for the update. It will often be a company name.
-    | updateName | Identifier for a class of updates. The class can be anything you choose. It will often be a device or model name.
-    | updateVersion | Version number distinguishing this update from others that have the same Provider and Name. Does not have match a version of an individual software component on the device (but can if you choose).
-    | updateType | <ul><li>Specify `microsoft/swupdate:1` for image update</li><li>Specify `microsoft/apt:1` for package update</li></ul>
-    | installedCriteria | Used during deployment to compare the version already on the device with the version of the update. Deploying the update to the device will return a “failed” result if the installedCriteria value doesn't match the version that is on the device.<ul><li>For `microsoft/swupdate:1` update type, specify value of SWVersion </li><li>For `microsoft/apt:1` update type, specify **name-version**, where _name_ is the name of the APT Manifest and _version_ is the version of the APT Manifest. For example, contoso-iot-edge-1.0.0.0.
-    | updateFilePath(s) | Path to the update file(s) on your computer.
-
-
-## Review the generated import manifest
-
-Example:
-```json
-{
-  "updateId": {
-    "provider": "Microsoft",
-    "name": "Toaster",
-    "version": "2.0"
-  },
-  "updateType": "microsoft/swupdate:1",
-  "installedCriteria": "5",
-  "compatibility": [
-    {
-      "deviceManufacturer": "Fabrikam",
-      "deviceModel": "Toaster"
-    },
-    {
-      "deviceManufacturer": "Contoso",
-      "deviceModel": "Toaster"
-    }
-  ],
-  "files": [
-    {
-      "filename": "file1.json",
-      "sizeInBytes": 7,
-      "hashes": {
-        "sha256": "K2mn97qWmKSaSaM9SFdhC0QIEJ/wluXV7CoTlM8zMUo="
-      }
-    },
-    {
-      "filename": "file2.zip",
-      "sizeInBytes": 11,
-      "hashes": {
-        "sha256": "gbG9pxCr9RMH2Pv57vBxKjm89uhUstD06wvQSioLMgU="
-      }
-    }
-  ],
-  "createdDateTime": "2020-10-08T03:32:52.477Z",
-  "manifestVersion": "2.0"
-}
-```
+---
 
 ## Import an update
 
+This section shows how to import an update using either the Azure portal or the Azure CLI. You can also [import an update by using the Device Update APIs](#import-using-the-device-update-apis) instead.
+
+To import an update, you first upload the update and import manifest files into an Azure Storage container. Then, you import the update from Azure Storage into Device Update for IoT Hub, which stores it for deployment to devices.
+
+# [Azure portal](#tab/portal)
+
+1. In the [Azure portal](https://portal.azure.com), on the IoT hub page for your Device Update instance, select **Device management** > **Updates** from the left navigation.
+
+   :::image type="content" source="media/import-update/import-updates-3-ppr.png" alt-text="Screenshot that shows Import updates." lightbox="media/import-update/import-updates-3-ppr.png":::
+
+1. On the **Updates** page, select **Import a new update**.
+
+   :::image type="content" source="media/import-update/import-new-update-2-ppr.png" alt-text="Screenshot that shows Import a new update." lightbox="media/import-update/import-new-update-2-ppr.png":::
+
+1. On the **Import update** page, select **Select from storage container**.
+
+1. On the **Storage accounts** page, select an existing storage account or create a new account by selecting **Storage account**. You use the storage account for a container to stage the update files.
+
+1. On the **Containers** page, select an existing container or create a new container by selecting **Container**. You use the container to stage the update files for import.
+
+   :::image type="content" source="media/import-update/storage-account-ppr.png" alt-text="Screenshot that shows Storage accounts and Containers.":::
+
+   > [!TIP]
+   > Using a new container each time you import an update helps prevent accidentally importing files from previous updates. If you don't use a new container, be sure to delete any previous files from the existing container.
+
+1. On the container page, select **Upload**.
+
+   :::image type="content" source="media/import-update/container-ppr.png" alt-text="Screenshot that shows select Upload.":::
+
+1. On the **Upload blob** screen, select the folder icon next to the **Files**. Use the file picker to navigate to the location of your update and import manifest files, select the files, and then select **Open**. You can use the Shift key to multiselect files.
+
+   :::image type="content" source="media/import-update/container-picker-ppr.png" alt-text="Screenshot that shows selecting files to upload.":::
+
+1. After you select all the files, select **Upload**.
+
+   :::image type="content" source="media/import-update/container-upload-ppr.png" alt-text="Screenshot that shows selecting Upload." lightbox="media/import-update/container-picker-ppr.png":::
+
+1. After they upload, the files appear on the container page. On the container page, review and select the files to import, and then select **Select**.
+
+   :::image type="content" source="media/import-update/import-select-ppr.png" alt-text="Screenshot that shows selecting uploaded files.":::
+
+1. On the **Import update** screen, select **Import update**.
+
+   :::image type="content" source="media/import-update/import-start-2-ppr.png" alt-text="Screenshot that shows Import update.":::
+
+The import process begins, and the screen switches to the **Updates** screen. After the import succeeds, it appears on the **Updates** tab. To resolve any errors, see [Proxy update troubleshooting](device-update-proxy-update-troubleshooting.md).
+
+:::image type="content" source="media/import-update/update-ready-ppr.png" alt-text="Screenshot that shows job status." lightbox="media/import-update/update-ready-ppr.png":::
+
+# [Azure CLI](#tab/cli)
+
+The [az iot du update stage](/cli/azure/iot/du/update#az-iot-du-update-stage) command handles the prerequisite steps of importing an update, including uploading the update files into a target storage container. An optional flag also lets this command automatically import the files after preparing them. Otherwise, the [az iot du update import](/cli/azure/iot/du/update#az-iot-du-update-import) command completes the process.
+
+The `stage` command takes the following arguments:
+
+- `--account`: The Device Update account name.
+- `--instance`: The Device Update instance name.
+- `--manifest-path`: The file path to the import manifest to stage.
+- `--storage-account`: The name of the storage account to stage the update to.
+- `--storage-container`: The name of the container within the selected storage account to stage the update to.
+- `--overwrite`: Optional flag that indicates whether to overwrite existing blobs in the storage container if there's a conflict.
+- `--then-import`: Optional flag that indicates whether to import the update to Device Update after staging it.
+
+```azurecli
+az iot du update stage \
+    --account <Replace with your Device Update account name> \
+    --instance <Replace with your Device Update instance name> \
+    --manifest-path <Replace with the full path to your import manifest> \
+    --storage-account <Replace with your Storage account name> \
+    --storage-container <Replace with your container name> \
+    --overwrite --then-import
+```
+
+For example:
+
+```azurecli
+az iot du update stage \
+    --account deviceUpdate001 \
+    --instance myInstance \
+    --manifest-path /my/apt/manifest/file.importmanifest.json \
+    --storage-account deviceUpdateStorage \
+    --storage-container deviceUpdateDemo \
+    --overwrite --then-import
+```
+
+You can include multiple import manifests in a single command. For example:
+
+```azurecli
+az iot du update stage \
+    --account deviceUpdate001 \
+    --instance myInstance \
+    --manifest-path /my/apt/manifest/parent.importmanifest.json \
+    --manifest-path /my/apt/manifest/child1.importmanifest.json \
+    --manifest-path /my/apt/manifest/child2.importmanifest.json \
+    --storage-account deviceUpdateStorage \
+    --storage-container deviceUpdateDemo \
+    --overwrite --then-import
+```
+
+If you don't use the `--then-import` flag, the output of the `stage` command includes a prompt to run [az iot du update import](/cli/azure/iot/du/update#az-iot-du-update-import) with prepopulated arguments.
+
+Use [az iot du update list](/cli/azure/iot/du/update#az-iot-du-update-list) to verify that your updates successfully import.
+
+```azurecli
+az iot du update list \
+    --account <Replace with your Device Update account name> \
+    --instance <Replace with your Device Update instance name> \
+    -o table
+```
+
+---
+
+## Import using the Device Update APIs
+
+You can also import an update programmatically by using any of the following methods:
+
+- The Device Update APIs in the Azure SDKs for [.NET](/dotnet/api/azure.iot.deviceupdate), [Java](/java/api/com.azure.iot.deviceupdate), [JavaScript](/javascript/api/@azure/iot-device-update), or [Python](/python/api/azure-mgmt-deviceupdate/azure.mgmt.deviceupdate)
+- The Device Update [Import Update](/rest/api/deviceupdate/dataplane/updates/import-update) REST API
+- Sample [PowerShell modules](https://github.com/Azure/iot-hub-device-update/tree/main/tools/AduCmdlets) (requires [PowerShell 5](/powershell/scripting/install/installing-powershell) or later for Linux, macOS, or Windows)
+
 > [!NOTE]
-> The instructions below show how to import an update via the Azure portal UI. You can also use the [Device Update for IoT Hub APIs](#if-youre-importing-via-apis-instead) to import an update instead.
+> See [Device Update user roles and access](device-update-control-access.md) for required API permission.
 
-1. Log in to the [Azure portal](https://portal.azure.com) and navigate to your IoT Hub with Device Update.
+The update files and import manifest must be uploaded to an Azure Storage Blob container for staging. To import the staged files, provide the blob URL, or shared access signature (SAS) for private blobs, to the Device Update API. If using a SAS, be sure to provide an expiration window of three hours or more.
 
-2. On the left-hand side of the page, select "Device Updates" under "Automatic Device Management".
+> [!TIP]
+> To upload large update files to an Azure Storage Blob container, you can use one of the following methods for better performance:
+>
+> - [AzCopy](../storage/common/storage-use-azcopy-v10.md)
+> - [Azure Storage Explorer](https://azure.microsoft.com/features/storage-explorer)
 
-   :::image type="content" source="media/import-update/import-updates-3.png" alt-text="Import Updates" lightbox="media/import-update/import-updates-3.png":::
+## Related content
 
-3. You will see several tabs across the top of the screen. Select the Updates tab.
-
-   :::image type="content" source="media/import-update/updates-tab.png" alt-text="Updates" lightbox="media/import-update/updates-tab.png":::
-
-4. Select "+ Import New Update" below the "Ready to Deploy" header.
-
-   :::image type="content" source="media/import-update/import-new-update-2.png" alt-text="Import New Update" lightbox="media/import-update/import-new-update-2.png":::
-
-5. Select the folder icon or text box under "Select an Import Manifest File". You will see a file picker dialog. Select the Import Manifest you created previously using the PowerShell cmdlet. Next, select the folder icon or text box under "Select one or more update files". You will see a file picker dialog. Select the same update file(s) that you included when you created your import manifest.
-
-   :::image type="content" source="media/import-update/select-update-files.png" alt-text="Select Update Files" lightbox="media/import-update/select-update-files.png":::
-
-6. Select the folder icon or text box under "Select a storage container". Then select the appropriate storage account. The storage container is used to stage the update files temporarily.
-
-   :::image type="content" source="media/import-update/storage-account.png" alt-text="Storage Account" lightbox="media/import-update/storage-account.png":::
-
-7. If you’ve already created a container, you can reuse it. (Otherwise, select "+ Container" to create a new storage container for updates.).  Select the container you wish to use and click "Select".
-
-   :::image type="content" source="media/import-update/container.png" alt-text="Select Container" lightbox="media/import-update/container.png":::
-
-8. Select "Submit" to start the import process.
-
-   :::image type="content" source="media/import-update/publish-update.png" alt-text="Publish Update" lightbox="media/import-update/publish-update.png":::
-
-9. The import process begins, and the screen switches to to the "Import History" section. Select "Refresh" to view progress until the import process completes (depending on the size of the update, this may complete in a few minutes but could take longer).
-
-   :::image type="content" source="media/import-update/update-publishing-sequence-2.png" alt-text="Update Import Sequencing" lightbox="media/import-update/update-publishing-sequence-2.png":::
-
-10. When the Status column indicates the import has succeeded, select the "Ready to Deploy" header. You should see your imported update in the list now.
-
-   :::image type="content" source="media/import-update/update-ready.png" alt-text="Job Status" lightbox="media/import-update/update-ready.png":::
-
-## If you're importing via APIs instead
-
-If you've just finished using the steps above to import via the Azure portal, skip to Next Steps below.
-
-If you want to use the [Device Update for IoT Hub Update APIs](/rest/api/deviceupdate/updates) to import an update instead of importing via the Azure portal, note the following:
-  - You will need to upload your update file(s) to an Azure Blob Storage location before you call the Update APIs.
-  - You can reference this [sample API call](import-schema.md#example-import-request-body) which uses the import manifest you created above.
-
-
-## Next Steps
-
-[Create Groups](create-update-group.md)
-
-[Learn about import concepts](import-concepts.md)
+- [Device groups](create-update-group.md)
+- [Device Update import manifest](import-concepts.md)

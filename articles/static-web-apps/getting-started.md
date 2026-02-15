@@ -2,18 +2,19 @@
 title: "Quickstart: Building your first static site with the Azure Static Web Apps"
 description: Learn to deploy a static site to Azure Static Web Apps.
 services: static-web-apps
-author: craigshoemaker
-ms.service: static-web-apps
-ms.topic:  quickstart
-ms.date: 06/16/2021
-ms.author: cshoe
+author: cjk7989
+ms.service: azure-static-web-apps
+ms.topic: quickstart
+ms.date: 04/02/2024
+ms.author: jikunchen
+ms.custom: mode-other
 ---
 
-# Quickstart: Building your first static site with Azure Static Web Apps
+# Quickstart: Build your first static site with Azure Static Web Apps
 
 Azure Static Web Apps publishes a website by building an app from a code repository. In this quickstart, you deploy an application to Azure Static Web apps using the Visual Studio Code extension.
 
-If you don't have an Azure subscription, [create a free trial account](https://azure.microsoft.com/free).
+If you don't have an Azure subscription, [create a free trial account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 
 ## Prerequisites
 
@@ -29,6 +30,14 @@ If you don't have an Azure subscription, [create a free trial account](https://a
 
 Next, open Visual Studio Code and go to **File > Open Folder** to open the cloned repository in the editor.
 
+## Install Azure Static Web Apps extension
+
+If you don't already have the [Azure Static Web Apps extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps) extension, you can install it in Visual Studio Code.
+
+1. Select **View** > **Extensions**.
+1. In the **Search Extensions in Marketplace**, type **Azure Static Web Apps**.
+1. Select **Install** for **Azure Static Web Apps**.
+
 ## Create a static web app
 
 1. Inside Visual Studio Code, select the Azure logo in the Activity Bar to open the Azure extensions window.
@@ -36,57 +45,61 @@ Next, open Visual Studio Code and go to **File > Open Folder** to open the clone
     :::image type="content" source="media/getting-started/extension-azure-logo.png" alt-text="Azure Logo":::
 
     > [!NOTE]
-    > You are required to sign in to Azure and GitHub in Visual Studio Code to continue. If you are not already authenticated, the extension will prompt you to sign in to both services during the creation process.
+    > You are required to sign in to Azure and GitHub in Visual Studio Code to continue. If you are not already authenticated, the extension prompts you to sign in to both services during the creation process.
 
-1. Under the _Static Web Apps_ label, select the **plus sign**.
+1. Select <kbd>F1</kbd> to open the Visual Studio Code command palette.
 
-    :::image type="content" source="media/getting-started/extension-create-button.png" alt-text="Application name":::
+1. Enter **Create static web app** in the command box.
 
-1. The command palette opens at the top of the editor and prompts you to select a subscription name.
+1. Select *Azure Static Web Apps: Create static web app...*.
 
-    Select your subscription and press <kbd>Enter</kbd>.
+1. Select your Azure subscription.
 
-    :::image type="content" source="media/getting-started/extension-subscription.png" alt-text="Select an Azure Subscription":::
+1. Enter **my-first-static-web-app** for the application name.
 
-1. Next, name your application.
+1. Select the region closest to you.
 
-    Type **my-first-static-web-app** and press <kbd>Enter</kbd>.
-
-    :::image type="content" source="media/getting-started/extension-create-app.png" alt-text="Create Static Web App":::
-
-1. Select the presets that match your application type.
+1. Enter the settings values that match your framework choice.
 
     # [No Framework](#tab/vanilla-javascript)
 
-    :::image type="content" source="media/getting-started/extension-presets-no-framework.png" alt-text="Application presets: No framework":::
-
-    Enter **./** as the location for the application files and press <kbd>Enter</kbd>.
-
-    :::image type="content" source="media/getting-started/extension-build-location.png" alt-text="Application build output location":::
-
-    Enter **./** as the build output location and press <kbd>Enter</kbd>.
+    | Setting | Value |
+    | --- | --- |
+    | Framework | Select **Custom** |
+    | Location of application code | Enter `/src` |
+    | Build location | Enter `/src` |
 
     # [Angular](#tab/angular)
 
-    Although there is an Angular preset, select the **Custom** option so you can provide an appropriate output location for this application.
+    | Setting | Value |
+    | --- | --- |
+    | Framework | Select **Angular** |
+    | Location of application code | Enter `/` |
+    | Build location | Enter `dist/angular-basic` |
 
-    :::image type="content" source="media/getting-started/extension-presets-no-framework.png" alt-text="Application presets: Angular":::
+    # [Blazor](#tab/blazor)
 
-    Enter **./** as the location for the application files.
-
-    :::image type="content" source="media/getting-started/extension-app-location.png" alt-text="Application files location: Angular":::
-
-    Enter **dist/angular-basic** as the build output location.
-
-    :::image type="content" source="media/getting-started/extension-angular.png" alt-text="Application build output location: Angular":::
+    | Setting | Value |
+    | --- | --- |
+    | Framework | Select **Blazor** |
+    | Location of application code | Enter `Client` |
+    | Build location | Enter `wwwroot` |
 
     # [React](#tab/react)
 
-    :::image type="content" source="media/getting-started/extension-presets-react.png" alt-text="Application presets: React":::
+    | Setting | Value |
+    | --- | --- |
+    | Framework | Select **React** |
+    | Location of application code | Enter `/` |
+    | Build location | Enter `build` |
 
     # [Vue](#tab/vue)
 
-    :::image type="content" source="media/getting-started/extension-presets-vue.png" alt-text="Application presets: Vue":::
+    | Setting | Value |
+    | --- | --- |
+    | Framework | Select **Vue.js** |
+    | Location of application code | Enter `/` |
+    | Build location | Enter `dist` |
 
     ---
 
@@ -94,13 +107,15 @@ Next, open Visual Studio Code and go to **File > Open Folder** to open the clone
 
     :::image type="content" source="media/getting-started/extension-confirmation.png" alt-text="Created confirmation":::
 
+    If GitHub presents you with a button labeled **Enable Actions on this repository**, select the button to allow the build action to run on your repository.
+
     As the deployment is in progress, the Visual Studio Code extension reports the build status to you.
 
     :::image type="content" source="media/getting-started/extension-waiting-for-deployment.png" alt-text="Waiting for deployment":::
 
     Once the deployment is complete, you can navigate directly to your website.
 
-1. To view the website in the browser, right-click on the project in the Static Web Apps extension, and select **Browse Site**.
+1. To view the website in the browser, right-click the project in the Static Web Apps extension, and select **Browse Site**.
 
     :::image type="content" source="media/getting-started/extension-browse-site.png" alt-text="Browse site":::
 
@@ -108,9 +123,11 @@ Next, open Visual Studio Code and go to **File > Open Folder** to open the clone
 
 If you're not going to continue to use this application, you can delete the Azure Static Web Apps instance through the extension.
 
-In the Visual Studio Code Explorer window, return to the _Static Web Apps_ section and right-click on **my-first-static-web-app** and select **Delete**.
+In the Visual Studio Code Azure window, return to the _Resources_ section and under _Static Web Apps_, right-click **my-first-static-web-app** and select **Delete**.
 
-:::image type="content" source="media/getting-started/extension-delete.png" alt-text="Delete app":::
+## Related content
+
+* [Video series: Deploy websites to the cloud with Azure Static Web Apps](https://aka.ms/azure/beginnervideos/learn/swa)
 
 ## Next steps
 

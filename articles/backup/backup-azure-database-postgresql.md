@@ -1,334 +1,230 @@
 ---
-title: Backup Azure Database for PostgreSQL 
-description: Learn about Azure Database for PostgreSQL backup with long-term retention (preview)
-ms.topic: conceptual
-ms.date: 04/12/2021
-ms.custom: references_regions , devx-track-azurecli
+title: Back Up Azure Database for PostgreSQL by Using the Azure Portal
+description: Learn how to back up Azure Database for PostgreSQL by using the Azure portal.
+ms.topic: how-to
+ms.date: 01/27/2026
+ms.service: azure-backup
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+ms.custom:
+  - build-2025
+  - sfi-image-nochange
+# Customer intent: "As a database administrator, I want to back up my Azure Database for PostgreSQL using the Azure portal, so that I can ensure data protection and recovery options are in place for my databases."
 ---
 
-# Azure Database for PostgreSQL backup with long-term retention (preview)
+# Back up Azure Database for PostgreSQL by using the Azure portal
 
-Azure Backup and Azure Database Services have come together to build an enterprise-class backup solution for Azure Database for PostgreSQL servers that retains backups for up to 10 years.
+This article describes how to back up an Azure Database for PostgreSQL server using Azure portal. You can also configure backup using [Azure PowerShell](backup-postgresql-ps.md), [Azure CLI](backup-postgresql-cli.md), and [REST API](backup-azure-data-protection-use-rest-api-backup-postgresql.md) for PostgreSQL databases. 
 
-Besides long-term retention, the solution also has many other capabilities as listed below:
+Before you begin, review the [supported configurations, feature considerations, and known limitations](./backup-azure-database-postgresql-support-matrix.md), along with [frequently asked questions](/azure/backup/backup-azure-database-postgresql-server-faq).
 
-- Azure role-based access control (Azure RBAC) to the database using Azure Active Directory and Managed Service Identity (MSI) authentication.
-- Customer controlled scheduled and on-demand backup at the individual database level.
-- Database-level restores to any Postgres server or directly to blob storage.
-- Long-term retention.
-- Central monitoring of all operations and jobs.
-- Backups are stored in separate security and fault domains. So even if the source server were to be compromised or even killed, the backups would remain safe in the [Backup vault](backup-vault-overview.md).
-- Use of **pg_dump** allows for greater flexibility in restores such that you can restore across database versions or even restore only a part of the backup.
+## <a name = "configure-backup-on-azure-postgresql-databases"></a>Configure a backup on PostgreSQL databases
 
-You may use this solution independently or in addition to the native backup solution offered by Azure PostgreSQL that offers retention up to 35 days. The native solution is suited for operational recoveries, such as when you want to recover from the latest backups. The Azure Backup solution helps you with your compliance needs and more granular and flexible backup and restore.
+You can configure a backup on multiple PostgreSQL databases across multiple Azure Database for PostgreSQL servers. To configure this kind of backup by using Azure Backup, follow these steps:
 
-## Support matrix
+1. Go to **Backup vault**, select a vault, and then select **Backup**.
 
-|Support  |Details  |
-|---------|---------|
-|Supported deployments   |  [Azure Database for PostgreSQL - Single Server](../postgresql/overview.md#azure-database-for-postgresql---single-server)     |
-|Supported Azure regions |  East US, East US 2, Central US, South Central US, West US, West US 2, West Central US, Brazil South, Canada Central, North Europe, West Europe, UK South, UK West, Germany West Central, Switzerland North, Switzerland West, East Asia, South East Asia, Japan East, Japan West, Korea Central, Korea South, India Central, Australia East, Australia Central, Australia Central 2, UAE North  |
-|Supported Azure PostgreSQL versions    |   9.5, 9.6, 10, 11      |
+   :::image type="content" source="./media/backup-azure-database-postgresql/adding-backup-inline.png" alt-text="Screenshot that shows the button for adding a backup." lightbox="./media/backup-azure-database-postgresql/adding-backup-expanded.png":::
 
-## Feature considerations and limitations
+   Alternatively, you can go to this page from the [Resiliency](../resiliency/tutorial-configure-protection-datasource.md).
 
-- All operations are supported from the Azure portal only.
-- Recommended limit for the maximum database size is 400 GB.
-- Cross-region backup isn't supported. This means you can't back up an Azure PostgreSQL server to a vault in another region. Similarly, you can only restore a backup to a server within the same region as the vault.
-- Only the data is recovered at the time of restore. "Roles" aren't restored.
-- In preview, we recommend that you run the solution only on your test environment.
+1. On the **Basics** tab, enter the required information.
 
-## Prerequisite permissions for configure backup and restore
+   :::image type="content" source="./media/backup-azure-database-postgresql/adding-backup-details-inline.png" alt-text="Screenshot that shows the tab for entering basic backup information." lightbox="./media/backup-azure-database-postgresql/adding-backup-details-expanded.png":::
 
-Azure Backup follows strict security guidelines. Even though it's a native Azure service, permissions on the resource aren't assumed, and need to be explicitly given by the user.  Similarly, credentials to connect to the database aren't stored. This is important to safeguard your data. Instead, we use Azure Active Directory authentication.
+1. On the **Backup policy** tab, select or [create](#create-a-backup-policy) a policy that defines the backup schedule and the retention duration.
 
-[Download this document](https://download.microsoft.com/download/7/4/d/74d689aa-909d-4d3e-9b18-f8e465a7ebf5/OSSbkpprep_automated.docx) to get an automated script and related instructions. It will grant an appropriate set of permissions to an Azure PostgreSQL server, for backup and restore.
+   :::image type="content" source="./media/backup-azure-database-postgresql/create-or-add-backup-policy-inline.png" alt-text="Screenshot that shows the option to add a backup policy." lightbox="./media/backup-azure-database-postgresql/create-or-add-backup-policy-expanded.png":::
 
-## Backup process
+1. On the **Datasources** tab, select **Add/Edit**.
 
-1. This solution uses **pg_dump** to take backups of your Azure PostgreSQL databases.
+   :::image type="content" source="./media/backup-azure-database-postgresql/select-azure-postgresql-databases-to-back-up-inline.png" alt-text="Screenshot that shows the button for adding or editing a PostgreSQL database." lightbox="./media/backup-azure-database-postgresql/select-azure-postgresql-databases-to-back-up-expanded.png":::
 
-2. Once you specify the Azure PostgreSQL databases you want to back up, the service validates if it has the right set of permissions and access to perform the backup operation on the server and the database.
+1. On the **Select resources to backup** pane, choose one of the Azure Database for PostgreSQL servers across subscriptions if they're in the same region as that of the vault. Select the arrow to show the list of databases within a server.
 
-3. Azure Backup spins up a worker role with a backup extension installed in it. This extension communicates with the Postgres server.
+   :::image type="content" source="./media/backup-azure-database-postgresql/choose-an-azure-postgresql-server-inline.png" alt-text="Screenshot that shows the pane for choosing an Azure Database for PostgreSQL server." lightbox="./media/backup-azure-database-postgresql/choose-an-azure-postgresql-server-expanded.png":::
 
-4. This extension consists of a coordinator and an Azure Postgres plugin. While the coordinator is responsible for triggering workflows for various operations like configure backup, backup, and restore, the plugin is responsible for the actual data flow.
-  
-5. Once you trigger configure protection on the selected databases, the backup service sets up the coordinator with the backup schedules and other policy details.
+   > [!NOTE]
+   > You don't need to back up the databases **azure_maintenance** and **azure_sys**. Additionally, you can't back up a database that's already backed up to a Backup vault.
 
-6. At the scheduled time, the coordinator communicates with the plugin and it starts streaming the backup data from the Postgres server using **pg_dump**.
+   >
+   > You can back up private endpoint-enabled Azure Database for PostgreSQL servers by allowing trusted Microsoft services in the network settings.
 
-7. The plugin sends the data directly to the Backup vault, eliminating the need for a staging location. The data is encrypted using Microsoft-managed keys and stored by the Azure Backup service in storage accounts.
+1. Select **Assign key vault** to select a key vault that stores the credentials for connecting to the selected database. You should have already [created the relevant secrets](#create-a-secret-in-the-key-vault) in the key vault.
 
-8. When the data transfer is complete, the coordinator confirms the commit with the backup service.
+   To assign the key vault at the individual row level, click **Select a key vault and secret**. You can also assign the key vault by selecting multiple rows and then selecting **Assign key vault** on the action menu.
 
-    ![Backup process](./media/backup-azure-database-postgresql/backup-process.png)
+   :::image type="content" source="./media/backup-azure-database-postgresql/assign-azure-key-vault-inline.png" alt-text="Screenshot that shows selections for assigning a key vault." lightbox="./media/backup-azure-database-postgresql/assign-azure-key-vault-expanded.png":::
 
-## Configure backup on Azure PostgreSQL databases
+1. To specify the secret information, use one of the following options:
 
-You can configure backup on multiple databases across multiple Azure PostgreSQL servers. Ensure that the [prerequisite permissions](#prerequisite-permissions-for-configure-backup-and-restore) required by the service to back up the Postgres servers are already configured.
+   - **Enter secret URI**: Use this option if the secret URI is shared or known to you. You can get the secret URI from the key vault by selecting a secret and then copying the **Secret Identifier** value.
 
-The following instructions are a step-by-step guide to configuring backup on the Azure PostgreSQL databases using Azure Backup:
+      :::image type="content" source="./media/backup-azure-database-postgresql/enter-secret-uri-inline.png" alt-text="Screenshot that shows how to get a secret U R I." lightbox="./media/backup-azure-database-postgresql/enter-secret-uri-expanded.png":::
 
-1. There are two ways to begin the process:
+      However, with this option, Azure Backup has no visibility into the key vault that you referenced. Access permissions on the key vault can't be granted inline. For the backup operation to succeed, the backup admin, along with the PostgreSQL and/or key vault admin, needs to ensure that the Backup vault's [access on the key vault is granted manually](backup-azure-database-postgresql-overview.md#access-permissions-on-the-key-vault) outside the [configure backup](#configure-a-backup-on-postgresql-databases) flow.
 
-    1. Go to [Backup Center](backup-center-overview.md) -> **Overview** -> **Backup**.
 
-        ![Go to Backup Center](./media/backup-azure-database-postgresql/backup-center.png)
+   - **Select from key vault**: Use this option if you know the key vault and secret names. Then click **Select a key vault and secret** and enter the details.
 
-        Under **Initiate: Configure Backup**, select the **Datasource type** as **Azure Database for PostgreSQL**.
+      :::image type="content" source="./media/backup-azure-database-postgresql/assign-secret-store-inline.png" alt-text="Screenshot that shows selections for assigning a secret store." lightbox="./media/backup-azure-database-postgresql/assign-secret-store-expanded.png":::
 
-        ![In Initiate: Configure Backup, select Datasource type](./media/backup-azure-database-postgresql/initiate-configure-backup.png)
+      :::image type="content" source="./media/backup-azure-database-postgresql/select-secret-from-azure-key-vault-inline.png" alt-text="Screenshot that shows the selection of a secret from Azure Key Vault." lightbox="./media/backup-azure-database-postgresql/select-secret-from-azure-key-vault-expanded.png":::
 
-    1. Alternatively, you can directly go to [Backup vaults](backup-vault-overview.md) -> **Backup**.
+      With this option, you (as a backup admin with write access on the key vault) can grant the access permissions on the key vault inline. The key vault and the secret could preexist or be created on the go. 
 
-        ![Go to Backup vaults](./media/backup-azure-database-postgresql/backup-vaults.png)
+      Ensure that the secret is the Azure Database for PostgreSQL server's connection string in ADO.NET format. The string must be updated with the credentials of the database user who has backup privileges on the server. [Learn more about how to create secrets in the key vault](#create-a-secret-in-the-key-vault).
 
-        ![Select Backup in Backup vault](./media/backup-azure-database-postgresql/backup-backup-vault.png)
+1. After you finish updating the information for the key vault and the secret, the validation starts.
 
-1. Under **Configure backup**, select the **Backup vault** to which you wish to back up your Postgres databases. This information is pre-filled if you're already in the vault context.
+   The Azure Backup service validates that it has all the necessary [access permissions](backup-azure-database-postgresql-overview.md#key-vault-based-authentication-model) to read secret details from the key vault and connect to the database. During this process, the status of the chosen data sources on the **Configure Backup** pane appears as **Validating**.
 
-    ![Select Backup vault in Configure backup](./media/backup-azure-database-postgresql/configure-backup.png)
+   :::image type="content" source="./media/backup-azure-database-postgresql/validation-of-secret-inline.png" alt-text="Screenshot that shows the in-progress validation of secrets." lightbox="./media/backup-azure-database-postgresql/validation-of-secret-expanded.png":::
 
-1. Select or create a **Backup policy**.
+   If one or more access permissions are missing, the service displays one of the following error messages:
 
-    ![Choose Backup policy](./media/backup-azure-database-postgresql/backup-policy.png)
+   - **User cannot assign roles**: This message appears when you (as the backup admin) don't have the write access on the Azure Database for PostgreSQL server and/or key vault to assign missing permissions as listed under **View details**.
 
-1. Select resources or Postgres databases to back up.
+     Download the assignment template by selecting the **Download role assignment template** button on the action menu, and then have the PostgreSQL and/or key vault admin run it. It's an Azure Resource Manager template that helps you assign the necessary permissions on the required resources.
 
-    ![Select resources to back up](./media/backup-azure-database-postgresql/select-resources.png)
+     :::image type="content" source="./media/backup-azure-database-postgresql/download-role-assignment-template-inline.png" alt-text="Screenshot that shows the option to download a role assignment template." lightbox="./media/backup-azure-database-postgresql/download-role-assignment-template-expanded.png":::
 
-1. You can choose from the list of all Azure PostgreSQL servers across subscriptions if they're in the same region as the vault. Expand the arrow to see the list of databases within a server.
+      After the template is run successfully, select **Re-validate** on the **Configure Backup** pane.
 
-    ![Choose servers](./media/backup-azure-database-postgresql/choose-servers.png)
+   - **Role assignment not done**: This message appears when you (as the backup admin) have write access on the Azure Database for PostgreSQL server and/or key vault to assign missing permissions as listed under **View details**. Use the **Assign missing roles** button on the action menu to grant permissions on the Azure Database for PostgreSQL server and/or the key vault inline.
 
-1. The service runs these checks on the selected databases to validate whether the vault has permissions to back up the selected Postgres servers and databases.
-    1. **Backup readiness** for all databases should read **Success** in order to continue.
-    1. If there's an error, either **fix** the error and **revalidate** or remove the database from the selections.
+     :::image type="content" source="./media/backup-azure-database-postgresql/role-assignment-not-done-inline.png" alt-text="Screenshot that shows the error about the role assignment not done." lightbox="./media/backup-azure-database-postgresql/role-assignment-not-done-expanded.png":::
 
-    ![Validation errors to fix](./media/backup-azure-database-postgresql/validation-errors.png)
+1. Select **Assign missing roles** on the action menu and assign roles. After the process starts, the [missing access permissions](backup-azure-database-postgresql-overview.md#azure-backup-authentication-with-the-postgresql-server) on the key vault and/or the Azure Database for PostgreSQL server are granted to the Backup vault. In the **Scope** area, you can define the scope at which the access permissions should be granted. When the action is complete, revalidation starts.
 
-1. Confirm all the details under **Review and configure** and select **Configure backup** to submit the operation.
 
-    ![Confirm details in Review and configure](./media/backup-azure-database-postgresql/review-and-configure.png)
+   :::image type="content" source="./media/backup-azure-database-postgresql/assign-missing-roles-inline.png" alt-text="Screenshot that shows the button for assigning missing roles." lightbox="./media/backup-azure-database-postgresql/assign-missing-roles-expanded.png":::
 
-1. Once triggered, the **Configure backup** operation will create a backup instance. You can track the status of the operation under [Backup Instances](backup-center-monitor-operate.md#backup-instances) pane in the Backup Center or vault view.
+   :::image type="content" source="./media/backup-azure-database-postgresql/define-scope-of-access-permission-inline.png" alt-text="Screenshot that shows the box for defining the scope of access permissions." lightbox="./media/backup-azure-database-postgresql/define-scope-of-access-permission-expanded.png":::
 
-    ![Backup instances](./media/backup-azure-database-postgresql/backup-instances.png)
+   The Backup vault accesses secrets from the key vault and runs a test connection to the database to validate that the credentials were entered correctly. The privileges of the database user are also checked to see [if the database user has backup-related permissions on the database](backup-azure-database-postgresql-overview.md#database-users-backup-privileges-on-the-database).
 
-1. The backups are triggered according to the backup schedule defined in the policy. The jobs can be tracked under [Backup Jobs](backup-center-monitor-operate.md#backup-jobs). Currently, you can view jobs for the last seven days.
 
-    ![Backup jobs](./media/backup-azure-database-postgresql/backup-jobs.png)
+   If a low-privileged user doesn't have backup/restore permissions on the database, the validations fail. A PowerShell script is dynamically generated for each record or selected database. [Run the PowerShell script to grant these privileges to the database user on the database](#create-a-secret-in-the-key-vault). Alternatively, you can assign these privileges by using the pgAdmin or PSQL tool.
 
-## Create backup policy
+   :::image type="content" source="./media/backup-azure-database-postgresql/backup-vault-accesses-secrets-inline.png" alt-text="Screenshot that shows a Backup vault accessing secrets from a key vault." lightbox="./media/backup-azure-database-postgresql/backup-vault-accesses-secrets-expanded.png":::
 
-1. Go to **Backup Center** -> **Backup policies** -> **Add**. Alternatively, you can go to **Backup vault** -> **Backup policy** -> **Add**.
 
-    ![Add Backup policy](./media/backup-azure-database-postgresql/add-backup-policy.png)
+   :::image type="content" source="./media/backup-azure-database-postgresql/run-test-connection.png" alt-text="Screenshot that shows the process to start a test connection.":::
 
-1. Enter a **name** for the new policy.
+   :::image type="content" source="./media/backup-azure-database-postgresql/user-credentials-to-run-test-connection-inline.png" alt-text="Screenshot that shows how to provide user credentials to run a test connection." lightbox="./media/backup-azure-database-postgresql/user-credentials-to-run-test-connection-expanded.png":::
 
-    ![Enter policy name](./media/backup-azure-database-postgresql/enter-policy-name.png)
+1. When **Backup readiness** shows **Success**, select the **Review and configure** tab to proceed to the last step of submitting the operation.
 
-1. Define the Backup schedule. We currently support **Weekly** backup. You can schedule the backups on one or more days of the week.
+   :::image type="content" source="./media/backup-azure-database-postgresql/backup-readiness-as-success-inline.png" alt-text="Screenshot that shows the backup readiness is successful." lightbox="./media/backup-azure-database-postgresql/backup-readiness-as-success-expanded.png":::
 
-    ![Define the backup schedule](./media/backup-azure-database-postgresql/define-backup-schedule.png)
+   :::image type="content" source="./media/backup-azure-database-postgresql/review-backup-configuration-details-inline.png" alt-text="Screenshot that shows the tab for reviewing a backup configuration." lightbox="./media/backup-azure-database-postgresql/review-backup-configuration-details-expanded.png":::
 
-1. Define **Retention** settings. You can add one or more retention rules. Each retention rule assumes inputs for specific backups, and data store and retention duration for those backups.
+1. Select **Configure backup**. Then, track the progress on the **Backup instances** pane.
 
-1. You can choose to store your backups in one of the two data stores (or tiers): **Backup data store** (standard tier) or **Archive data store** (in preview).
+   :::image type="content" source="./media/backup-azure-database-postgresql/submit-configure-backup-operation-inline.png" alt-text="Screenshot that shows the details for a configured backup." lightbox="./media/backup-azure-database-postgresql/submit-configure-backup-operation-expanded.png":::
 
-   You can choose **On-expiry** to move the backup to archive data store upon its expiry in the backup data store.
+## <a name = "create-backup-policy"></a>Create a backup policy
 
-1. The **default retention rule** is applied in the absence of any other retention rule, and has a default value of three months.
+You can create a backup policy during the flow for configuring a backup. Alternatively, go to **Resiliency** > **Manage** > **Procection policies** > **+ Create policy**. You can also [create a backup policy for PostgreSQL databases using REST API](backup-azure-data-protection-use-rest-api-create-update-postgresql-policy.md).
 
-    - Retention duration ranges from seven days to 10 years in the **Backup data store**.
-    - Retention duration ranges from six months to 10 years in the **Archive data store**.
+1. On the **Create Backup Policy** pane, on the **Basics** tab, enter a name for the new policy.
 
-    ![Edit retention duration](./media/backup-azure-database-postgresql/edit-retention.png)
+   :::image type="content" source="./media/backup-azure-database-postgresql/enter-name-for-new-policy-inline.png" alt-text="Screenshot that shows the box for a policy name on the pane for creating a backup policy." lightbox="./media/backup-azure-database-postgresql/enter-name-for-new-policy-expanded.png":::
 
->[!NOTE]
->The retention rules are evaluated in a pre-determined order of priority. The priority is highest for the **yearly** rule, followed by the **monthly** and then the **weekly** rule. Default retention settings are applied when no other rules qualify. For example, the same recovery point may be the first successful backup taken every week as well as the first successful backup taken every month. However, since the monthly rule priority is higher than that of the weekly rule, the retention corresponding to the first successful backup taken every month applies.
+1. On the **Schedule and retention** tab, define the backup schedule.
 
-## Restore
+   Currently, only the weekly backup option is available. However, you can schedule the backups on multiple days of the week.
 
-You can restore a database to any Azure PostgreSQL server within the same subscription, if the service has the appropriate set of permissions on the target server. Ensure the [prerequisite permissions](#prerequisite-permissions-for-configure-backup-and-restore) required by the service to back up the Postgres servers are already configured.
+1. Select **Add retention rule** to define retention settings.
 
-Follow this step-by-step guide to trigger a restore:
+   You can add one or more retention rules. Each retention rule assumes inputs for specific backups, along with the datastore and retention duration for those backups.
 
-1. There are two ways to start the restore process:
-    1. Go to [Backup Center](backup-center-overview.md) -> **Overview** -> **Restore**.
+1. To store your backups in one of the two datastores (or tiers), select **Vault-standard** or **Vault-archive (preview)**.
 
-    ![Select Restore in Backup Center](./media/backup-azure-database-postgresql/backup-center-restore.png)
+1. To move the backup to the archive datastore upon its expiry in the backup datastore, select **On-expiry**.
 
-    Under **Initiate: Restore**, select the **Datasource type** as **Azure Database for PostgreSQL**. Select the **Backup instance**.
+   :::image type="content" source="./media/backup-azure-database-postgresql/choose-option-to-move-backup-to-archive-data-store-inline.png" alt-text="Screenshot that shows the selected option to move a backup to the archive datastore upon its expiry." lightbox="./media/backup-azure-database-postgresql/choose-option-to-move-backup-to-archive-data-store-expanded.png":::
 
-    ![Select Datasource type in Initiate:Restore](./media/backup-azure-database-postgresql/initiate-restore.png)
+   > [!NOTE]
+   > The **Default** retention rule is applied in the absence of any other retention rule. It has a default value of three months.
+   >
+   > In the backup datastore, retention duration ranges from seven days to 10 years.
+   >
+   > In the archive datastore, retention duration ranges from six months to 10 years.
 
-    1. Alternatively, you can directly go to **Backup vault** -> **Backup Instances**. Select **Backup instance** corresponding to the database you want to restore.
+1. Select **Add**, and then finish the process of reviewing and creating the policy.
 
-    ![Backup instances for restore](./media/backup-azure-database-postgresql/backup-instances-restore.png)
+Retention rules are evaluated in a predetermined order of priority. The priority is the highest for the yearly rule, followed by the monthly rule, and then the weekly rule.
 
-    ![List of Backup Instances](./media/backup-azure-database-postgresql/list-backup-instances.png)
+Default retention settings apply when no other rules qualify. For example, the same recovery point might be the first successful backup taken every week, along with the first successful backup taken every month. However, because the priority of the monthly rule is higher than the priority of the weekly rule, the retention that corresponds to the first successful backup taken every month applies.
 
-    ![Select Restore](./media/backup-azure-database-postgresql/select-restore.png)
+## <a name = "create-secrets-in-the-key-vault"></a>Create a secret in the key vault
 
-1. **Select recovery point** from the list of all full backups available for the selected backup instance. By default, the latest recovery point is selected.
+The secret is the Azure Database for PostgreSQL server connection string in *ADO.NET* format. It's updated with the credentials of the database user who's granted the backup privileges on the server.
 
-    ![Select recovery point](./media/backup-azure-database-postgresql/select-recovery-point.png)
+:::image type="content" source="./media/backup-azure-database-postgresql/pg-server-connection-string-inline.png" alt-text="Screenshot that shows the Azure Database for PostgreSQL server connection string as a secret." lightbox="./media/backup-azure-database-postgresql/pg-server-connection-string-expanded.png":::
 
-    ![List of recovery points](./media/backup-azure-database-postgresql/list-recovery-points.png)
+Copy the connection string from the Azure Database for PostgreSQL server. Use a text editor to update the user ID and password.
 
-1. Input **Restore parameters**. At this point, you can select from two kinds of restores: **Restore as Database** and **Restore as Files**.
+:::image type="content" source="./media/backup-azure-database-postgresql/create-secret-inline.png" alt-text="Screenshot that shows the pane for creating a secret and a Notepad file that contains a connection string." lightbox="./media/backup-azure-database-postgresql/create-secret-expanded.png":::
 
-1. **Restore as Database**:  Restore the backup data to create a new database in the target PostgreSQL server.
+## <a name = "run-powershell-script-to-grant-privileges-to-database-users"></a>Run the PowerShell script to grant privileges to database users
 
-    - The target server can be same as the source server. However, overwriting the original database isn't supported.
-    - You can choose from the server across all subscriptions, but in the same region as the vault.
-    - Select **Review + Restore**. This will trigger validation to check if the service has appropriate restore permissions on the target server.
+The PowerShell script that's dynamically generated during the process of configuring a backup accepts the database user as the input, along with the PostgreSQL admin credentials, to grant the backup-related privileges to the database user on the database.
 
-    ![Restore as database](./media/backup-azure-database-postgresql/restore-as-database.png)
+To run the script, make sure that the [PSQL tool](https://www.enterprisedb.com/download-postgresql-binaries) is on the machine. Also make sure that the `PATH` environment variable is set appropriately to the PSQL tool's path:
 
-1. **Restore as Files**: Dump the backup files to the target storage account (blobs).
+1. Open **Edit the system environment variables** in Control Panel.
 
-    - You can choose from the storage accounts across all subscriptions, but in the same region as the vault.
-    - Select the target container from the container list filtered for the selected storage account.
-    - Select **Review + Restore**. This will trigger validation to check if the service has appropriate restore permissions on the target server.
+   :::image type="content" source="./media/backup-azure-database-postgresql/psql-set-environment-inline.png" alt-text="Screenshot that shows a search for the Control Panel item to edit system environment variables." lightbox="./media/backup-azure-database-postgresql/psql-set-environment-expanded.png":::
 
-    ![Restore as files](./media/backup-azure-database-postgresql/restore-as-files.png)
+1. In **System Properties** > **Advanced**, select **Environment Variables**.
 
-1. If the recovery point is in the archive tier, you must rehydrate the recovery point before restoring.
-   
-   ![Rehydration settings](./media/backup-azure-database-postgresql/rehydration-settings.png)
-   
-   Provide the following additional parameters required for rehydration:
-   - **Rehydration priority:** Default is **Standard**.
-   - **Rehydration duration:** The maximum rehydration duration is 30 days, and the minimum rehydration duration is 10 days. Default value is **15**.
-   
-   The recovery point is stored in the **Backup data store** for the specified rehydration duration.
+   :::image type="content" source="./media/backup-azure-database-postgresql/system-properties-to-set-environment-inline.png" alt-text="Screenshot that shows the button for setting environment variables in System Properties." lightbox="./media/backup-azure-database-postgresql/system-properties-to-set-environment-expanded.png":::
 
+1. The default environment variables appear.
 
-1. Review the information and select **Restore**. This will trigger a corresponding Restore job that can be tracked under **Backup jobs**.
+   :::image type="content" source="./media/backup-azure-database-postgresql/adding-environment-variables-inline.png" alt-text="Screenshot that shows default environment variables." lightbox="./media/backup-azure-database-postgresql/adding-environment-variables-expanded.png":::
 
->[!NOTE]
->Archive support for Azure Database for PostgreSQL is in limited public preview.
+   Use the **Edit** button to set the variables that you need.
 
+   :::image type="content" source="./media/backup-azure-database-postgresql/editing-environment-variables-inline.png" alt-text="Screenshot that shows the environment variables that you need to set." lightbox="./media/backup-azure-database-postgresql/editing-environment-variables-expanded.png":::
 
+To allow network connectivity, ensure that **Connection Security settings** in the Azure Database for PostgreSQL instance includes the IP address of the machine in the allowlist.
 
-## Manage the backed-up Azure PostgreSQL databases
+## Run an on-demand backup
 
-These are the management operations you can perform on the **Backup Instances**:
+To trigger a backup that's not in the schedule specified in the policy:
 
-### On-demand backup
+1. Go to **Backup instances** and select **Backup Now**.
 
-To trigger a backup not in the schedule specified in the policy, go to **Backup instances** -> **Backup Now**.
-Choose from the list of retention rules that were defined in the associated Backup policy.
+   :::image type="content" source="./media/backup-azure-database-postgresql/navigate-to-retention-rules-inline.png" alt-text="Screenshot that shows the pane for backup instances, including the Backup Now button." lightbox="./media/backup-azure-database-postgresql/navigate-to-retention-rules-expanded.png":::
 
-![Trigger backup now](./media/backup-azure-database-postgresql/backup-now.png)
+1. Choose from the list of retention rules that the associated backup policy defined.
 
-![Choose from list of retention rules](./media/backup-azure-database-postgresql/retention-rules.png)
+   :::image type="content" source="./media/backup-azure-database-postgresql/choose-retention-rules-inline.png" alt-text="Screenshot that shows retention rules that were defined in a backup policy." lightbox="./media/backup-azure-database-postgresql/choose-retention-rules-expanded.png":::
 
-### Stop protection
+## Track a backup job
 
-You can stop protection on a backup item. This will also delete the associated recovery points for that backup item. If recovery points are not in the archive tier for a minimum of six months, deletion of those recovery points will incur early deletion cost. We don't yet provide the option of stop protection while retaining the existing recovery points.
+The Azure Backup service creates a job for scheduled backups or if you trigger an on-demand backup operation for tracking. To view the backup job's status:
 
-![Stop protection](./media/backup-azure-database-postgresql/stop-protection.png)
+1. Go to the **Backup instances** pane. It shows the **Jobs** dashboard with the operations and statuses for the past seven days.
 
-### Change policy
+   :::image type="content" source="./media/backup-azure-database-postgresql/postgre-jobs-dashboard.png" alt-text="Screenshot that shows the jobs dashboard." lightbox="./media/backup-azure-database-postgresql/postgre-jobs-dashboard.png":::
 
-You can change the associated policy with a backup instance.
+1. Select **View All** to display ongoing and past jobs of this backup instance.
 
-1. Select the **Backup Instance** -> **Change Policy**.
+   :::image type="content" source="./media/backup-azure-database-postgresql/postgresql-jobs-view-all.png" alt-text="Screenshot that shows the button for displaying ongoing and past jobs." lightbox="./media/backup-azure-database-postgresql/postgresql-jobs-view-all.png":::
 
-    ![Change policy](./media/backup-azure-database-postgresql/change-policy.png)
+1. Review the list of backup and restore jobs and their statuses. Select a job to view its details.
 
-1. Select the new policy that you wish to apply to the database.
+   :::image type="content" source="./media/backup-azure-database-postgresql/postgresql-jobs-select-job-inline.png" alt-text="Screenshot that shows to details for a selected job." lightbox="./media/backup-azure-database-postgresql/postgresql-jobs-select-job-expanded.png":::
 
-    ![Reassign policy](./media/backup-azure-database-postgresql/reassign-policy.png)
+## Related content
 
-## Troubleshooting
-
-This section provides troubleshooting information for backing up Azure PostgreSQL databases with Azure Backup.
-
-### UserErrorMSIMissingPermissions
-
-Give Backup Vault MSI **Read** access on the PG server you want to back up or restore.
-
-To establish secure connection to the PostgreSQL database, Azure Backup uses the [Managed Service Identity (MSI)](../active-directory/managed-identities-azure-resources/overview.md) authentication model. This means that the backup vault will have access to only those resources that have been explicitly granted permission by the user.
-
-A system MSI is automatically assigned to the vault at the time of creation. You need to give this vault MSI the access to the PostgreSQL servers you intend to back up databases from.
-
-Steps:
-
-1. In the Postgres server, go to the **Access Control (IAM)** pane.
-
-    ![Access Control pane](./media/backup-azure-database-postgresql/access-control-pane.png)
-
-1. Select **Add role assignments**.
-
-    ![Add role assignment](./media/backup-azure-database-postgresql/add-role-assignment.png)
-
-1. In the right context pane that opens, enter the following:<br>
-
-   - **Role:** Choose the **Reader** role in the drop-down list.<br>
-   - **Assign access to:** Choose the **User, group, or service principal** option in the drop-down list.<br>
-   - **Select:** Enter the Backup vault name to which you want to back up this server and its databases.<br>
-
-    ![Select role](./media/backup-azure-database-postgresql/select-role-and-enter-backup-vault-name.png)
-
-### UserErrorBackupUserAuthFailed
-
-Create a database backup user that can authenticate with Azure Active Directory:
-
-This error may come from an absence of an Azure Active Directory admin for the PostgreSQL server, or in absence of a backup user that can authenticate using Azure Active Directory.
-
-Steps:
-
-Add an Active Directory Admin to the OSS server:
-
-This step is required to connect to the database through a user that can authenticate with Azure Active Directory instead of a password. The Azure AD Admin user in Azure Database for PostgreSQL will have the role **azure_ad_admin**. Only an **azure_ad_admin** role can create new database users that can authenticate with Azure AD.
-
-1. Go to the Active Directory Admin tab in the left navigation pane of the server view, and add yourself (or someone else) as the Active Directory admin.
-
-    ![Set Active Directory admin](./media/backup-azure-database-postgresql/set-admin.png)
-
-1. Make sure to **Save** the AD admin user setting.
-
-    ![Save Active Directory admin user setting](./media/backup-azure-database-postgresql/save-admin-setting.png)
-
-Refer to [this document](https://download.microsoft.com/download/7/4/d/74d689aa-909d-4d3e-9b18-f8e465a7ebf5/OSSbkpprep_automated.docx) for the list of steps you need to perform to complete the permission granting steps.
-
-### UserErrorMissingNetworkSecurityPermissions
-
-Establish network line of sight by enabling the **Allow access to Azure services** flag in the server view. In the server view, under the **Connection security** pane, set the **Allow access to Azure services** flag to **Yes**.
-
-![Allow access to Azure services](./media/backup-azure-database-postgresql/allow-access-to-azure-services.png)
-
-### UserErrorContainerNotAccessible
-
-#### Permission to restore to a storage account container when restoring as files
-
-1. Give the Backup vault MSI the permission to access the storage account containers using the Azure portal.
-    1. Go to **Storage Account** -> **Access Control** -> **Add role assignment**.
-    1. Assign **Storage Blob Data Contributor** role to the Backup vault MSI.
-
-    ![Assign Storage Blob Data Contributor role](./media/backup-azure-database-postgresql/assign-storage-blog-data-contributor-role.png)
-
-1. Alternatively, give granular permissions to the specific container you're restoring to by using the Azure CLI [az role assignment create](/cli/azure/role/assignment) command.
-
-    ```azurecli
-    az role assignment create --assignee $VaultMSI_AppId  --role "Storage Blob Data Contributor"   --scope $id
-    ```
-
-    1. Replace the assignee parameter with the **Application ID** of the vault's MSI and the scope parameter to refer to your specific container.
-    1. To get the **Application ID** of the vault MSI, select **All applications** under **Application type**:
-
-        ![Select All Applications](./media/backup-azure-database-postgresql/select-all-applications.png)
-
-    1. Search for the vault name and copy the Application ID:
-
-        ![Search for vault name](./media/backup-azure-database-postgresql/search-for-vault-name.png)
-
-## Next steps
-
-[Backup vaults overview](backup-vault-overview.md)
+- Restore a PostgreSQL database using [Azure portal](restore-azure-database-postgresql.md).
+- Restore a PostgreSQL database using [Azure PowerShell](restore-postgresql-database-ps.md), [Azure CLI](restore-postgresql-database-cli.md), and [REST API](restore-postgresql-database-use-rest-api.md).
+- [Azure Backup pricing](https://azure.microsoft.com/pricing/details/backup/).
+- [Troubleshoot PostgreSQL database backup by using Azure Backup](backup-azure-database-postgresql-troubleshoot.md).
+- [Manage an Azure Database for PostgreSQL server by using the Azure portal](manage-azure-database-postgresql.md).

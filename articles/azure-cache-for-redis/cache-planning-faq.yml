@@ -1,96 +1,70 @@
 ### YamlMime:FAQ
 metadata:
   title: Azure Cache for Redis planning FAQs
-  description: Learn the answers to common questions that help you plan for Azure Cache for Redis
-  author: yegu-ms
-  ms.author: yegu
-  ms.service: cache
-  ms.topic: conceptual
-  ms.date: 08/06/2020
-    
+  description: Learn the answers to common questions to help you plan for Azure Cache for Redis.
+  ms.topic: faq
+  ms.date: 05/05/2025
+  appliesto:
+    - ✅ Azure Cache for Redis
 title: Azure Cache for Redis planning FAQs
 summary: |
-          This article provides answers to common questions about how to plan for Azure Cache for Redis.
+         This article provides answers to common questions about how to plan for Azure Cache for Redis.
+         [!INCLUDE [cache-retirement-alert](includes/cache-retirement-alert.md)]
 
 sections:
   - name: Ignored
-    questions:          
+    questions:
       - question: |
           Azure Cache for Redis performance
         answer: |
-          The following table shows the maximum bandwidth values observed while testing various sizes of Standard and Premium caches using `redis-benchmark.exe` from an IaaS VM against the Azure Cache for Redis endpoint. For TLS throughput, redis-benchmark is used with stunnel to connect to the Azure Cache for Redis endpoint.
-          
-          >[!NOTE] 
-          >These values are not guaranteed and there is no SLA for these numbers, but should be typical. You should load test your own application to determine the right cache size for your application.
-          >These numbers might change as we post newer results periodically.
-          >
-          
-          From this table, we can draw the following conclusions:
-          
-          * Throughput for the caches that are the same size is higher in the Premium tier as compared to the Standard tier. For example, with a 6 GB Cache, throughput of P1 is 180,000 requests per second (RPS) as compared to 100,000 RPS for C3.
-          * With Redis clustering, throughput increases linearly as you increase the number of shards (nodes) in the cluster. For example, if you create a P4 cluster of 10 shards, then the available throughput is 400,000 * 10 = 4 million RPS.
-          * Throughput for bigger key sizes is higher in the Premium tier as compared to the Standard Tier.
-          
-          | Pricing tier | Size | CPU cores | Available bandwidth | 1-KB value size | 1-KB value size |
-          | --- | --- | --- | --- | --- | --- |
-          | **Standard cache sizes** | | |**Megabits per sec (Mb/s) / Megabytes per sec (MB/s)** |**Requests per second (RPS) Non-SSL** |**Requests per second (RPS) SSL** |
-          | C0 | 250 MB | Shared | 100 / 12.5  |  15,000 |   7,500 |
-          | C1 |   1 GB | 1      | 500 / 62.5  |  38,000 |  20,720 |
-          | C2 | 2.5 GB | 2      | 500 / 62.5  |  41,000 |  37,000 |
-          | C3 |   6 GB | 4      | 1000 / 125  | 100,000 |  90,000 |
-          | C4 |  13 GB | 2      | 500 / 62.5  |  60,000 |  55,000 |
-          | C5 |  26 GB | 4      | 1,000 / 125 | 102,000 |  93,000 |
-          | C6 |  53 GB | 8      | 2,000 / 250 | 126,000 | 120,000 |
-          | **Premium cache sizes** | |**CPU cores per shard** | **Megabits per sec (Mb/s) / Megabytes per sec (MB/s)** |**Requests per second (RPS) Non-SSL, per shard** |**Requests per second (RPS) SSL, per shard** |
-          | P1 |   6 GB |  2 | 1,500 / 187.5 | 180,000 | 172,000 |
-          | P2 |  13 GB |  4 | 3,000 / 375   | 350,000 | 341,000 |
-          | P3 |  26 GB |  4 | 3,000 / 375   | 350,000 | 341,000 |
-          | P4 |  53 GB |  8 | 6,000 / 750   | 400,000 | 373,000 |
-          | P5 | 120 GB | 20 | 6,000 / 750   | 400,000 | 373,000 |
-          
-          For instructions on setting up stunnel or downloading the Redis tools such as `redis-benchmark.exe`, see [How can I run Redis commands?](cache-development-faq.yml#how-can-i-run-redis-commands-).
+          For guidance on how to benchmark Azure Redis cache performance and for sample benchmarking numbers, see [Performance testing](cache-best-practices-performance.md#example-performance-benchmark-data).
           
       - question: |
-          In what region should I locate my cache?
+          How am I billed for Azure Redis?
         answer: |
-          For best performance and lowest latency, locate your Azure Cache for Redis in the same region as your cache client application.
-
-      - question: |
-          Where do my cached data reside?
-        answer: |
-          Azure Cache for Redis stores your application data in the RAM of the VM or VMs, depending on the tier, that host your cache. Your data reside strictly in the Azure region you've selected by default. There are two cases where your data may leave a region:
-          * When you enable persistence on the cache, Azure Cache for Redis will backup your data to an Azure Storage account you own. If the storage account you provide happens to be in another region, a copy of your data will end up there.
-          * If you set up geo-replication and your secondary cache is in a different region, which would be the case normally, your data will be replicated to that region.
-          
-          You'll need to explicitly configure Azure Cache for Redis to use these features. You also have complete control over the region that the storage account or secondary cache is located.
+          For details about Azure Redis billing, see [Azure Cache for Redis pricing](https://azure.microsoft.com/pricing/details/cache/). The pricing page lists pricing as an hourly and monthly rate. Caches are billed on a per-minute basis. The billing period is measured from time a cache is created until the time that the cache is deleted. There's no option for stopping or pausing cache billing.
           
       - question: |
-          How am I billed for Azure Cache for Redis?
+          How can I use Azure Redis with Azure Government Cloud or Azure operated by 21Vianet Cloud?
         answer: |
-          Azure Cache for Redis pricing is [here](https://azure.microsoft.com/pricing/details/cache/). The pricing page lists pricing as an hourly and monthly rate. Caches are billed on a per-minute basis from the time that the cache is created until the time that a cache is deleted. There is no option for stopping or pausing the billing of a cache.
+          The Basic, Standard, and Premium tiers of Azure Redis are available in Azure Government Cloud and Azure operated by 21Vianet Cloud. The URLs for accessing and managing Azure Redis are different for these clouds than for the Azure Public cloud, as shown in the following table:
           
-      - question: |
-          Can I use Azure Cache for Redis with Azure Government Cloud, Azure China 21Vianet Cloud, or Microsoft Azure Germany?
-        answer: |
-          Yes, Azure Cache for Redis is available in Azure Government Cloud, Azure China 21Vianet Cloud, and Microsoft Azure Germany. The URLs for accessing and managing Azure Cache for Redis are different in these clouds compared with Azure Public Cloud.
-          
-          | Cloud   | Dns Suffix for Redis            |
+          | Cloud   | Domain Name System (DNS) suffix for Redis            |
           |---------|---------------------------------|
-          | Public  | *.redis.cache.windows.net       |
-          | US Gov  | *.redis.cache.usgovcloudapi.net |
-          | Germany | *.redis.cache.cloudapi.de       |
-          | China   | *.redis.cache.chinacloudapi.cn  |
+          | Public  | `*.redis.cache.windows.net`       |
+          | US Government  | *.redis.cache.usgovcloudapi.net |
+          | 21Vianet Cloud (China)   | `*.redis.cache.chinacloudapi.cn`  |
           
-          For more information on considerations when using Azure Cache for Redis with other clouds, see the following links.
+          The Azure Redis Enterprise and Enterprise Flash tiers are available only in the Public cloud.
           
-          - [Azure Government Databases - Azure Cache for Redis](../azure-government/compare-azure-government-global-azure.md)
-          - [Azure China 21Vianet Cloud - Azure Cache for Redis](https://www.azure.cn/home/features/redis-cache/)
-          - [Microsoft Azure Germany](https://azure.microsoft.com/overview/clouds/germany/)
+          For more considerations about using Azure Redis with other clouds, see the following links:
           
-          For information on using Azure Cache for Redis with PowerShell in Azure Government Cloud, Azure China 21Vianet Cloud, and Microsoft Azure Germany, see [How to connect to other clouds - Azure Cache for Redis PowerShell](cache-how-to-manage-redis-cache-powershell.md#how-to-connect-to-other-clouds).
-
+          - [Azure Government Databases](/azure/azure-government/compare-azure-government-global-azure)
+          - [Azure operated by 21Vianet Cloud](https://www.azure.cn/home/features/redis-cache/)
+          
+          For information about using Azure Redis with PowerShell in Azure Government Cloud and Azure operated by 21Vianet Cloud, see [How to connect to other clouds - PowerShell](../redis/how-to-manage-redis-cache-powershell.md#how-to-connect-to-other-clouds).
+          
+      - question: |
+          Where does my cached data reside?
+        answer: |
+         In Azure Cache for Redis, your application data is stored in the RAM of the virtual machine (VM) or VMs, depending on the tier, that host your cache. By default, your data resides in the Azure region you selected. There are two cases where your data might leave a region:
+          * When you enable data persistence on a Premium-tier cache, Azure Cache for Redis backs up your data to an Azure Storage account. If your storage account is in another region, or replicates data through [geo-redundant storage (GRS)](/azure/storage/common/storage-redundancy#redundancy-in-a-secondary-region) to a different region, a copy of your data ends up there. The Enterprise and Enterprise Flash tiers use on-disk persistence mounted directly to the VMs that doesn't leave the region. 
+          
+          * If you set up [passive geo-replication](cache-how-to-geo-replication.md) on a Premium-tier cache and your secondary cache is in a different region, as is typical, your data is replicated to that region.
+          If you set up [active geo-replication]() on an Enterprise or Enterprise Flash tier cache, your data is replicated to each cache in the geo-replication group. If caches in the geo-replication group reside in other regions, as is typical, your data is replicated to those regions.
+          
+            >[!NOTE] 
+            >The Enterprise Flash tier also stores data on an ephemeral NVMe flash disk. This disk is mounted to the cache instance VM and therefore resides in the same region as the instance.
+          
+          You need to explicitly configure Azure Redis to use the preceding features. You also have complete control over the region where the storage account or secondary cache is located.
+          
+      - question: |
+          Which region should I locate my cache in?
+        answer: |
+          For best performance and lowest latency, locate your Azure Redis cache in the same Azure region as your cache client application.
+          
 additionalContent: |
 
-  ## Next steps
+  ## Related content
   
-  Learn about other [Azure Cache for Redis FAQs](cache-faq.yml).
+  See other [Azure Redis FAQs](../redis/faq.yml).

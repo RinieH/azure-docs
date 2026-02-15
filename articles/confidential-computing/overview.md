@@ -1,95 +1,42 @@
 ---
 title: Azure Confidential Computing Overview
-description: Overview of Azure Confidential (ACC) Computing
+description: This article presents an overview of Azure confidential computing.
 services: virtual-machines
-author: JBCook
-ms.service: virtual-machines
-ms.subservice: confidential-computing
+author: cynthn
+ms.service: azure-confidential-computing
 ms.topic: overview
-ms.date: 09/22/2020
-ms.author: JenCook
+ms.date: 06/09/2023
+ms.author: cynthn #ananyagarg #sgallagher #michamcr
+ms.custom: inspire-july-2022
+# Customer intent: "As a data security manager, I want to implement confidential computing in my cloud infrastructure, so that I can ensure the protection of sensitive data in use and minimize the risk of unauthorized access."
 ---
 
-# Confidential computing on Azure
+# What is confidential computing?
 
-Azure confidential computing allows you to isolate your sensitive data while it's being processed in the cloud. Many industries use confidential computing to protect their data by using confidential computing to:
+Confidential computing is an industry term established by the [Confidential Computing Consortium (CCC)](https://confidentialcomputing.io/wp-content/uploads/sites/10/2023/03/CCC_outreach_whitepaper_updated_November_2022.pdf), which is part of the Linux Foundation. The CCC defines confidential computing in this way:
 
-- Secure financial data
-- Protect patient information
-- Run machine learning processes on sensitive information
-- Perform algorithms on encrypted data sets from multiple sources
+"Confidential Computing protects data in use by performing computation in a hardware-based, attested Trusted Execution Environment.
 
+"These secure and isolated environments prevent unauthorized access or modification of applications and data while they are in use, thereby increasing the security level of organizations that manage sensitive and regulated data."
 
-## Overview
-<p><p>
+Microsoft is one of the founding members of the CCC and provides Trusted Execution Environments (TEEs) in Azure based on this CCC definition.
 
+## Reducing the attack surface
 
-> [!VIDEO https://www.youtube.com/embed/rT6zMOoLEqI]
+:::image type="content" source="media/overview/three-states-and-confidential-computing-consortium-definition.png" alt-text="Diagram that shows three states of data protection, with confidential computing's data in use highlighted.":::
 
-We know that securing your cloud data is important. We hear your concerns. Here's just a few questions that our customers may have when moving sensitive workloads to the cloud: 
+Azure already encrypts data at rest and in transit. Confidential computing helps to protect data in use, including protection for cryptographic keys. Azure confidential computing helps customers prevent unauthorized access to data in use, including from the cloud operator, by processing data in a hardware-based and attested TEE. When Azure confidential computing is enabled and properly configured, Microsoft can't access unencrypted customer data.
 
-- How do I make sure Microsoft can't access data that isn't encrypted?
-- How do I prevent security threats from privileged admins inside my company?
-- What are more ways that I can prevent third-parties from accessing sensitive customer data?
+The threat model aims to reduce trust or remove the ability for a cloud provider operator or other actors in the tenant's domain from accessing code and data while it's being executed. Azure uses a hardware root of trust that isn't controlled by the cloud provider, which is designed to prevent unauthorized access or modification of the environment.
 
-Microsoft Azure helps you minimize your attack surface to gain stronger data protection. Azure already offers many tools to safeguard [**data at rest**](../security/fundamentals/encryption-atrest.md) through models such as client-side encryption and server-side encryption. Additionally, Azure offers mechanisms to encrypt [**data in transit**](../security/fundamentals/data-encryption-best-practices.md#protect-data-in-transit) through secure protocols like TLS and HTTPS. This page introduces  a third leg of data encryption - the encryption of **data in use**.
+When confidential computing is used with data encryption at rest and in transit, it extends data protections further to protect data while confidential computing is in use. This capability is beneficial for organizations that seek further protection for sensitive data and applications hosted in cloud environments.
 
-## Introduction to confidential computing 
+## Industry partnership
 
-Confidential computing is an industry term defined by the [Confidential Computing Consortium](https://confidentialcomputing.io/) (CCC) - a foundation dedicated to defining and accelerating the adoption of confidential computing. The CCC defines confidential computing as: The protection of data in use by performing computations in a hardware-based Trusted Execution Environment (TEE).
+The [CCC](https://confidentialcomputing.io/) brings together hardware vendors, cloud providers, and software developers to accelerate the adoption of TEE technologies and standards. Microsoft helped to cofound the CCC in 2019 and has chaired both the governing body and the Technical Advisory Council.
 
-A TEE is an environment that enforces execution of only authorized code. Any data in the TEE can't be read or tampered with by any code outside that environment. 
+## Related content
 
-### Lessen the need for trust
-Running workloads on the cloud requires trust. You give this trust to various providers enabling different components of your application.
+- To support your journey to confidentiality, explore [offerings](https://aka.ms/azurecc) that span infrastructure as a service (IaaS), platform as a service (PaaS), and developer tools.
 
-
-**App software vendors**: Trust software by deploying on-prem, using open-source, or by building in-house application software.
-
-**Hardware vendors**: Trust hardware by using on-premise hardware or in-house hardware. 
-
-**Infrastructure providers**: Trust cloud providers or manage your own on-premise data centers.
-
-
-Azure confidential computing makes it easier to trust the cloud provider, by reducing the need for trust across various aspects of the compute cloud infrastructure. Azure confidential computing minimizes trust for the host OS kernel, the hypervisor, the VM admin, and the host admin.
-
-### Reducing the attack surface
-The trusted computing base (TCB) refers to all of a system's hardware, firmware, and software components that provide a secure environment. The components inside the TCB are considered "critical". If one component inside the TCB is compromised, the entire system's security may be jeopardized. 
-
-A lower TCB means higher security. There's less risk of exposure to various vulnerabilities, malware, attacks, and malicious people. Azure confidential computing aims to lower the TCB for your cloud workloads by offering TEEs. TEEs reduce your TCB to trusted runtime binaries, code, and libraries. When you use Azure infrastructure and services for confidential computing, you can remove all of Microsoft from your TCB.
-
-
-## Using Azure for cloud-based confidential computing <a id="cc-on-azure"></a>
-
-Azure confidential computing allows you to leverage confidential computing capabilities in a virtualized environment. You can now use tools, software, and cloud infrastructure to build on top of secure hardware.  
-
-**Prevent unauthorized access**: Run sensitive data in the cloud. Trust that Azure provides the best data protection possible, with little to no change from what gets done today.
-
-**Regulatory compliance**: Migrate to the cloud and keep full control of data to satisfy government regulations for protecting personal information and secure organizational IP.
-
-**Secure and untrusted collaboration**: Tackle industry-wide work-scale problems by combing data across organizations, even competitors, to unlock broad data analytics and deeper insights.
-
-**Isolated processing**: Offer a new wave of products that remove liability on private data with blind processing. User data cannot even be retrieved by the service provider. 
-
-## Get Started
-### Azure Compute
-Build applications on top of confidential compute IaaS offerings in Azure.
-- Virtual Machines (VMs): [DCsv2-Series](confidential-computing-enclaves.md)
-- Azure Kubernetes (AKS): [Orchestrate confidential containers](confidential-nodes-aks-overview.md)
-
-### Azure Security 
-Ensure your workloads are secure through verification methods and hardware-bound key management. 
-- Attestation: [Microsoft Azure Attestation (Preview)](../attestation/overview.md)
-- Key Management: Managed-HSM (Preview)
-
-### Develop
-Start using developing enclave-aware applications and deploy confidential algorithms using the confidential inferencing framework.
-- Write applications to run on DCsv2 VMs: [Open-enclave SDK](https://github.com/openenclave/openenclave)
-- Confidential ML models in ONNX runtime: [Confidential inferencing (beta)](https://aka.ms/confidentialinference)
-
-## Next steps
-
-Deploy a DCsv2-Series virtual machine and install the OE SDK on it.
-
-> [!div class="nextstepaction"]
-> [Deploy a confidential computing VM in Azure Marketplace](quick-create-marketplace.md)
+- To learn more about confidential computing, see [Overview of Azure confidential computing](overview-azure-products.md).

@@ -4,11 +4,11 @@ description: Describes how Kubernetes Storage management occurs on an Azure Stac
 services: databox
 author: alkohli
 
-ms.service: databox
-ms.subservice: edge
+ms.service: azure-stack-edge
 ms.topic: conceptual
-ms.date: 02/22/2021
+ms.date: 10/25/2021
 ms.author: alkohli
+ms.custom: sfi-image-nochange
 ---
 # Kubernetes storage management on your Azure Stack Edge Pro GPU device
 
@@ -99,6 +99,8 @@ spec:
   volumeName: <nfs-or-smb-share-name-here> 
   storageClassName: ""
 ```
+
+To get the value of the `volumeName` field, select the Local mount point for Edge compute modules when you select the SMB or NFS share after creation. This is the same as the share name. 
 
 For more information, see [Deploy a stateful application via static provisioning on your Azure Stack Edge Pro via kubectl](azure-stack-edge-gpu-deploy-stateful-application-static-provision-kubernetes.md).
 

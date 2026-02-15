@@ -2,16 +2,13 @@
 title: Manage DNS zones in Azure DNS - PowerShell | Microsoft Docs
 description: You can manage DNS zones using Azure PowerShell. This article describes how to update, delete, and create DNS zones on Azure DNS
 services: dns
-documentationcenter: na
-author: rohinkoul
-ms.service: dns
-ms.devlang: na
+author: asudbring
+ms.service: azure-dns
 ms.topic: how-to
-ms.tgt_pltfrm: na
-ms.workload: infrastructure-services
-ms.date: 04/27/2021
-ms.author: rohink 
+ms.date: 03/07/2025
+ms.author: allensu
 ms.custom: devx-track-azurepowershell
+# Customer intent: As a network administrator, I want to create, update, and delete DNS zones using PowerShell, so that I can efficiently manage my domain's DNS infrastructure within Azure.
 ---
 
 # How to manage DNS Zones using PowerShell
@@ -111,7 +108,7 @@ $zone.Tags.Add("status","approved")
 Set-AzDnsZone -Zone $zone
 ```
 
-When using `Set-AzDnsZone` with a $zone object, [Etag checks](dns-zones-records.md#etags) are used to ensure concurrent changes aren't overwritten. You can use the optional `-Overwrite` switch to suppress these checks.
+When you use `Set-AzDnsZone` with a $zone object, [Etag checks](dns-zones-records.md#etags) are used to ensure concurrent changes aren't overwritten. You can use the optional `-Overwrite` switch to suppress these checks.
 
 ## Delete a DNS Zone
 

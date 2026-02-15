@@ -1,18 +1,13 @@
 ---
-ms.service: hpc-cache
+ms.service: azure-hpc-cache
 ms.topic: include
-ms.date: 03/15/2021
-author: ekpgh
-ms.author: v-erkel
+ms.date: 02/16/2024
+author: ronhogue
+ms.author: rohogue
+# Customer intent: "As a cloud architect, I want to understand the caching modes and their configurations in an HPC environment, so that I can optimize data access and performance for high-performance computing applications."
 ---
 
-
-| Usage model | Caching mode | Back-end verification | Maximum write-back delay |
+| Usage model | Caching mode | Verification timer | Write-back timer |
 |--|--|--|--|
-| Read heavy, infrequent writes | Read | Never | None |
-| Greater than 15% writes | Read/write | 8 hours | 20 minutes |
-| Clients bypass the cache | Read | 30 seconds | None |
-| Greater than 15% writes, frequent back-end checking (30 seconds) | Read/write | 30 seconds | 20 minutes |
-| Greater than 15% writes, frequent back-end checking (60 seconds) | Read/write | 60 seconds | 20 minutes |
-| Greater than 15% writes, frequent write-back | Read/write | 30 seconds | 30 seconds |
-| Read heavy, checking the backing server every 3 hours | Read | 3 hours | None |
+| Read-only caching <!--READ_ONLY-->| Read | 30 seconds | None |
+| Read-write caching <!--READ_WRITE-->| Read/write | 8 hours | 1 hour |

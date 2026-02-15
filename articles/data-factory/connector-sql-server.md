@@ -1,33 +1,40 @@
 ---
 title: Copy and transform data to and from SQL Server
-description: Learn about how to copy and transform data to and from SQL Server database that is on-premises or in an Azure VM by using Azure Data Factory.
+titleSuffix: Azure Data Factory & Azure Synapse
+description: Learn about how to copy and transform data to and from SQL Server database that is on-premises or in an Azure VM by using Azure Data Factory or Azure Synapse Analytics pipelines.
 ms.author: jianleishen
 author: jianleishen
-ms.service: data-factory
+ms.subservice: data-movement
 ms.topic: conceptual
-ms.custom: seo-lt-2019
-ms.date: 06/08/2021
+ms.date: 02/13/2025
+ms.custom:
+  - synapse
+  - sfi-image-nochange
+  - sfi-ropc-nochange
 ---
 
-# Copy and transform data to and from SQL Server by using Azure Data Factory
+# Copy and transform data to and from SQL Server by using Azure Data Factory or Azure Synapse Analytics
 
-> [!div class="op_single_selector" title1="Select the version of Azure Data Factory that you're using:"]
-> * [Version 1](v1/data-factory-sqlserver-connector.md)
-> * [Current version](connector-sql-server.md)
 [!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
 
-This article outlines how to use the copy activity in Azure Data Factory to copy data from and to SQL Server database and use Data Flow to transform data in SQL Server database.  To learn about Azure Data Factory, read the [introductory article](introduction.md).
+This article outlines how to use the copy activity in Azure Data Factory and Azure Synapse pipelines to copy data from and to SQL Server database and use Data Flow to transform data in SQL Server database.  To learn more read the introductory article for [Azure Data Factory](introduction.md) or [Azure Synapse Analytics](../synapse-analytics/overview-what-is.md).
 
 ## Supported capabilities
 
-This SQL Server connector is supported for the following activities:
+This SQL Server connector is supported for the following capabilities:
 
-- [Copy activity](copy-activity-overview.md) with [supported source/sink matrix](copy-activity-overview.md)
-- [Mapping data flow](concepts-data-flow-overview.md)
-- [Lookup activity](control-flow-lookup-activity.md)
-- [GetMetadata activity](control-flow-get-metadata-activity.md)
+| Supported capabilities|IR |
+|---------| --------|
+|[Copy activity](copy-activity-overview.md) (source/sink)|&#9312; &#9313;|
+|[Mapping data flow](concepts-data-flow-overview.md) (source/sink)|&#9312; |
+|[Lookup activity](control-flow-lookup-activity.md)|&#9312; &#9313;|
+|[GetMetadata activity](control-flow-get-metadata-activity.md)|&#9312; &#9313;|
+|[Script activity](transform-data-using-script.md)|&#9312; &#9313;|
+|[Stored procedure activity](transform-data-using-stored-procedure.md)|&#9312; &#9313;|
 
-You can copy data from a SQL Server database to any supported sink data store. Or, you can copy data from any supported source data store to a SQL Server database. For a list of data stores that are supported as sources or sinks by the copy activity, see the [Supported data stores](copy-activity-overview.md#supported-data-stores-and-formats) table.
+*&#9312; Azure integration runtime &#9313; Self-hosted integration runtime*
+
+For a list of data stores that are supported as sources or sinks by the copy activity, see the [Supported data stores](copy-activity-overview.md#supported-data-stores-and-formats) table.
 
 Specifically, this SQL Server connector supports:
 
@@ -38,6 +45,8 @@ Specifically, this SQL Server connector supports:
 
 [SQL Server Express LocalDB](/sql/database-engine/configure-windows/sql-server-express-localdb) is not supported.
 
+>[!IMPORTANT]
+> The data source must support the NVARCHAR data type since it affects the data encoding when a non-universal coding is being applied on the data.
 
 ## Prerequisites
 
@@ -47,28 +56,70 @@ Specifically, this SQL Server connector supports:
 
 [!INCLUDE [data-factory-v2-connector-get-started](includes/data-factory-v2-connector-get-started.md)]
 
-The following sections provide details about properties that are used to define Data Factory entities specific to the SQL Server database connector.
+## Create a SQL Server linked service using UI
+
+Use the following steps to create a SQL Server linked service in the Azure portal UI.
+
+1. Browse to the Manage tab in your Azure Data Factory or Synapse workspace and select Linked Services, then click New:
+
+    # [Azure Data Factory](#tab/data-factory)
+
+    :::image type="content" source="media/doc-common-process/new-linked-service.png" alt-text="Screenshot of creating a new linked service with Azure Data Factory UI.":::
+
+    # [Azure Synapse](#tab/synapse-analytics)
+
+    :::image type="content" source="media/doc-common-process/new-linked-service-synapse.png" alt-text="Screenshot of creating a new linked service with Azure Synapse UI.":::
+
+2. Search for SQL and select the SQL Server connector.
+
+    :::image type="content" source="media/connector-sql-server/sql-server-connector.png" alt-text="Screenshot of the SQL Server connector.":::    
+
+1. Configure the service details, test the connection, and create the new linked service.
+
+    :::image type="content" source="media/connector-sql-server/configure-sql-server-linked-service.png" alt-text="Screenshot of configuration for SQL Server linked service.":::
+
+## Connector configuration details
+
+The following sections provide details about properties that are used to define Data Factory and Synapse pipeline entities specific to the SQL Server database connector.
 
 ## Linked service properties
 
-The following properties are supported for the SQL Server linked service:
+The SQL Server **Recommended** version supports TLS 1.3. Refer to this [section](#upgrade-the-sql-server-version) to upgrade your SQL Server linked service if you use **Legacy** version. For the property details, see the corresponding sections.
 
-| Property | Description | Required |
-|:--- |:--- |:--- |
-| type | The type property must be set to **SqlServer**. | Yes |
-| connectionString |Specify **connectionString** information that's needed to connect to the SQL Server database by using either SQL authentication or Windows authentication. Refer to the following samples.<br/>You also can put a password in Azure Key Vault. If it's SQL authentication, pull the `password` configuration out of the connection string. For more information, see the JSON example following the table and [Store credentials in Azure Key Vault](store-credentials-in-key-vault.md). |Yes |
-| userName |Specify a user name if you use Windows authentication. An example is **domainname\\username**. |No |
-| password |Specify a password for the user account you specified for the user name. Mark this field as **SecureString** to store it securely in Azure Data Factory. Or, you can [reference a secret stored in Azure Key Vault](store-credentials-in-key-vault.md). |No |
-| alwaysEncryptedSettings | Specify **alwaysencryptedsettings** information that's needed to enable Always Encrypted to protect sensitive data stored in SQL server by using either managed identity or service principal. For more information, see the JSON example following the table and [Using Always Encrypted](#using-always-encrypted) section. If not specified, the default always encrypted setting is disabled. |No |
-| connectVia | This [integration runtime](concepts-integration-runtime.md) is used to connect to the data store. Learn more from [Prerequisites](#prerequisites) section. If not specified, the default Azure integration runtime is used. |No |
-
-> [!NOTE]
-> SQL Server [**Always Encrypted**](/sql/relational-databases/security/encryption/always-encrypted-database-engine?view=sql-server-ver15) is not supported in data flow. 
+- [Recommended version](#recommended-version)
+- [Legacy version](#legacy-version)
 
 >[!TIP]
 >If you hit an error with the error code "UserErrorFailedToConnectToSqlServer" and a message like "The session limit for the database is XXX and has been reached," add `Pooling=false` to your connection string and try again.
 
-**Example 1: Use SQL authentication**
+### Recommended version
+
+These generic properties are supported for a SQL server linked service when you apply **Recommended** version:
+
+| Property | Description | Required |
+|:--- |:--- |:--- |
+| type | The type property must be set to **SqlServer**. | Yes |
+| server | The name or network address of the SQL server instance you want to connect to. | Yes |
+| database | The name of the database. | Yes |
+| authenticationType |The type used for authentication. Allowed values are [**SQL**](#sql-authentication) (default), [**Windows**](#windows-authentication) and [**UserAssignedManagedIdentity**](#user-assigned-managed-identity-authentication) (only for [SQL Server on Azure VMs](/azure/azure-sql/virtual-machines)). Go to the relevant authentication section on specific properties and prerequisites. | Yes |
+| alwaysEncryptedSettings | Specify **alwaysencryptedsettings** information that's needed to enable Always Encrypted to protect sensitive data stored in SQL server by using either managed identity or service principal. For more information, see the JSON example following the table and [Using Always Encrypted](#using-always-encrypted) section. If not specified, the default always encrypted setting is disabled. |No |
+| encrypt |Indicate whether TLS encryption is required for all data sent between the client and server. Options: mandatory (for true, default)/optional (for false)/strict. | No |
+| trustServerCertificate | Indicate whether the channel will be encrypted while bypassing the certificate chain to validate trust. | No |
+| hostNameInCertificate | The host name to use when validating the server certificate for the connection. When not specified, the server name is used for certificate validation. | No |
+| connectVia | This [integration runtime](concepts-integration-runtime.md) is used to connect to the data store. Learn more from [Prerequisites](#prerequisites) section. If not specified, the default Azure integration runtime is used. |No |
+
+[!INCLUDE [SQL connector additional connection properties](includes/sql-connector-addtional-connection-properties.md)]
+
+#### SQL authentication
+
+To use SQL authentication, in addition to the generic properties that are described in the preceding section, specify the following properties:
+
+| Property | Description | Required |
+|:--- |:--- |:--- |
+| userName | The user name to be used when connecting to server. | Yes |
+| password | The password for the user name. Mark this field as **SecureString** to store it securely. Or, you can [reference a secret stored in Azure Key Vault](store-credentials-in-key-vault.md). |No |
+
+**Example: Use SQL authentication**
 
 ```json
 {
@@ -76,52 +127,12 @@ The following properties are supported for the SQL Server linked service:
     "properties": {
         "type": "SqlServer",
         "typeProperties": {
-            "connectionString": "Data Source=<servername>\\<instance name if using named instance>;Initial Catalog=<databasename>;Integrated Security=False;User ID=<username>;Password=<password>;"
-        },
-        "connectVia": {
-            "referenceName": "<name of Integration Runtime>",
-            "type": "IntegrationRuntimeReference"
-        }
-    }
-}
-```
-
-**Example 2: Use SQL authentication with a password in Azure Key Vault**
-
-```json
-{
-    "name": "SqlServerLinkedService",
-    "properties": {
-        "type": "SqlServer",
-        "typeProperties": {
-            "connectionString": "Data Source=<servername>\\<instance name if using named instance>;Initial Catalog=<databasename>;Integrated Security=False;User ID=<username>;",
-            "password": { 
-                "type": "AzureKeyVaultSecret", 
-                "store": { 
-                    "referenceName": "<Azure Key Vault linked service name>", 
-                    "type": "LinkedServiceReference" 
-                }, 
-                "secretName": "<secretName>" 
-            }
-        },
-        "connectVia": {
-            "referenceName": "<name of Integration Runtime>",
-            "type": "IntegrationRuntimeReference"
-        }
-    }
-}
-```
-
-**Example 3: Use Windows authentication**
-
-```json
-{
-    "name": "SqlServerLinkedService",
-    "properties": {
-        "type": "SqlServer",
-        "typeProperties": {
-            "connectionString": "Data Source=<servername>\\<instance name if using named instance>;Initial Catalog=<databasename>;Integrated Security=True;",
-            "userName": "<domain\\username>",
+            "server": "<name or network address of the SQL server instance>",
+            "database": "<database name>",
+            "encrypt": "<encrypt>",
+            "trustServerCertificate": false,
+            "authenticationType": "SQL",
+            "userName": "<user name>",
             "password": {
                 "type": "SecureString",
                 "value": "<password>"
@@ -135,7 +146,7 @@ The following properties are supported for the SQL Server linked service:
 }
 ```
 
-**Example 4: Use Always Encrypted**
+**Example: Use SQL authentication with a password in Azure Key Vault**
 
 ```json
 {
@@ -143,7 +154,46 @@ The following properties are supported for the SQL Server linked service:
     "properties": {
         "type": "SqlServer",
         "typeProperties": {
-            "connectionString": "Data Source=<servername>\\<instance name if using named instance>;Initial Catalog=<databasename>;Integrated Security=False;User ID=<username>;Password=<password>;"
+            "server": "<name or network address of the SQL server instance>",
+            "database": "<database name>",
+            "encrypt": "<encrypt>",
+            "trustServerCertificate": false,
+            "authenticationType": "SQL",
+            "userName": "<user name>",
+            "password": { 
+                "type": "AzureKeyVaultSecret", 
+                "store": { 
+                    "referenceName": "<Azure Key Vault linked service name>", 
+                    "type": "LinkedServiceReference" 
+                }, 
+                "secretName": "<secretName>" 
+            }
+        },
+        "connectVia": {
+            "referenceName": "<name of Integration Runtime>",
+            "type": "IntegrationRuntimeReference"
+        }
+    }
+}
+```
+**Example: Use Always Encrypted**
+
+```json
+{
+    "name": "SqlServerLinkedService",
+    "properties": {
+        "type": "SqlServer",
+        "typeProperties": {
+            "server": "<name or network address of the SQL server instance>",
+            "database": "<database name>",
+            "encrypt": "<encrypt>",
+            "trustServerCertificate": false,
+            "authenticationType": "SQL",
+            "userName": "<user name>",
+            "password": {
+                "type": "SecureString",
+                "value": "<password>"
+            }
         },
         "alwaysEncryptedSettings": {
             "alwaysEncryptedAkvAuthType": "ServicePrincipal",
@@ -160,6 +210,171 @@ The following properties are supported for the SQL Server linked service:
     }
 }
 ```
+
+#### Windows authentication
+
+To use Windows authentication, in addition to the generic properties that are described in the preceding section, specify the following properties:
+
+| Property | Description | Required |
+|:--- |:--- |:--- |
+| userName | Specify a user name. An example is **domainname\\username**. |Yes |
+| password | Specify a password for the user account you specified for the user name. Mark this field as **SecureString** to store it securely. Or, you can [reference a secret stored in Azure Key Vault](store-credentials-in-key-vault.md). |Yes |
+
+> [!NOTE]
+> Windows authentication is not supported in data flow.
+
+**Example: Use Windows authentication**
+
+```json
+{
+    "name": "SqlServerLinkedService",
+    "properties": {
+        "type": "SqlServer",
+        "typeProperties": {
+            "server": "<name or network address of the SQL server instance>",
+            "database": "<database name>",
+            "encrypt": "<encrypt>",
+            "trustServerCertificate": false,
+            "authenticationType": "Windows",
+            "userName": "<domain\\username>",
+            "password": {
+                "type": "SecureString",
+                "value": "<password>"
+            }
+        },
+        "connectVia": {
+            "referenceName": "<name of Integration Runtime>",
+            "type": "IntegrationRuntimeReference"
+        }
+    }
+}
+```
+
+**Example: Use Windows authentication with a password in Azure Key Vault**
+
+```json
+{
+    "name": "SqlServerLinkedService",
+    "properties": {
+        "annotations": [],
+        "type": "SqlServer",
+        "typeProperties": {
+            "server": "<name or network address of the SQL server instance>",
+            "database": "<database name>",
+            "encrypt": "<encrypt>",
+            "trustServerCertificate": false,
+            "authenticationType": "Windows",
+            "userName": "<domain\\username>",
+            "password": {
+                "type": "AzureKeyVaultSecret",
+                "store": {
+                    "referenceName": "<Azure Key Vault linked service name>",
+                    "type": "LinkedServiceReference"
+                },
+                "secretName": "<secretName>"
+            }
+        },
+        "connectVia": {
+            "referenceName": "<name of Integration Runtime>",
+            "type": "IntegrationRuntimeReference"
+        }
+    }
+}
+```
+
+#### User-assigned managed identity authentication 
+
+>[!Note]
+>The user-assigned managed identity authentication only applies to [SQL Server on Azure VMs](/azure/azure-sql/virtual-machines).
+
+A data factory or Synapse workspace can be associated with a [user-assigned managed identities](data-factory-service-identity.md#user-assigned-managed-identity) that represents the service when authenticating to other resources in Azure. You can use this managed identity for [SQL Server on Azure VMs](/azure/azure-sql/virtual-machines) authentication. The designated factory or Synapse workspace can access and copy data from or to your database by using this identity.
+
+To use user-assigned managed identity authentication, in addition to the generic properties that are described in the preceding section, specify the following properties:
+
+| Property | Description | Required |
+|:--- |:--- |:--- |
+| credentials | Specify the user-assigned managed identity as the credential object. | Yes |
+
+You also need to follow the steps below:
+
+1. [Grant permissions to your user-assigned managed identity](/azure/azure-sql/virtual-machines/windows/configure-azure-ad-authentication-for-sql-vm#grant-permissions).
+
+1. [Enable Microsoft Entra authentication](/azure/azure-sql/virtual-machines/windows/configure-azure-ad-authentication-for-sql-vm#enable-microsoft-entra-authentication) to your [SQL Server on Azure VMs](/azure/azure-sql/virtual-machines).
+
+1. [Create contained database users](/azure/azure-sql/database/authentication-aad-configure#create-contained-users-mapped-to-azure-ad-identities) for the user-assigned managed identity. Connect to the database from or to which you want to copy data by using tools like SQL Server Management Studio, with a Microsoft Entra identity that has at least ALTER ANY USER permission. Run the following T-SQL:
+  
+    ```sql
+    CREATE USER [your_resource_name] FROM EXTERNAL PROVIDER;
+    ```
+
+1. [Create one or multiple user-assigned managed identities](../active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.md) and grant the user-assigned managed identity needed permissions as you normally do for SQL users and others. Run the following code. For more options, see [this document](/sql/relational-databases/system-stored-procedures/sp-addrolemember-transact-sql).
+
+    ```sql
+    ALTER ROLE [role name] ADD MEMBER [your_resource_name];
+    ```
+1. Assign one or multiple user-assigned managed identities to your data factory and [create credentials](credentials.md) for each user-assigned managed identity. 
+
+1. Configure a SQL Server linked service.
+
+**Example**
+
+```json
+{
+    "name": "SqlServerLinkedService",
+    "properties": {
+        "type": "SqlServer",
+        "typeProperties": {
+            "server": "<name or network address of the SQL server instance>",
+            "database": "<database name>",
+            "encrypt": "<encrypt>",
+            "trustServerCertificate": false,
+            "authenticationType": "UserAssignedManagedIdentity",
+            "credential": {
+                "referenceName": "credential1",
+                "type": "CredentialReference"
+            }
+        },
+        "connectVia": {
+            "referenceName": "<name of Integration Runtime>",
+            "type": "IntegrationRuntimeReference"
+        }
+    }
+}
+```
+
+### Legacy version
+
+These generic properties are supported for a SQL server linked service when you apply **Legacy** version:
+
+| Property | Description | Required |
+|:--- |:--- |:--- |
+| type | The type property must be set to **SqlServer**. | Yes |
+| alwaysEncryptedSettings | Specify **alwaysencryptedsettings** information that's needed to enable Always Encrypted to protect sensitive data stored in SQL server by using either managed identity or service principal. For more information, see [Using Always Encrypted](#using-always-encrypted) section. If not specified, the default always encrypted setting is disabled. |No |
+| connectVia | This [integration runtime](concepts-integration-runtime.md) is used to connect to the data store. Learn more from [Prerequisites](#prerequisites) section. If not specified, the default Azure integration runtime is used. |No |
+
+This SQL server connector supports the following authentication types. See the corresponding sections for details.
+
+- [SQL authentication for the legacy version](#sql-authentication-for-the-legacy-version)
+- [Windows authentication for the legacy version](#windows-authentication-for-the-legacy-version)
+
+#### SQL authentication for the legacy version
+
+To use SQL authentication, in addition to the generic properties that are described in the preceding section, specify the following properties:
+
+| Property | Description | Required |
+|:--- |:--- |:--- |
+| connectionString | Specify **connectionString** information that's needed to connect to the SQL Server database. Specify a login name as your user name, and ensure the database that you want to connect is mapped to this login. | Yes |
+| password | If you want to put a password in Azure Key Vault, pull the `password` configuration out of the connection string. For more information, see [Store credentials in Azure Key Vault](store-credentials-in-key-vault.md). |No |
+
+#### Windows authentication for the legacy version
+
+To use Windows authentication, in addition to the generic properties that are described in the preceding section, specify the following properties:
+
+| Property | Description | Required |
+|:--- |:--- |:--- |
+| connectionString | Specify **connectionString** information that's needed to connect to the SQL Server database. | Yes |
+| userName | Specify a user name. An example is **domainname\\username**. |Yes |
+| password | Specify a password for the user account you specified for the user name. Mark this field as **SecureString** to store it securely. Or, you can [reference a secret stored in Azure Key Vault](store-credentials-in-key-vault.md). |Yes |
 
 ## Dataset properties
 
@@ -216,7 +431,7 @@ To copy data from SQL Server, set the source type in the copy activity to **SqlS
 | partitionOptions | Specifies the data partitioning options used to load data from SQL Server. <br>Allowed values are: **None** (default), **PhysicalPartitionsOfTable**, and **DynamicRange**.<br>When a partition option is enabled (that is, not `None`), the degree of parallelism to concurrently load data from SQL Server is controlled by the [`parallelCopies`](copy-activity-performance-features.md#parallel-copy) setting on the copy activity. | No |
 | partitionSettings | Specify the group of the settings for data partitioning. <br>Apply when the partition option isn't `None`. | No |
 | ***Under `partitionSettings`:*** | | |
-| partitionColumnName | Specify the name of the source column **in integer or  date/datetime type** (`int`, `smallint`, `bigint`, `date`, `smalldatetime`, `datetime`, `datetime2`, or `datetimeoffset`) that will be used by range partitioning for parallel copy. If not specified, the index or the primary key of the table is auto-detected and used as the partition column.<br>Apply when the partition option is `DynamicRange`. If you use a query to retrieve the source data, hook  `?AdfDynamicRangePartitionCondition ` in the WHERE clause. For an example, see the [Parallel copy from SQL database](#parallel-copy-from-sql-database) section. | No |
+| partitionColumnName | Specify the name of the source column **in integer or  date/datetime type** (`int`, `smallint`, `bigint`, `date`, `smalldatetime`, `datetime`, `datetime2`, or `datetimeoffset`) that will be used by range partitioning for parallel copy. If not specified, the index or the primary key of the table is auto-detected and used as the partition column.<br>Apply when the partition option is `DynamicRange`. If you use a query to retrieve the source data, hook  `?DfDynamicRangePartitionCondition ` in the WHERE clause. For an example, see the [Parallel copy from SQL database](#parallel-copy-from-sql-database) section. | No |
 | partitionUpperBound | The maximum value of the partition column for partition range splitting. This value is used to decide the partition stride, not for filtering the rows in table. All rows in the table or query result will be partitioned and copied. If not specified, copy activity auto detect the value.  <br>Apply when the partition option is `DynamicRange`. For an example, see the [Parallel copy from SQL database](#parallel-copy-from-sql-database) section. | No |
 | partitionLowerBound | The minimum value of the partition column for partition range splitting. This value is used to decide the partition stride, not for filtering the rows in table. All rows in the table or query result will be partitioned and copied. If not specified, copy activity auto detect the value.<br>Apply when the partition option is `DynamicRange`. For an example, see the [Parallel copy from SQL database](#parallel-copy-from-sql-database) section. | No |
 
@@ -328,9 +543,15 @@ To copy data to SQL Server, set the sink type in the copy activity to **SqlSink*
 | storedProcedureTableTypeParameterName |The parameter name of the table type specified in the stored procedure.  |No |
 | sqlWriterTableType |The table type name to be used in the stored procedure. The copy activity makes the data being moved available in a temp table with this table type. Stored procedure code can then merge the data that's being copied with existing data. |No |
 | storedProcedureParameters |Parameters for the stored procedure.<br/>Allowed values are name and value pairs. Names and casing of parameters must match the names and casing of the stored procedure parameters. | No |
-| writeBatchSize |Number of rows to insert into the SQL table *per batch*.<br/>Allowed values are integers for the number of rows. By default, Azure Data Factory dynamically determines the appropriate batch size based on the row size. |No |
-| writeBatchTimeout |This property specifies the wait time for the batch insert operation to complete before it times out.<br/>Allowed values are for the timespan. An example is "00:30:00" for 30 minutes. If no value is specified, the timeout defaults to "02:00:00". |No |
-| maxConcurrentConnections |The upper limit of concurrent connections established to the data store during the activity run. Specify a value only when you want to limit concurrent connections.| No |
+| writeBatchSize |Number of rows to insert into the SQL table *per batch*.<br/>Allowed values are integers for the number of rows. By default, the service dynamically determines the appropriate batch size based on the row size. |No |
+| writeBatchTimeout |The wait time for the insert, upsert and stored procedure operation to complete before it times out. <br/>Allowed values are for the timespan. An example is "00:30:00" for 30 minutes. If no value is specified, the  time-out defaults to "00:30:00". |No |
+| maxConcurrentConnections |The upper limit of concurrent connections established to the data store during the activity run. Specify a value only when you want to limit concurrent connections.| No |
+| WriteBehavior | Specify the write behavior for copy activity to load data into SQL Server Database. <br/> The allowed value is **Insert** and **Upsert**. By default, the service uses insert to load data. | No |
+| upsertSettings | Specify the group of the settings for write behavior. <br/> Apply when the WriteBehavior option is `Upsert`. | No |
+| ***Under `upsertSettings`:*** | | |
+| useTempDB | Specify whether to use the global temporary table or physical table as the interim table for upsert. <br>By default, the service uses global temporary table as the interim table. value is `true`. | No |
+| interimSchemaName | Specify the interim schema for creating interim table if physical table is used. Note: user need to have the permission for creating and deleting table. By default, interim table will share the same schema as sink table. <br/> Apply when the useTempDB option is `False`. | No |
+| keys | Specify the column names for unique row identification. Either a single key or a series of keys can be used. If not specified, the primary key is used. | No |
 
 **Example 1: Append data**
 
@@ -405,21 +626,61 @@ Learn more details from [Invoke a stored procedure from a SQL sink](#invoke-a-st
 ]
 ```
 
+**Example 3: Upsert data**
+
+```json
+"activities":[
+    {
+        "name": "CopyToSQLServer",
+        "type": "Copy",
+        "inputs": [
+            {
+                "referenceName": "<input dataset name>",
+                "type": "DatasetReference"
+            }
+        ],
+        "outputs": [
+            {
+                "referenceName": "<SQL Server output dataset name>",
+                "type": "DatasetReference"
+            }
+        ],
+        "typeProperties": {
+            "source": {
+                "type": "<source type>"
+            },
+            "sink": {
+                "type": "SqlSink",
+                "tableOption": "autoCreate",
+                "writeBehavior": "upsert",
+                "upsertSettings": {
+                    "useTempDB": true,
+                    "keys": [
+                        "<column name>"
+                    ]
+                },
+            }
+        }
+    }
+]
+```
+
+
 ## Parallel copy from SQL database
 
 The SQL Server connector in copy activity provides built-in data partitioning to copy data in parallel. You can find data partitioning options on the **Source** tab of the copy activity.
 
-![Screenshot of partition options](./media/connector-sql-server/connector-sql-partition-options.png)
+:::image type="content" source="./media/connector-sql-server/connector-sql-partition-options.png" alt-text="Screenshot of partition options":::
 
-When you enable partitioned copy, copy activity runs parallel queries against your SQL Server source to load data by partitions. The parallel degree is controlled by the [`parallelCopies`](copy-activity-performance-features.md#parallel-copy) setting on the copy activity. For example, if you set `parallelCopies` to four, Data Factory concurrently generates and runs four queries based on your specified partition option and settings, and each query retrieves a portion of data from your SQL Server.
+When you enable partitioned copy, copy activity runs parallel queries against your SQL Server source to load data by partitions. The parallel degree is controlled by the [`parallelCopies`](copy-activity-performance-features.md#parallel-copy) setting on the copy activity. For example, if you set `parallelCopies` to four, the service concurrently generates and runs four queries based on your specified partition option and settings, and each query retrieves a portion of data from your SQL Server.
 
 You are suggested to enable parallel copy with data partitioning especially when you load large amount of data from your SQL Server. The following are suggested configurations for different scenarios. When copying data into file-based data store, it's recommended to write to a folder as multiple files (only specify folder name), in which case the performance is better than writing to a single file.
 
 | Scenario                                                     | Suggested settings                                           |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Full load from large table, with physical partitions.        | **Partition option**: Physical partitions of table. <br><br/>During execution, Data Factory automatically detects the physical partitions, and copies data by partitions. <br><br/>To check if your table has physical partition or not, you can refer to [this query](#sample-query-to-check-physical-partition). |
-| Full load from large table, without physical partitions, while with an integer or datetime column for data partitioning. | **Partition options**: Dynamic range partition.<br>**Partition column** (optional): Specify the column used to partition data. If not specified, the primary key column is used.<br/>**Partition upper bound** and **partition lower bound** (optional): Specify if you want to determine the partition stride. This is not for filtering the rows in table, all rows in the table will be partitioned and copied. If not specified, copy activity auto detects the values and it can take long time depending on MIN and MAX values. It is recommended to provide upper bound and lower bound. <br><br>For example, if your partition column "ID" has values range from 1 to 100, and you set the lower bound as 20 and the upper bound as 80, with parallel copy as 4, Data Factory retrieves data by 4 partitions - IDs in range <=20, [21, 50], [51, 80], and >=81, respectively. |
-| Load a large amount of data by using a custom query, without physical partitions, while with an integer or date/datetime column for data partitioning. | **Partition options**: Dynamic range partition.<br>**Query**: `SELECT * FROM <TableName> WHERE ?AdfDynamicRangePartitionCondition AND <your_additional_where_clause>`.<br>**Partition column**: Specify the column used to partition data.<br>**Partition upper bound** and **partition lower bound** (optional): Specify if you want to determine the partition stride. This is not for filtering the rows in table, all rows in the query result will be partitioned and copied. If not specified, copy activity auto detect the value.<br><br>During execution, Data Factory replaces `?AdfRangePartitionColumnName` with the actual column name and value ranges for each partition, and sends to SQL Server. <br>For example, if your partition column "ID" has values range from 1 to 100, and you set the lower bound as 20 and the upper bound as 80, with parallel copy as 4, Data Factory retrieves data by 4 partitions- IDs in range <=20, [21, 50], [51, 80], and >=81, respectively. <br><br>Here are more sample queries for different scenarios:<br> 1. Query the whole table: <br>`SELECT * FROM <TableName> WHERE ?AdfDynamicRangePartitionCondition`<br> 2. Query from a table with column selection and additional where-clause filters: <br>`SELECT <column_list> FROM <TableName> WHERE ?AdfDynamicRangePartitionCondition AND <your_additional_where_clause>`<br> 3. Query with subqueries: <br>`SELECT <column_list> FROM (<your_sub_query>) AS T WHERE ?AdfDynamicRangePartitionCondition AND <your_additional_where_clause>`<br> 4. Query with partition in subquery: <br>`SELECT <column_list> FROM (SELECT <your_sub_query_column_list> FROM <TableName> WHERE ?AdfDynamicRangePartitionCondition) AS T`
+| Full load from large table, with physical partitions.        | **Partition option**: Physical partitions of table. <br><br/>During execution, the service automatically detects the physical partitions, and copies data by partitions. <br><br/>To check if your table has physical partition or not, you can refer to [this query](#sample-query-to-check-physical-partition). |
+| Full load from large table, without physical partitions, while with an integer or datetime column for data partitioning. | **Partition options**: Dynamic range partition.<br>**Partition column** (optional): Specify the column used to partition data. If not specified, the primary key column is used.<br/>**Partition upper bound** and **partition lower bound** (optional): Specify if you want to determine the partition stride. This is not for filtering the rows in table, all rows in the table will be partitioned and copied. If not specified, copy activity auto detects the values and it can take long time depending on MIN and MAX values. It is recommended to provide upper bound and lower bound. <br><br>For example, if your partition column "ID" has values range from 1 to 100, and you set the lower bound as 20 and the upper bound as 80, with parallel copy as 4, the service retrieves data by 4 partitions - IDs in range <=20, [21, 50], [51, 80], and >=81, respectively. |
+| Load a large amount of data by using a custom query, without physical partitions, while with an integer or date/datetime column for data partitioning. | **Partition options**: Dynamic range partition.<br>**Query**: `SELECT * FROM <TableName> WHERE ?DfDynamicRangePartitionCondition AND <your_additional_where_clause>`.<br>**Partition column**: Specify the column used to partition data.<br>**Partition upper bound** and **partition lower bound** (optional): Specify if you want to determine the partition stride. This is not for filtering the rows in table, all rows in the query result will be partitioned and copied. If not specified, copy activity auto detect the value.<br><br>For example, if your partition column "ID" has values range from 1 to 100, and you set the lower bound as 20 and the upper bound as 80, with parallel copy as 4, the service retrieves data by 4 partitions- IDs in range <=20, [21, 50], [51, 80], and >=81, respectively. <br><br>Here are more sample queries for different scenarios:<br> 1. Query the whole table: <br>`SELECT * FROM <TableName> WHERE ?DfDynamicRangePartitionCondition`<br> 2. Query from a table with column selection and additional where-clause filters: <br>`SELECT <column_list> FROM <TableName> WHERE ?DfDynamicRangePartitionCondition AND <your_additional_where_clause>`<br> 3. Query with subqueries: <br>`SELECT <column_list> FROM (<your_sub_query>) AS T WHERE ?DfDynamicRangePartitionCondition AND <your_additional_where_clause>`<br> 4. Query with partition in subquery: <br>`SELECT <column_list> FROM (SELECT <your_sub_query_column_list> FROM <TableName> WHERE ?DfDynamicRangePartitionCondition) AS T`
 |
 
 Best practices to load data with partition option:
@@ -443,7 +704,7 @@ Best practices to load data with partition option:
 ```json
 "source": {
     "type": "SqlSource",
-    "query": "SELECT * FROM <TableName> WHERE ?AdfDynamicRangePartitionCondition AND <your_additional_where_clause>",
+    "query": "SELECT * FROM <TableName> WHERE ?DfDynamicRangePartitionCondition AND <your_additional_where_clause>",
     "partitionOption": "DynamicRange",
     "partitionSettings": {
         "partitionColumnName": "<partition_column_name>",
@@ -470,7 +731,7 @@ WHERE s.name='[your schema]' AND t.name = '[your table name]'
 
 If the table has physical partition, you would see "HasPartition" as "yes" like the following.
 
-![Sql query result](./media/connector-azure-sql-database/sql-query-result.png)
+:::image type="content" source="./media/connector-azure-sql-database/sql-query-result.png" alt-text="Sql query result":::
 
 ## Best practice for loading data into SQL Server
 
@@ -481,46 +742,19 @@ When you copy data into SQL Server, you might require different write behavior:
 - [Overwrite](#overwrite-the-entire-table): I want to reload the entire dimension table each time.
 - [Write with custom logic](#write-data-with-custom-logic): I need extra processing before the final insertion into the destination table.
 
-See the respective sections for how to configure in Azure Data Factory and best practices.
+See the respective sections for how to configure and best practices.
 
 ### Append data
 
-Appending data is the default behavior of this SQL Server sink connector. Azure Data Factory does a bulk insert to write to your table efficiently. You can configure the source and sink accordingly in the copy activity.
+Appending data is the default behavior of this SQL Server sink connector. The service does a bulk insert to write to your table efficiently. You can configure the source and sink accordingly in the copy activity.
 
 ### Upsert data
 
-**Option 1:** When you have a large amount of data to copy, you can bulk load all records into a staging table by using the copy activity, then run a stored procedure activity to apply a [MERGE](/sql/t-sql/statements/merge-transact-sql) or INSERT/UPDATE statement in one shot. 
-
-Copy activity currently doesn't natively support loading data into a database temporary table. There is an advanced way to set it up with a combination of multiple activities, refer to [Optimize SQL Database Bulk Upsert scenarios](https://github.com/scoriani/azuresqlbulkupsert). Below shows a sample of using a permanent table as staging.
-
-As an example, in Azure Data Factory, you can create a pipeline with a **Copy activity** chained with a **Stored Procedure activity**. The former copies data from your source store into a SQL Server staging table, for example, **UpsertStagingTable**, as the table name in the dataset. Then the latter invokes a stored procedure to merge source data from the staging table into the target table and clean up the staging table.
-
-![Upsert](./media/connector-azure-sql-database/azure-sql-database-upsert.png)
-
-In your database, define a stored procedure with MERGE logic, like the following example, which is pointed to from the previous stored procedure activity. Assume that the target is the **Marketing** table with three columns: **ProfileID**, **State**, and **Category**. Do the upsert based on the **ProfileID** column.
-
-```sql
-CREATE PROCEDURE [dbo].[spMergeData]
-AS
-BEGIN
-    MERGE TargetTable AS target
-    USING UpsertStagingTable AS source
-    ON (target.[ProfileID] = source.[ProfileID])
-    WHEN MATCHED THEN
-        UPDATE SET State = source.State
-    WHEN NOT matched THEN
-        INSERT ([ProfileID], [State], [Category])
-      VALUES (source.ProfileID, source.State, source.Category);
-    
-    TRUNCATE TABLE UpsertStagingTable
-END
-```
-
-**Option 2:** You can choose to [invoke a stored procedure within the copy activity](#invoke-a-stored-procedure-from-a-sql-sink). This approach runs each batch (as governed by the `writeBatchSize` property) in the source table instead of using bulk insert as the default approach in the copy activity.
+Copy activity now supports natively loading data into a database temporary table and then update the data in sink table if key exists and otherwise insert new data. To learn more about upsert settings in copy activities, see [SQL Server as a sink](#sql-server-as-a-sink).
 
 ### Overwrite the entire table
 
-You can configure the **preCopyScript** property in a copy activity sink. In this case, for each copy activity that runs, Azure Data Factory runs the script first. Then it runs the copy to insert the data. For example, to overwrite the entire table with the latest data, specify a script to first delete all the records before you bulk load the new data from the source.
+You can configure the **preCopyScript** property in a copy activity sink. In this case, for each copy activity that runs, the service runs the script first. Then it runs the copy to insert the data. For example, to overwrite the entire table with the latest data, specify a script to first delete all the records before you bulk load the new data from the source.
 
 ### Write data with custom logic
 
@@ -528,7 +762,7 @@ The steps to write data with custom logic are similar to those described in the 
 
 ## <a name="invoke-a-stored-procedure-from-a-sql-sink"></a> Invoke a stored procedure from a SQL sink
 
-When you copy data into SQL Server database, you also can configure and invoke a user-specified stored procedure with additional parameters on each batch of the source table. The stored procedure feature takes advantage of [table-valued parameters](/dotnet/framework/data/adonet/sql/table-valued-parameters).
+When you copy data into SQL Server database, you also can configure and invoke a user-specified stored procedure with additional parameters on each batch of the source table. The stored procedure feature takes advantage of [table-valued parameters](/dotnet/framework/data/adonet/sql/table-valued-parameters).  Note that the service automatically wraps the stored procedure in its own transaction, so any transaction created inside the stored procedure will become a nested transaction, and could have implications for exception handling.
 
 You can use a stored procedure when built-in copy mechanisms don't serve the purpose. An example is when you want to apply extra processing before the final insertion of source data into the destination table. Some extra processing examples are when you want to merge columns, look up additional values, and insert into more than one table.
 
@@ -561,7 +795,7 @@ The following sample shows how to use a stored procedure to do an upsert into a 
     END
     ```
 
-3. In Azure Data Factory, define the **SQL sink** section in the copy activity as follows:
+3. Define the **SQL sink** section in the copy activity as follows:
 
     ```json
     "sink": {
@@ -582,7 +816,7 @@ The following sample shows how to use a stored procedure to do an upsert into a 
 When transforming data in mapping data flow, you can read and write to tables from SQL Server Database. For more information, see the [source transformation](data-flow-source.md) and [sink transformation](data-flow-sink.md) in mapping data flows.
 
 > [!NOTE]
-> To access on premise SQL Server, you need to use Azure Data Factory [Managed Virtual Network](managed-virtual-network-private-endpoint.md) using private endpoint. Refer to this [tutorial](tutorial-managed-virtual-network-on-premise-sql-server.md) for detailed steps.
+> To access on premise SQL Server, you need to use Azure Data Factory or Synapse workspace [Managed Virtual Network](managed-virtual-network-private-endpoint.md) using a private endpoint. Refer to this [tutorial](tutorial-managed-virtual-network-on-premise-sql-server.md) for detailed steps.
 
 ### Source transformation
 
@@ -593,7 +827,26 @@ The below table lists the properties supported by SQL Server source. You can edi
 | Table | If you select Table as input, data flow fetches all the data from the table specified in the dataset. | No | - |- |
 | Query | If you select Query as input, specify a SQL query to fetch data from source, which overrides any table you specify in dataset. Using queries is a great way to reduce rows for testing or lookups.<br><br>**Order By** clause is not supported, but you can set a full SELECT FROM statement. You can also use user-defined table functions. **select * from udfGetData()** is a UDF in SQL that returns a table that you can use in data flow.<br>Query example: `Select * from MyTable where customerId > 1000 and customerId < 2000`| No | String | query |
 | Batch size | Specify a batch size to chunk large data into reads. | No | Integer | batchSize |
-| Isolation Level | Choose one of the following isolation levels:<br>- Read Committed<br>- Read Uncommitted (default)<br>- Repeatable Read<br>- Serializable<br>- None (ignore isolation level) | No | <small>READ_COMMITTED<br/>READ_UNCOMMITTED<br/>REPEATABLE_READ<br/>SERIALIZABLE<br/>NONE</small> |isolationLevel |
+| Isolation Level | Choose one of the following isolation levels:<br>- Read Committed<br>- Read Uncommitted (default)<br>- Repeatable Read<br>- Serializable<br>- None (ignore isolation level) | No | READ_COMMITTED<br/>READ_UNCOMMITTED<br/>REPEATABLE_READ<br/>SERIALIZABLE<br/>NONE |isolationLevel |
+| Enable incremental extract | Use this option to tell ADF to only process rows that have changed since the last time that the pipeline executed. | No | - |- |
+| Incremental date column | When using the incremental extract feature, you must choose the date/time column that you wish to use as the watermark in your source table. | No | - |- |
+| Enable native change data capture(Preview) | Use this option to tell ADF to only process delta data captured by [SQL change data capture technology](/sql/relational-databases/track-changes/about-change-data-capture-sql-server) since the last time that the pipeline executed. With this option, the delta data including row insert, update and deletion will be loaded automatically without any incremental date column required. You need to [enable change data capture](/sql/relational-databases/track-changes/enable-and-disable-change-data-capture-sql-server) on SQL Server before using this option in ADF. For more information about this option in ADF, see [native change data capture](#native-change-data-capture). | No | - |- |
+| Start reading from beginning | Setting this option with incremental extract will instruct ADF to read all rows on first execution of a pipeline with incremental extract turned on. | No | - |- |
+
+
+
+
+> [!TIP]
+> The [common table expression (CTE)](/sql/t-sql/queries/with-common-table-expression-transact-sql?view=sql-server-ver15&preserve-view=true) in SQL is not supported in the mapping data flow **Query** mode, because the prerequisite of using this mode is that queries can be used in the SQL query FROM clause but CTEs cannot do this.
+>To use CTEs, you need to create a stored procedure using the following query:
+>```SQL
+> CREATE PROC CTESP @query nvarchar(max)
+> AS
+> BEGIN
+> EXECUTE sp_executesql @query;
+> END
+>```
+>Then use the **Stored procedure** mode in the source transformation of the mapping data flow and set the `@query` like example `with CTE as (select 'test' as a) select * from CTE`. Then you can use CTEs as expected.
 
 #### SQL Server source script example
 
@@ -620,6 +873,10 @@ The below table lists the properties supported by SQL Server sink. You can edit 
 | Batch size | Specify how many rows are being written in each batch. Larger batch sizes improve compression and memory optimization, but risk out of memory exceptions when caching data. | No | Integer | batchSize |
 | Pre and Post SQL scripts | Specify multi-line SQL scripts that will execute before (pre-processing) and after (post-processing) data is written to your Sink database. | No | String | preSQLs<br>postSQLs |
 
+> [!TIP]
+> 1. It's recommended to break single batch scripts with multiple commands into multiple batches.
+> 2. Only Data Definition Language (DDL) and Data Manipulation Language (DML) statements that return a simple update count can be run as part of a batch. Learn more from [Performing batch operations](/sql/connect/jdbc/performing-batch-operations)
+
 #### SQL Server sink script example
 
 When you use SQL Server as sink type, the associated data flow script is:
@@ -639,9 +896,9 @@ IncomingStream sink(allowSchemaDrift: true,
 
 ## Data type mapping for SQL Server
 
-When you copy data from and to SQL Server, the following mappings are used from SQL Server data types to Azure Data Factory interim data types. To learn how the copy activity maps the source schema and data type to the sink, see [Schema and data type mappings](copy-activity-schema-and-type-mapping.md).
+When you copy data from and to SQL Server, the following mappings are used from SQL Server data types to Azure Data Factory interim data types. Synapse pipelines, which implement Data Factory, use the same mappings.  To learn how the copy activity maps the source schema and data type to the sink, see [Schema and data type mappings](copy-activity-schema-and-type-mapping.md).
 
-| SQL Server data type | Azure Data Factory interim data type |
+| SQL Server data type | Data Factory interim data type |
 |:--- |:--- |
 | bigint |Int64 |
 | binary |Byte[] |
@@ -677,7 +934,9 @@ When you copy data from and to SQL Server, the following mappings are used from 
 | xml |String |
 
 >[!NOTE]
-> For data types that map to the Decimal interim type, currently Copy activity supports precision up to 28. If you have data that requires precision larger than 28, consider converting to a string in a SQL query.
+> For data types that map to the Decimal interim type, currently Copy activity supports precision up to 28. If you have data that requires precision larger than 28, consider converting to a string in a SQL query.  
+>
+> When copying data from SQL Server using Azure Data Factory, the bit data type is mapped to the Boolean interim data type. If you have data that need to be kept as the bit data type, use queries with [T-SQL CAST or CONVERT](/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-ver15&preserve-view=true). 
 
 ## Lookup activity properties
 
@@ -691,9 +950,9 @@ To learn details about the properties, check [GetMetadata activity](control-flow
 
 When you copy data from/to SQL Server with [Always Encrypted](/sql/relational-databases/security/encryption/always-encrypted-database-engine), follow below steps: 
 
-1. Store the [Column Master Key (CMK)](/sql/relational-databases/security/encryption/create-and-store-column-master-keys-always-encrypted?view=sql-server-ver15) in an [Azure Key Vault](/azure/key-vault/general/overview). Learn more on [how to configure Always Encrypted by using Azure Key Vault](/azure/azure-sql/database/always-encrypted-azure-key-vault-configure?tabs=azure-powershell)
+1. Store the [Column Master Key (CMK)](/sql/relational-databases/security/encryption/create-and-store-column-master-keys-always-encrypted?view=sql-server-ver15&preserve-view=true) in an [Azure Key Vault](/azure/key-vault/general/overview). Learn more on [how to configure Always Encrypted by using Azure Key Vault](/azure/azure-sql/database/always-encrypted-azure-key-vault-configure?tabs=azure-powershell)
 
-2. Make sure to grant access to the key vault where the [Column Master Key (CMK)](/sql/relational-databases/security/encryption/create-and-store-column-master-keys-always-encrypted?view=sql-server-ver15) is stored. Refer to this [article](/sql/relational-databases/security/encryption/create-and-store-column-master-keys-always-encrypted?view=sql-server-ver15#key-vaults) for required permissions.
+2. Make sure to grant access to the key vault where the [Column Master Key (CMK)](/sql/relational-databases/security/encryption/create-and-store-column-master-keys-always-encrypted?view=sql-server-ver15&preserve-view=true) is stored. Refer to this [article](/sql/relational-databases/security/encryption/create-and-store-column-master-keys-always-encrypted?view=sql-server-ver15&preserve-view=true#key-vaults) for required permissions.
 
 3. Create linked service to connect to your SQL database and enable 'Always Encrypted' function by using either managed identity or service principal. 
 
@@ -704,17 +963,87 @@ When you copy data from/to SQL Server with [Always Encrypted](/sql/relational-da
 >2. Both source and sink data stores are using managed identity as key provider authentication type.
 >3. Both source and sink data stores are using the same service principal as key provider authentication type.
 
+>[!NOTE]
+>Currently, SQL Server [**Always Encrypted**](/sql/relational-databases/security/encryption/always-encrypted-database-engine?view=sql-server-ver15&preserve-view=true) is only supported for source transformation in mapping data flows.
+
+
+## Native change data capture
+
+Azure Data Factory can support native change data capture capabilities for SQL Server, Azure SQL DB and Azure SQL MI. The changed data including row insert, update and deletion in SQL stores can be automatically detected and extracted by ADF mapping dataflow. With the no code experience in mapping dataflow, users can easily achieve data replication scenario from SQL stores by appending a database as destination store. What is more, users can also compose any data transform logic in between to achieve incremental ETL scenario from SQL stores.
+
+Make sure you keep the pipeline and activity name unchanged, so that the checkpoint can be recorded by ADF for you to get changed data from the last run automatically. If you change your pipeline name or activity name, the checkpoint will be reset, which leads you to start from beginning or get changes from now in the next run. If you do want to change the pipeline name or activity name but still keep the checkpoint to get changed data from the last run automatically, please use your own Checkpoint key in dataflow activity to achieve that.
+
+When you debug the pipeline, this feature works the same. Be aware that the checkpoint will be reset when you refresh your browser during the debug run. After you are satisfied with the pipeline result from debug run, you can go ahead to publish and trigger the pipeline. At the moment when you first time trigger your published pipeline, it automatically restarts from the beginning or gets changes from now on.
+
+In the monitoring section, you always have the chance to rerun a pipeline. When you are doing so, the changed data is always captured from the previous checkpoint of your selected pipeline run.
+
+### Example 1:
+
+When you directly chain a source transform referenced to SQL CDC enabled dataset with a sink transform referenced to a database in a mapping dataflow, the changes happened on SQL source will be automatically applied to the target database, so that you will easily get data replication scenario between databases. You can use update method in sink transform to select whether you want to allow insert, allow update or allow delete on target database. The example script in mapping dataflow is as below.
+
+```json
+source(output(
+		id as integer,
+		name as string
+	),
+	allowSchemaDrift: true,
+	validateSchema: false,
+	enableNativeCdc: true,
+	netChanges: true,
+	skipInitialLoad: false,
+	isolationLevel: 'READ_UNCOMMITTED',
+	format: 'table') ~> source1
+source1 sink(allowSchemaDrift: true,
+	validateSchema: false,
+	deletable:true,
+	insertable:true,
+	updateable:true,
+	upsertable:true,
+	keys:['id'],
+	format: 'table',
+	skipDuplicateMapInputs: true,
+	skipDuplicateMapOutputs: true,
+	errorHandlingOption: 'stopOnFirstError') ~> sink1
+```
+
+### Example 2:
+
+If you want to enable ETL scenario instead of data replication between database via SQL CDC, you can use expressions in mapping dataflow including isInsert(1), isUpdate(1) and isDelete(1) to differentiate the rows with different operation types.  The following is one of the example scripts for mapping dataflow on deriving one column with the value: 1 to indicate inserted rows, 2 to indicate updated rows and 3 to indicate deleted rows for downstream transforms to process the delta data.
+
+```json
+source(output(
+		id as integer,
+		name as string
+	),
+	allowSchemaDrift: true,
+	validateSchema: false,
+	enableNativeCdc: true,
+	netChanges: true,
+	skipInitialLoad: false,
+	isolationLevel: 'READ_UNCOMMITTED',
+	format: 'table') ~> source1
+source1 derive(operationType = iif(isInsert(1), 1, iif(isUpdate(1), 2, 3))) ~> derivedColumn1
+derivedColumn1 sink(allowSchemaDrift: true,
+	validateSchema: false,
+	skipDuplicateMapInputs: true,
+	skipDuplicateMapOutputs: true) ~> sink1
+```
+
+### Known limitation:
+
+*    Only **net changes** from SQL CDC will be loaded by ADF via [cdc.fn_cdc_get_net_changes_](/sql/relational-databases/system-functions/cdc-fn-cdc-get-net-changes-capture-instance-transact-sql?source=recommendations).
+
 ## Troubleshoot connection issues
 
 1. Configure your SQL Server instance to accept remote connections. Start **SQL Server Management Studio**, right-click **server**, and select **Properties**. Select **Connections** from the list, and select the **Allow remote connections to this server** check box.
 
-    ![Enable remote connections](media/copy-data-to-from-sql-server/AllowRemoteConnections.png)
+    :::image type="content" source="media/copy-data-to-from-sql-server/AllowRemoteConnections.png" alt-text="Enable remote connections":::
 
     For detailed steps, see [Configure the remote access server configuration option](/sql/database-engine/configure-windows/configure-the-remote-access-server-configuration-option).
 
 2. Start **SQL Server Configuration Manager**. Expand **SQL Server Network Configuration** for the instance you want, and select **Protocols for MSSQLSERVER**. Protocols appear in the right pane. Enable TCP/IP by right-clicking **TCP/IP** and selecting **Enable**.
 
-    ![Enable TCP/IP](./media/copy-data-to-from-sql-server/EnableTCPProptocol.png)
+    :::image type="content" source="./media/copy-data-to-from-sql-server/EnableTCPProptocol.png" alt-text="Enable TCP/IP":::
 
     For more information and alternate ways of enabling TCP/IP protocol, see [Enable or disable a server network protocol](/sql/database-engine/configure-windows/enable-or-disable-a-server-network-protocol).
 
@@ -723,5 +1052,17 @@ When you copy data from/to SQL Server with [Always Encrypted](/sql/relational-da
 5. Create a **rule for the Windows Firewall** on the machine to allow incoming traffic through this port. 
 6. **Verify connection**: To connect to SQL Server by using a fully qualified name, use SQL Server Management Studio from a different machine. An example is `"<machine>.<domain>.corp.<company>.com,1433"`.
 
-## Next steps
-For a list of data stores supported as sources and sinks by the copy activity in Azure Data Factory, see [Supported data stores](copy-activity-overview.md#supported-data-stores-and-formats).
+## Upgrade the SQL Server version
+
+To upgrade the SQL Server version, in **Edit linked service** page, select **Recommended** under **Version** and configure the linked service by referring to [Linked service properties for the recommended version](#recommended-version).
+
+## Differences between the recommended and the legacy version
+
+The table below shows the differences between SQL Server using the recommended and the legacy version.
+
+| Recommended version | Legacy version | 
+|:--- |:--- |
+| Support TLS 1.3 via `encrypt` as `strict`. | TLS 1.3 is not supported.| 
+
+## Related content
+For a list of data stores supported as sources and sinks by the copy activity, see [Supported data stores](copy-activity-overview.md#supported-data-stores-and-formats).

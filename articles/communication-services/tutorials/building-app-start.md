@@ -4,10 +4,14 @@ titleSuffix: An Azure Communication Services tutorial
 description: Learn how to create a baseline web application that supports Azure Communication Services
 author: nmurav
 services: azure-communication-services
+
 ms.author: nmurav
 ms.date: 06/30/2021
-ms.topic: overview
+ms.topic: tutorial
 ms.service: azure-communication-services
+ms.custom:
+  - devx-track-js
+  - sfi-image-nochange
 ---
 
 # Tutorial: Prepare a web app for Azure Communication Services (Node.js)
@@ -27,7 +31,7 @@ In this tutorial, you learn how to:
 
 ## Prerequisites
 
-- An Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F). The free account gives you $200 in Azure credits to try out any combination of services.
+- An Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn). The free account gives you $200 in Azure credits to try out any combination of services.
 - [Visual Studio Code](https://code.visualstudio.com/) for editing code in your local development environment.
 - [webpack](https://webpack.js.org/) to bundle and locally host your code.
 - [Node.js](https://nodejs.org/en/) to install and manage dependencies like Azure Communication Services SDKs and webpack.
@@ -36,7 +40,7 @@ In this tutorial, you learn how to:
 - The [Azure App Service extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azureappservice). The extension allows deploying websites with the option to configure fully managed continuous integration and continuous delivery (CI/CD).
 - The [Azure Functions extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions) to build your own serverless applications. For example, you can host your authentication application in Azure Functions.
 - An active Communication Services resource and connection string. [Learn how to create a Communication Services resource](../quickstarts/create-communication-resource.md).
-- A user access token. For instructions, see the [quickstart for creating and managing access tokens](../quickstarts/access-tokens.md?pivots=programming-language-javascript) or the [tutorial for building a trusted authentication service](./trusted-service-tutorial.md).
+- A user access token. For instructions, see the [quickstart for creating and managing access tokens](../quickstarts/identity/access-tokens.md?pivots=programming-language-javascript) or the [tutorial for building a trusted authentication service](./trusted-service-tutorial.md).
 
 
 ## Configure your development environment
@@ -231,12 +235,12 @@ Paste this code into `index.html`:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My first ACS application</title>
+    <title>My first Azure Communication Services application</title>
     <link rel="stylesheet" href="./app.css"/>
     <script src="./app.js" defer></script>
 </head>
 <body>
-    <h1>Hello from ACS!</h1>
+    <h1>Hello from Azure Communication Services!</h1>
 </body>
 </html>
 ```
@@ -458,6 +462,6 @@ You're now ready to build your first Azure Communication Services web applicatio
 You might also want to:
 
 - [Add chat to your app](../quickstarts/chat/get-started.md)
-- [Create user access tokens](../quickstarts/access-tokens.md)
-- [Learn about client and server architecture](../concepts/client-and-server-architecture.md)
+- [Create user access tokens](../quickstarts/identity/access-tokens.md)
+- [Learn about client and server architecture](../concepts/identity-model.md#client-server-architecture-for-the-bring-your-own-identity-byoi-model)
 - [Learn about authentication](../concepts/authentication.md)

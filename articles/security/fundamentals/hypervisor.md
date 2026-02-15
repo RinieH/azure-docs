@@ -5,9 +5,8 @@ author: yosharm
 ms.service: security
 ms.subservice: security-fundamentals
 ms.topic: article
-ms.author: terrylan
-manager: rkarlin
-ms.date: 06/24/2021
+ms.author: mbaldwin
+ms.date: 11/10/2022
 ---
 
 # Hypervisor security on the Azure fleet

@@ -1,115 +1,114 @@
 ---
-title: Use Azure Sentinel watchlists
-description: This article describes how to use Azure Sentinel watchlists investigate threats, import business data, create allow lists, and enrich event data.
-services: sentinel
-author: yelevin
-ms.author: yelevin
-ms.assetid: 1721d0da-c91e-4c96-82de-5c7458df566b
-ms.service: azure-sentinel
-ms.subservice: azure-sentinel
-ms.topic: conceptual
-ms.custom: mvc
-ms.date: 09/06/2020
+title: Use Watchlists to Correlate and Enrich Event Data in Microsoft Sentinel
+description: Learn how to use watchlists in Microsoft Sentinel to efficiently correlate and enrich event data, reduce alert fatigue, and respond to threats. Discover best practices and get started today.
+author: batamig
+ms.author: bagol
+ms.topic: concept-article
+ms.date: 05/27/2025
+appliesto:
+    - Microsoft Sentinel in the Microsoft Defender portal
+    - Microsoft Sentinel in the Azure portal
+ms.collection: usx-security
+
+
+#Customer intent: As a security analyst, I want to understand how to use watchlists in Microsoft Sentinel so that I can efficiently correlate and enrich event data, reduce alert fatigue, and quickly respond to threats.
+
 ---
 
-# Use Azure Sentinel watchlists
+# Watchlists in Microsoft Sentinel
+
+Watchlists in Microsoft Sentinel help security analysts efficiently correlate and enrich event data. They give you a flexible way to manage reference data, like lists of high-value assets or terminated employees. Integrate watchlists into your detection rules, threat hunting, and response workflows to reduce alert fatigue and respond to threats faster. This article explains how to use watchlists in Microsoft Sentinel, outlines key scenarios and limitations, and gives guidance on creating and querying watchlists to enhance your security operations.
+
+Use watchlists in your search, detection rules, threat hunting, and response playbooks. Watchlists are stored in your Microsoft Sentinel workspace in the `Watchlist` table as name-value pairs. They're cached for optimal query performance and low latency.
 
 > [!IMPORTANT]
-> The watchlists feature is currently in **PREVIEW**. See the [Supplemental Terms of Use for Microsoft Azure Previews](https://azure.microsoft.com/support/legal/preview-supplemental-terms/) for additional legal terms that apply to Azure features that are in beta, preview, or otherwise not yet released into general availability.
+> The features for watchlist templates and the ability to create a watchlist from a file in Azure Storage are currently in **PREVIEW**. The [Azure Preview Supplemental Terms](https://azure.microsoft.com/support/legal/preview-supplemental-terms/) include additional legal terms that apply to Azure features that are in beta, preview, or otherwise not yet released into general availability.
+>
 
-Azure Sentinel watchlists enable the collection of data from external data sources for correlation with the events in your Azure Sentinel environment. Once created, you can use watchlists in your search, detection rules, threat hunting, and response playbooks. Watchlists are stored in your Azure Sentinel workspace as name-value pairs and are cached for optimal query performance and low latency.
+## When to use watchlists
 
-Common scenarios for using watchlists include:
+Use watchlists in these scenarios:
 
-- **Investigating threats** and responding to incidents quickly with the rapid import of IP addresses, file hashes, and other data from CSV files. Once imported, you can use watchlist name-value pairs for joins and filters in alert rules, threat hunting, workbooks, notebooks, and general queries.
+- **Investigate threats** and respond to incidents quickly by importing IP addresses, file hashes, and other data from CSV files. After you import the data, use watchlist name-value pairs for joins and filters in alert rules, threat hunting, workbooks, notebooks, and queries.
 
-- **Importing business data** as a watchlist. For example, import user lists with privileged system access, or terminated employees, and then use the watchlist to create allow and deny lists used to detect or prevent those users from logging in to the network.
+- **Import business data** as a watchlist. For example, import user lists with privileged system access or lists of terminated employees. Then, use the watchlist to create allowlists and blocklists to detect or prevent those users from signing in to the network.
 
-- **Reducing alert fatigue**. Create allow lists to suppress alerts from a group of users, such as users from authorized IP addresses that perform tasks that would normally trigger the alert, and prevent benign events from becoming alerts.
+- **Reduce alert fatigue**. Create allowlists to suppress alerts from a group of users, like users from authorized IP addresses who perform tasks that would normally trigger the alert. Prevent benign events from becoming alerts.
 
-- **Enriching event data**. Use watchlists to enrich your event data with name-value combinations derived from external data sources.
+- **Enrich event data**. Use watchlists to add name-value combinations from external data sources to your event data.
 
-## Create a new watchlist
+## Watchlist limitations
 
-1. From the Azure portal, navigate to **Azure Sentinel** > **Configuration** > **Watchlist** and then select **+ Add new**.
+We recommend reviewing the following limitations before creating watchlists:
 
-    :::image type="content" source="./media/watchlists/sentinel-watchlist-new.png" alt-text="new watchlist" lightbox="./media/watchlists/sentinel-watchlist-new.png":::
+| Limitation | Details |
+|------------|---------|
+| **Watchlist name and alias length** | Watchlist names and aliases must be between 3 and 64 characters. First and last characters must be alphanumeric; spaces, hyphens, and underscores allowed between. |
+| **Intended use** | Use watchlists only for reference data. Watchlists aren't designed for large data volumes. |
+| **Maximum active watchlist items** | You can have a maximum of 10 million active watchlist items across all watchlists in a workspace. Deleted items don't count. For larger volumes, use [custom logs](/azure/azure-monitor/agents/data-sources-custom-logs). |
+| **Data retention**| Data in the Log Analytics Watchlist table is retained for 28 days.|
+| **Refresh interval** | Watchlists refresh every 12 days, updating the `TimeGenerated` field. |
+| **Cross-workspace management** | Managing watchlists across workspaces using Azure Lighthouse isn't supported. |
+| **Local file upload size** | Local file uploads are limited to files of up to 3.8 MB. |
+| **Azure Storage file upload size (preview)** | Azure Storage uploads are limited to files of up to 500 MB. |
+| **Column and table restrictions** | Watchlists must follow [KQL entity naming restrictions](/kusto/query/schema-entities/entity-names?view=microsoft-sentinel&preserve-view=true) for columns and names. |
 
-1. On the **General** page, provide the name, description, and alias for the watchlist, and then select **Next: Source**.
+## Microsoft Sentinel watchlist creation methods
 
-    :::image type="content" source="./media/watchlists/sentinel-watchlist-general.png" alt-text="watchlist general page":::
+Use one of the following methods to create watchlists in Microsoft Sentinel:
 
-1. On the **Source** page, select the dataset type (currently only CSV is available), enter the number of lines **before the header row** in your data file, and then choose a file to upload in one of two ways:
-    1. Click the **Browse for files** link in the **Upload file** box and select your data file to upload.
-    1. Drag and drop your data file onto the **Upload file** box.
+- Uploading a file from a local folder or from your Azure Storage account.
 
-    You will see a preview of the first 50 rows of results in the wizard screen.
+- Download a watchlist template from Microsoft Sentinel, add your data, and then upload the file when you create the watchlist.
 
-1. In the **SearchKey** field, enter the name of a column in your watchlist that you expect to use as a join with other data or a frequent object of searches. For example, if your server watchlist contains server names and their respective IP addresses, and you expect to use the IP addresses often for search or joins, use the **IP Address** column as the SearchKey.
+To create a watchlist from a large file (up to 500 MB), upload the file to your Azure Storage account. Create a shared access signature (SAS) URL so Microsoft Sentinel can retrieve the watchlist data. A SAS URL includes both the resource URI and the SAS token for a resource, like a CSV file in your storage account. Add the watchlist to your workspace in Microsoft Sentinel.
 
-1. Select **Next: Review and Create**.
+For more information, see:
 
-    :::image type="content" source="./media/watchlists/sentinel-watchlist-source.png" alt-text="watchlist source page" lightbox="./media/watchlists/sentinel-watchlist-source.png":::
+- [Create watchlists in Microsoft Sentinel](watchlists-create.md)
+- [Built-in watchlist schemas](watchlist-schemas.md)
+- [Azure Storage SAS token](../storage/common/storage-sas-overview.md#sas-token)
 
-    > [!NOTE]
-    >
-    > File uploads are currently limited to files of up to 3.8 MB in size.
+## Watchlists in queries for searches and detection rules
 
-1. Review the information, verify that it is correct, wait for the *Validation passed* message, and then select **Create**.
+To correlate your watchlist data with other Microsoft Sentinel data, use Kusto tabular operators such as `join` and `lookup` with the `Watchlist` table. Microsoft Sentinel creates the following functions in the workspace to help reference and query your watchlists:
 
-    :::image type="content" source="./media/watchlists/sentinel-watchlist-review.png" alt-text="watchlist review page":::
+- `_GetWatchlistAlias` - returns the aliases of all your watchlists
+- `_GetWatchlist` - queries the name-value pairs of the specified watchlist
 
-    A notification appears once the watchlist is created.
+When you create a watchlist, you define the *SearchKey*. The search key is the name of a column in your watchlist that you expect to use as a join with other data or as a frequent object of searches. For example, suppose you have a server watchlist that contains country/region names and their respective two-letter country codes. You expect to use the country codes often for searches or joins. So you use the country code column as the search key.
 
-    :::image type="content" source="./media/watchlists/sentinel-watchlist-complete.png" alt-text="watchlist successful creation notification" lightbox="./media/watchlists/sentinel-watchlist-complete.png":::
+  ```kusto
+  Heartbeat
+  | lookup kind=leftouter _GetWatchlist('mywatchlist') 
+    on $left.RemoteIPCountry == $right.SearchKey
+  ```
 
-## Use watchlists in queries
+Let's look at some other example queries.
 
-> [!TIP]
-> For optimal query performance, use **SearchKey** (representing the field you defined in creating the watchlist) as the key for joins in your queries. See the example below.
+Suppose you want to use a watchlist in an analytics rule. You create a watchlist called `ipwatchlist` with columns for `IPAddress` and `Location`. You set `IPAddress` as the **SearchKey**.
 
-1. From the Azure portal, navigate to **Azure Sentinel** > **Configuration** > **Watchlist**, select the watchlist you want to use, and then select **View in Log Analytics**.
+   |`IPAddress,Location`   |
+   |---------|
+   |`10.0.100.11,Home`     |
+   |`172.16.107.23,Work`   |
+   |`10.0.150.39,Home`     |
+   |`172.20.32.117,Work`   |
 
-    :::image type="content" source="./media/watchlists/sentinel-watchlist-queries-list.png" alt-text="use watchlists in queries" lightbox="./media/watchlists/sentinel-watchlist-queries-list.png":::
+To include only events from IP addresses in the watchlist, you might use a query where `watchlist` is used as a variable or inline.
 
-1. The items in your watchlist are automatically extracted for your query, and will appear on the **Results** tab. The example below shows the results of the extraction of the **Name** and **IP Address** fields. The **SearchKey** is shown as its own column.
+This example query uses the watchlist as a variable:
 
-    > [!NOTE]
-    > The timestamp on your queries will be ignored in both the query UI and in scheduled alerts.
-
-    :::image type="content" source="./media/watchlists/sentinel-watchlist-queries-fields.png" alt-text="queries with watchlist fields" lightbox="./media/watchlists/sentinel-watchlist-queries-fields.png":::
-    
-1. You can query data in any table against data from a watchlist by treating the watchlist as a table for joins and lookups. Use **SearchKey** as the key for your join.
-
-    ```kusto
-    Heartbeat
-    | lookup kind=leftouter _GetWatchlist('IPlist') 
-     on $left.ComputerIP == $right.SearchKey
-    ```
-    :::image type="content" source="./media/watchlists/sentinel-watchlist-queries-join.png" alt-text="queries against watchlist as lookup" lightbox="./media/watchlists/sentinel-watchlist-queries-join.png":::
-
-## Use watchlists in analytics rules
-
-> [!TIP]
-> For optimal query performance, use **SearchKey** (representing the field you defined in creating the watchlist) as the key for joins in your queries. See the example below.
-
-To use watchlists in analytics rules, from the Azure portal, navigate to **Azure Sentinel** > **Configuration** > **Analytics**, and create a rule using the `_GetWatchlist('<watchlist>')` function in the query.
-
-1. In this example, create a watchlist called “ipwatchlist” with the following values:
-
-    :::image type="content" source="./media/watchlists/create-watchlist.png" alt-text="list of four items for watchlist":::
-
-    :::image type="content" source="./media/watchlists/sentinel-watchlist-new-other.png" alt-text="create watchlist with four items":::
-
-1. Next, create the analytics rule.  In this example, we only include events from IP addresses in the watchlist:
-
-    ```kusto
+  ```kusto
     //Watchlist as a variable
     let watchlist = (_GetWatchlist('ipwatchlist') | project IPAddress);
     Heartbeat
     | where ComputerIP in (watchlist)
-    ```
-    ```kusto
+  ```
+
+This example query uses the watchlist inline with the query and the search key defined for the watchlist.
+
+  ```kusto
     //Watchlist inline with the query
     //Use SearchKey for the best performance
     Heartbeat
@@ -117,18 +116,22 @@ To use watchlists in analytics rules, from the Azure portal, navigate to **Azure
         (_GetWatchlist('ipwatchlist')
         | project SearchKey)
     )
-    ```
+  ```
 
-    :::image type="content" source="./media/watchlists/sentinel-watchlist-analytics-rule.png" alt-text="use watchlists in analytics rules":::
+For more information, see [Build queries and detection rules with watchlists in Microsoft Sentinel](watchlists-queries.md) and the following articles in the Kusto documentation:
 
-## View list of watchlists aliases
+- [***where*** operator](/kusto/query/where-operator?view=microsoft-sentinel&preserve-view=true)
+- [***project*** operator](/kusto/query/project-operator?view=microsoft-sentinel&preserve-view=true)
+- [***lookup*** operator](/kusto/query/lookup-operator?view=microsoft-sentinel&preserve-view=true)
+- [***in*** operator](/kusto/query/in-cs-operator?view=microsoft-sentinel&preserve-view=true)
+- [***let*** statement](/kusto/query/let-statement?view=microsoft-sentinel&preserve-view=true)
 
-To get a list of watchlist aliases, from the Azure portal, navigate to **Azure Sentinel** > **General** > **Logs**, and run the following query: `_GetWatchlistAlias`. You can see the list of aliases in the **Results** tab.
+[!INCLUDE [kusto-reference-general-no-alert](includes/kusto-reference-general-no-alert.md)]
 
-   :::image type="content" source="./media/watchlists/sentinel-watchlist-alias.png" alt-text="list watchlists" lightbox="./media/watchlists/sentinel-watchlist-alias.png":::
+## Related content
 
-## Next steps
-In this document, you learned how to use watchlists in Azure Sentinel to enrich data and improve investigations. To learn more about Azure Sentinel, see the following articles:
-- Learn how to [get visibility into your data, and potential threats](quickstart-get-visibility.md).
-- Get started [detecting threats with Azure Sentinel](./tutorial-detect-threats-built-in.md).
-- [Use workbooks](tutorial-monitor-your-data.md) to monitor your data.
+For more information, see:
+
+- [Create watchlists](watchlists-create.md)
+- [Build queries and detection rules with watchlists](watchlists-queries.md)
+- [Manage watchlists](watchlists-manage.md)

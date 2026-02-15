@@ -1,20 +1,19 @@
 ---
 title: Common Event Format (CEF) key and CommonSecurityLog field mapping
-description: This article maps CEF keys to the corresponding field names in the CommonSecurityLog in Azure Sentinel.
-services: sentinel
-author: batamig
-ms.author: bagol
-ms.service: azure-sentinel
-ms.subservice: azure-sentinel
+description: This article maps CEF keys to the corresponding field names in the CommonSecurityLog in Microsoft Sentinel.
+author: guywi-ms
+ms.author: guywild
 ms.topic: reference
-ms.date: 04/12/2021
+ms.date: 08/12/2024
+
+#Customer intent: As a security analyst, I want to understand the mapping between CEF fields and CommonSecurityLog fields so that I can accurately interpret and analyze security events in my SIEM system.
+
 ---
 
 # CEF and CommonSecurityLog field mapping
 
-The following tables map Common Event Format (CEF) field names to the names they use in Azure Sentinel's CommonSecurityLog, and may be helpful when you are working with a CEF data source in Azure Sentinel.
+The following tables map Common Event Format (CEF) field names to the names they use in Microsoft Sentinel's CommonSecurityLog, and might be helpful when you're working with a CEF data source in Microsoft Sentinel. For more information, see [Ingest syslog and CEF messages to Microsoft Sentinel with the Azure Monitor Agent](connect-cef-syslog-ama.md).
 
-For more information, see [Connect your external solution using Common Event Format](connect-common-event-format.md).
 
 ## A - C
 
@@ -22,8 +21,8 @@ For more information, see [Connect your external solution using Common Event For
 |---------|---------|---------|
 | act    |    <a name="deviceaction"></a> DeviceAction     |  The action mentioned in the event.       |
 |   app  |    ApplicationProtocol     |  The protocol used in the application, such as HTTP, HTTPS, SSHv2, Telnet, POP, IMPA, IMAPS, and so on.   |
+| cat | DeviceEventCategory | Represents the category assigned by the originating device. Devices often use their own categorization schema to classify event. For example: `/Monitor/Disk/Read`. |
 | cnt    |    EventCount     |  A count associated with the event, showing how many times the same event was observed.       |
-| | | |
 
 ## D
 
@@ -39,7 +38,7 @@ For more information, see [Connect your external solution using Common Event For
 | deviceDirection | <a name="communicationdirection"></a> CommunicationDirection | Any information about the direction the observed communication has taken. Valid values: <br>- `0` = Inbound <br>- `1` = Outbound |
 | deviceDnsDomain | DeviceDnsDomain | The DNS domain part of the full qualified domain name (FQDN) |
 |DeviceEventClassID     |   DeviceEventClassID     |   String or integer that serves as a unique identifier per event type.      |
-| deviceExternalID | DeviceExternalID | A name that uniquely identifies the device generating the event. |
+| deviceExternalId | deviceExternalId | A name that uniquely identifies the device generating the event. |
 | deviceFacility | DeviceFacility | The facility generating the event.|
 | deviceInboundInterface | DeviceInboundInterface |The interface on which the packet or data entered the device.  |
 | deviceNtDomain | DeviceNtDomain | The Windows domain of the device address |
@@ -51,7 +50,7 @@ For more information, see [Connect your external solution using Common Event For
 | dmac | DestinationMacAddress | The destination MAC address (FQDN) |
 | dntdom | DestinationNTDomain | The Windows domain name of the destination address.|
 | dpid | DestinationProcessId |The ID of the destination process associated with the event.|
-| dpriv | DestinationUserPrivileges | Defines the destination use's privileges. <br>Valid values: `Admninistrator`, `User`, `Guest` |
+| dpriv | DestinationUserPrivileges | Defines the destination use's privileges. <br>Valid values: `Administrator`, `User`, `Guest` |
 | dproc | DestinationProcessName | The name of the event’s destination process, such as `telnetd` or `sshd.` |
 | dpt | DestinationPort | Destination port. <br>Valid values: `*0` - `65535` |
 | dst | DestinationIP | The destination IpV4 address that the event refers to in an IP network. |
@@ -79,7 +78,7 @@ For more information, see [Connect your external solution using Common Event For
 | fsize | FileSize | The size of the file. |
 |Host    |  Computer       | Host, from Syslog        |
 |in     |  ReceivedBytes      |Number of bytes transferred inbound.         |
-| | | |
+
 
 ## M - P
 
@@ -97,14 +96,15 @@ For more information, see [Connect your external solution using Common Event For
 |oldFileSize | OldFileSize | Size of the old file.|
 | oldFileType | OldFileType | File type of the old file, such as a pipe, socket, and so on.|
 | out | SentBytes | Number of bytes transferred outbound. |
-| Outcome | Outcome | Outcome of the event, such as `success` or `failure`.|
+| outcome | EventOutcome | Outcome of the event, such as `success` or `failure`.|
 |proto    |  Protocol       | Transport protocol that identifies the Layer-4 protocol used. <br><br>Possible values include protocol names, such as `TCP` or `UDP`.        |
-| | | |
+
 
 ## R - T
 
 |CEF key name  |CommonSecurityLog name  |Description  |
 |---------|---------|---------|
+| reason | Reason | The reason an audit event was generated. For example, `badd password` or `unknown user`. This could also be an error or return code. For example: `0x1234`. |
 |Request     |   RequestURL      | The URL accessed for an HTTP request, including the protocol. For example, `http://www/secure.com`        |
 |requestClientApplication     |   RequestClientApplication      |   The user agent associated with the request.      |
 | requestContext | RequestContext | Describes the content from which the request originated, such as the HTTP Referrer. |
@@ -112,7 +112,7 @@ For more information, see [Connect your external solution using Common Event For
 | requestMethod | RequestMethod | The method used to access a URL. <br><br>Valid values include methods such as `POST`, `GET`, and so on. |
 | rt | ReceiptTime | The time at which the event related to the activity was received. |
 |Severity     |  <a name="logseverity"></a> LogSeverity       |  A string or integer that describes the importance of the event.<br><br> Valid string values: `Unknown` , `Low`, `Medium`, `High`, `Very-High` <br><br>Valid integer values are:<br> - `0`-`3` = Low <br>- `4`-`6` = Medium<br>- `7`-`8` = High<br>- `9`-`10` = Very-High |
-| shost    | SourceHostName        |Identifies the source that event refers to in an IP network. Format should be a fully qualified domain name (DQDN) associated with the source node, when a node is available. For example, `host` or `host.domain.com`. |
+| shost    | SourceHostName        |Identifies the source that event refers to in an IP network. Format should be a fully qualified domain name (FQDN) associated with the source node, when a node is available. For example, `host` or `host.domain.com`. |
 | smac | SourceMacAddress | Source MAC address. |
 | sntdom | SourceNTDomain | The Windows domain name for the source address. |
 | sourceDnsDomain | SourceDnsDomain | The DNS domain part of the complete FQDN. |
@@ -127,11 +127,11 @@ For more information, see [Connect your external solution using Common Event For
 | suid | SourceUserID | Identifies the source user by ID. |
 | suser | SourceUserName | Identifies the source user by name. |
 | type | EventType | Event type. Value values include: <br>- `0`: base event <br>- `1`: aggregated <br>- `2`: correlation event <br>- `3`: action event <br><br>**Note**: This event can be omitted for base events. |
-| | | |
+
 
 ## Custom fields
 
-The following tables map the names of CEF keys and CommonSecurityLog fields that are available for customers to use for data that does not apply to any of the built-in fields.
+The following tables map the names of CEF keys and CommonSecurityLog fields that are available for customers to use for data that doesn't apply to any of the built-in fields.
 
 ### Custom IPv6 address fields
 
@@ -155,7 +155,7 @@ The following table maps CEF key and CommonSecurityLog names for the *IPv6* addr
 |     cfp3Label    |     deviceCustomFloatingPoint3Label    |
 |     cfp4    |     DeviceCustomFloatingPoint4    |
 |     cfp4Label    |     deviceCustomFloatingPoint4Label    |
-| | |
+
 
 ### Custom number fields
 
@@ -169,7 +169,7 @@ The following table maps CEF key and CommonSecurityLog names for the *number* fi
 |     cn2Label    |     DeviceCustomNumber2Label       |
 |     cn3    |     DeviceCustomNumber3       |
 |     cn3Label    |     DeviceCustomNumber3Label       |
-| | |
+
 
 ### Custom string fields
 
@@ -193,12 +193,11 @@ The following table maps CEF key and CommonSecurityLog names for the *string* fi
 |     flexString1Label    |     FlexString1Label    |
 |     flexString2    |     FlexString2    |
 |     flexString2Label    |     FlexString2Label    |
-| | |
+
 
 > [!TIP]
 > <a name="use-sparingly"></a><sup>1</sup> We recommend that you use the **DeviceCustomString** fields sparingly and use more specific, built-in fields when possible.
 > 
-
 ### Custom timestamp fields
 
 The following table maps CEF key and CommonSecurityLog names for the *timestamp* fields available for custom data.
@@ -211,7 +210,7 @@ The following table maps CEF key and CommonSecurityLog names for the *timestamp*
 |     deviceCustomDate2Label    |     DeviceCustomDate2Label    |
 |     flexDate1    |     FlexDate1    |
 |     flexDate1Label    |     FlexDate1Label    |
-| | |
+
 
 ### Custom integer data fields
 
@@ -223,11 +222,11 @@ The following table maps CEF key and CommonSecurityLog names for the *integer* f
 |     flexNumber1Label    |     FlexNumber1Label    |
 |     flexNumber2    |     FlexNumber2    |
 |     flexNumber2Label    |     FlexNumber2Label    |
-| | |
+
 
 ## Enrichment fields
 
-The following **CommonSecurityLog** fields are added by Azure Sentinel to enrich the original events received from the source devices, and don't have mappings in CEF keys:
+The following **CommonSecurityLog** fields are added by Microsoft Sentinel to enrich the original events received from the source devices, and don't have mappings in CEF keys:
 
 ### Threat intelligence fields
 
@@ -235,16 +234,16 @@ The following **CommonSecurityLog** fields are added by Azure Sentinel to enrich
 |---------|---------|
 |   **IndicatorThreatType**  |  The [MaliciousIP](#MaliciousIP) threat type, according to the threat intelligence feed.       |
 | <a name="MaliciousIP"></a>**MaliciousIP** | Lists any IP addresses in the message that correlates with the current threat intelligence feed. |
-|  **MaliciousIPCountry**   | The [MaliciousIP](#MaliciousIP) country, according to the geographic information at the time of the record ingestion.        |
+|  **MaliciousIPCountry**   | The [MaliciousIP](#MaliciousIP) country/region, according to the geographic information at the time of the record ingestion.        |
 | **MaliciousIPLatitude**    |   The [MaliciousIP](#MaliciousIP) longitude, according to the geographic information at the time of the record ingestion.      |
 | **MaliciousIPLongitude**    |  The [MaliciousIP](#MaliciousIP) longitude, according to the geographic information at the time of the record ingestion.       |
 | **ReportReferenceLink**    |    Link to the threat intelligence report.     |
 |  **ThreatConfidence**   |   The [MaliciousIP](#MaliciousIP) threat confidence, according to the threat intelligence feed.      |
 | **ThreatDescription**    |   The [MaliciousIP](#MaliciousIP) threat description, according to the threat intelligence feed.      |
 | **ThreatSeverity** | The threat severity for the [MaliciousIP](#MaliciousIP), according to the threat intelligence feed at the time of the record ingestion. |
-|     |         |
 
-### Additional enrichment fields
+
+### Other enrichment fields
 
 |CommonSecurityLog field name  |Description  |
 |---------|---------|
@@ -253,8 +252,9 @@ The following **CommonSecurityLog** fields are added by Azure Sentinel to enrich
 |**RemotePort**     |   The remote port. <br>This value is based on [CommunicationDirection](#communicationdirection) field, if possible.      |
 |**SimplifiedDeviceAction**     |   Simplifies the [DeviceAction](#deviceaction) value to a static set of values, while keeping the original value in the [DeviceAction](#deviceaction) field. <br>For example:  `Denied` > `Deny`.      |
 |**SourceSystem**     | Always defined as **OpsManager**.        |
-|     |         |
 
-## Next steps
 
-For more information, see [Connect your external solution using Common Event Format](connect-common-event-format.md).
+## Related content
+
+- [Ingest syslog and CEF messages to Microsoft Sentinel with the Azure Monitor Agent](connect-cef-syslog-ama.md)
+- [CommonSecurityLog](/azure/azure-monitor/reference/tables/commonsecuritylog)

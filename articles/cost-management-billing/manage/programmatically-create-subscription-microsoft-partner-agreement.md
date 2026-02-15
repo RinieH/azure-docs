@@ -1,29 +1,32 @@
 ---
 title: Programmatically create Azure subscriptions for a Microsoft Partner Agreement with the latest APIs
 description: Learn how to create Azure subscriptions for a Microsoft Partner Agreement programmatically using the latest versions of REST API, Azure CLI, Azure PowerShell, and Azure Resource Manager templates.
-author: bandersmsft
+author: Nicholak-MS
+ms.author: nicholak
+ms.reviewer: nicholak
 ms.service: cost-management-billing
 ms.subservice: billing
 ms.topic: how-to
-ms.date: 06/22/2021
-ms.reviewer: andalmia
-ms.author: banders 
-ms.custom: devx-track-azurepowershell, devx-track-azurecli
+ms.date: 12/29/2025
+ms.custom: devx-track-azurepowershell, devx-track-azurecli, devx-track-arm-template, devx-track-bicep
+service.tree.id: b69a7832-2929-4f60-bf9d-c6784a865ed8
 ---
 
 # Programmatically create Azure subscriptions for a Microsoft Partner Agreement with the latest APIs
 
-This article helps you programmatically create Azure subscriptions for a Microsoft Partner Agreement using the most recent API versions. If you are still using the older preview version, see [Programmatically create Azure subscriptions with legacy APIs](programmatically-create-subscription-preview.md). 
+This article helps you programmatically create Azure subscriptions for a Microsoft Partner Agreement using the most recent API versions. If you are still using the older preview version, see [Programmatically create Azure subscriptions with legacy APIs](programmatically-create-subscription-preview.md).
 
 In this article, you learn how to create subscriptions programmatically using Azure Resource Manager.
 
 When you create an Azure subscription programmatically, that subscription is governed by the agreement under which you obtained Azure services from Microsoft or an authorized reseller. For more information, see [Microsoft Azure Legal Information](https://azure.microsoft.com/support/legal/).
 
-[!INCLUDE [updated-for-az](../../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
+
+You can't create support plans programmatically. You can buy a new support plan or upgrade one in the Azure portal. Navigate to **Help + support** and then at the top of the page, select **Choose the right support plan**.
 
 ## Prerequisites
 
-You must have a Global Admin or  Admin Agent role in your organization's cloud solution provider account to create subscription for your billing account. For more information, see [Partner Center - Assign users roles and permissions](/partner-center/permissions-overview).
+You must have an Admin Agent role in your organization's cloud solution provider account to create subscription for your billing account. For more information, see [Partner Center - Assign users roles and permissions](/partner-center/permissions-overview).
 
 If you don't know whether you have access to a Microsoft Partner Agreement account, see [Check access to a Microsoft Partner Agreement](mpa-request-ownership.md#check-access-to-a-microsoft-partner-agreement).
 
@@ -45,8 +48,8 @@ The API response lists the billing accounts.
 {
   "value": [
     {
-      "id": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx",
-      "name": "99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx",
+      "id": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx",
+      "name": "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx",
       "properties": {
         "accountStatus": "Active",
         "accountType": "Partner",
@@ -63,7 +66,7 @@ The API response lists the billing accounts.
 }
 ```
 
-Use the `displayName` property to identify the billing account for which you want to create subscriptions. Ensure, the agreementType of the account is *MicrosoftPartnerAgreement*. Copy the `name` for the account. For example, to create a subscription for the `Contoso` billing account, copy `99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx`. Paste the value somewhere so that you can use it in the next step.
+Use the `displayName` property to identify the billing account for which you want to create subscriptions. Ensure, the agreementType of the account is *MicrosoftPartnerAgreement*. Copy the `name` for the account. For example, to create a subscription for the `Contoso` billing account, copy `aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx`. Paste the value somewhere so that you can use it in the next step.
 
 ### [PowerShell](#tab/azure-powershell)
 
@@ -91,26 +94,26 @@ You will get back a list of all billing accounts that you have access to.
     "enrollmentAccounts": null,
     "enrollmentDetails": null,
     "hasReadAccess": true,
-    "id": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx",
-    "name": "99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx",
+    "id": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx",
+    "name": "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx",
     "soldTo": null,
     "type": "Microsoft.Billing/billingAccounts"
   }
 ]
 ```
 
-Use the displayName property to identify the billing account for which you want to create subscriptions. Ensure, the agreementType of the account is MicrosoftPartnerAgreement. Copy the name for the account. For example, to create a subscription for the Contoso billing account, copy 99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx. Paste the value somewhere so that you can use it in the next step.
+Use the displayName property to identify the billing account for which you want to create subscriptions. Ensure, the agreementType of the account is MicrosoftPartnerAgreement. Copy the name for the account. For example, to create a subscription for the Contoso billing account, copy aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx. Paste the value somewhere so that you can use it in the next step.
 
 ---
 
 ## Find customers that have Azure plans
 
-Make the following request, with the `name` copied from the first step (```99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx```) to list all customers in the billing account for whom you can create Azure subscriptions.
+Make the following request, with the `name` copied from the first step (```aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx```) to list all customers in the billing account for whom you can create Azure subscriptions.
 
 ### [REST](#tab/rest)
 
 ```json
-GET https://management.azure.com/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers?api-version=2020-05-01
+GET https://management.azure.com/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers?api-version=2020-05-01
 ```
 
 The API response lists the customers in the billing account with Azure plans. You can create subscriptions for these customers.
@@ -120,21 +123,21 @@ The API response lists the customers in the billing account with Azure plans. Yo
   "totalCount": 2,
   "value": [
     {
-      "id": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/7d15644f-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "name": "7d15644f-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "id": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f",
+      "name": "bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f",
       "properties": {
         "billingProfileDisplayName": "Fabrikam toys Billing Profile",
-        "billingProfileId": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/billingProfiles/YL4M-xxxx-xxx-xxx",
+        "billingProfileId": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/billingProfiles/YL4M-xxxx-xxx-xxx",
         "displayName": "Fabrikam toys"
       },
       "type": "Microsoft.Billing/billingAccounts/customers"
     },
     {
-      "id": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "id": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
       "name": "acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
       "properties": {
         "billingProfileDisplayName": "Contoso toys Billing Profile",
-        "billingProfileId": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/billingProfiles/YL4M-xxxx-xxx-xxx",
+        "billingProfileId": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/billingProfiles/YL4M-xxxx-xxx-xxx",
         "displayName": "Contoso toys"
       },
       "type": "Microsoft.Billing/billingAccounts/customers"
@@ -144,7 +147,7 @@ The API response lists the customers in the billing account with Azure plans. Yo
 
 ```
 
-Use the `displayName` property to identify the customer for which you want to create subscriptions. Copy the `id` for the customer. For example, to create a subscription for `Fabrikam toys`, copy `/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/7d15644f-xxxx-xxxx-xxxx-xxxxxxxxxxxx`. Paste the value somewhere to use it in later steps.
+Use the `displayName` property to identify the customer for which you want to create subscriptions. Copy the `id` for the customer. For example, to create a subscription for `Fabrikam toys`, copy `/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f`. Paste the value somewhere to use it in later steps.
 
 ### [PowerShell](#tab/azure-powershell)
 
@@ -153,7 +156,7 @@ Please use either Azure CLI or REST API to get this value.
 ### [Azure CLI](#tab/azure-cli)
 
 ```azurecli
-az billing customer list --account-name 99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx
+az billing customer list --account-name aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx
 ```
 
 The API response lists the customers in the billing account with Azure plans. You can create subscriptions for these customers.
@@ -162,19 +165,19 @@ The API response lists the customers in the billing account with Azure plans. Yo
 [
   {
     "billingProfileDisplayName": "Fabrikam toys Billing Profile",
-    "billingProfileId": "providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/7d15644f-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "billingProfileId": "providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f",
     "displayName": "Fabrikam toys",
-    "id": "providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/7d15644f-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "id": "providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f",
     "name": "acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "resellers": null,
     "type": "Microsoft.Billing/billingAccounts/customers"
   },
   {
     "billingProfileDisplayName": "Contoso toys Billing Profile",
-    "billingProfileId": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "billingProfileId": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "displayName": "Contoso toys",
-    "id": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "name": "d49c364c-f866-4cc2-a284-d89f369b7951",
+    "id": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "name": "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e",
     "resellers": null,
     "type": "Microsoft.Billing/billingAccounts/customers"
   }
@@ -182,7 +185,7 @@ The API response lists the customers in the billing account with Azure plans. Yo
 
 ```
 
-Use the `displayName` property to identify the customer for which you want to create subscriptions. Copy the `id` for the customer. For example, to create a subscription for `Fabrikam toys`, copy `/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/7d15644f-xxxx-xxxx-xxxx-xxxxxxxxxxxx`. Paste the value somewhere to use it in later steps.
+Use the `displayName` property to identify the customer for which you want to create subscriptions. Copy the `id` for the customer. For example, to create a subscription for `Fabrikam toys`, copy `/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f`. Paste the value somewhere to use it in later steps.
 
 ---
 
@@ -194,7 +197,7 @@ If you're an Indirect provider in the CSP two-tier model, you can specify a rese
 
 ### [REST](#tab/rest)
 
-Make the following request, with the `id` copied from the second step (```/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx```) to list all resellers that are available for a customer.
+Make the following request, with the `id` copied from the second step (```/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx```) to list all resellers that are available for a customer.
 
 ```json
 GET "https://management.azure.com/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx?$expand=resellers&api-version=2020-05-01"
@@ -204,12 +207,12 @@ The API response lists the resellers for the customer:
 ```json
 {
   "value": [{
-  "id": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2ed2c490-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "id": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2ed2c490-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "name": "2ed2c490-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "type": "Microsoft.Billing/billingAccounts/customers",
   "properties": {
     "billingProfileDisplayName": "Fabrikam toys Billing Profile",
-    "billingProfileId": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/billingProfiles/YL4M-xxxx-xxx-xxx",
+    "billingProfileId": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/billingProfiles/YL4M-xxxx-xxx-xxx",
     "displayName": "Fabrikam toys",
     "resellers": [
       {
@@ -230,10 +233,10 @@ Please use either Azure CLI or REST API to get this value.
 
 ### [Azure CLI](#tab/azure-cli)
 
-Make the following request, with the `name` copied from the first step (```99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx```) and customer `name` copied from the previous step (```acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx```).
+Make the following request, with the `name` copied from the first step (```aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx```) and customer `name` copied from the previous step (```acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx```).
 
 ```azurecli
- az billing customer show --expand "enabledAzurePlans,resellers" --account-name "99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx" --name "acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+ az billing customer show --expand "enabledAzurePlans,resellers" --account-name "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx" --name "acba85c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
 
 The API response lists the resellers for the customer:
@@ -241,7 +244,7 @@ The API response lists the resellers for the customer:
 ```json
 {
   "billingProfileDisplayName": "Fabrikam toys Billing Profile",
-  "billingProfileId": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/billingProfiles/YL4M-xxxx-xxx-xxx",
+  "billingProfileId": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/billingProfiles/YL4M-xxxx-xxx-xxx",
   "displayName": "Fabrikam toys",
   "enabledAzurePlans": [
     {
@@ -249,7 +252,7 @@ The API response lists the resellers for the customer:
       "skuId": "0001"
     }
   ],
-  "id": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2ed2c490-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "id": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2ed2c490-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "name": "2ed2c490-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
   "resellers": [
     {
@@ -268,12 +271,12 @@ Use the `description` property to identify the reseller who is associated with t
 
 ## Create a subscription for a customer
 
-The following example creates a subscription named *Dev Team subscription*  for *Fabrikam toys* and associate *Wingtip* reseller to the subscription. You use the copied billing scope from previous step: `/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx`. 
+The following example creates a subscription named *Dev Team subscription*  for *Fabrikam toys* and associate *Wingtip* reseller to the subscription. You use the copied billing scope from previous step: `/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx`.
 
 ### [REST](#tab/rest)
 
 ```json
-PUT  https://management.azure.com/providers/Microsoft.Subscription/aliases/sampleAlias?api-version=2020-09-01
+PUT https://management.azure.com/providers/Microsoft.Subscription/aliases/{{guid}}?api-version=2021-10-01api-version=2021-10-01
 ```
 
 ### Request body
@@ -282,9 +285,9 @@ PUT  https://management.azure.com/providers/Microsoft.Subscription/aliases/sampl
 {
   "properties":
     {
-	    "billingScope": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-	    "DisplayName": "Dev Team subscription",
-	    "Workload": "Production"
+        "billingScope": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "DisplayName": "Dev Team subscription",
+        "Workload": "Production"
     }
 }
 ```
@@ -296,7 +299,7 @@ PUT  https://management.azure.com/providers/Microsoft.Subscription/aliases/sampl
   "name": "sampleAlias",
   "type": "Microsoft.Subscription/aliases",
   "properties": {
-    "subscriptionId": "b5bab918-e8a9-4c34-a2e2-ebc1b75b9d74",
+    "subscriptionId": "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e",
     "provisioningState": "Accepted"
   }
 }
@@ -307,7 +310,7 @@ You can do a GET on the same URL to get the status of the request.
 ### Request
 
 ```json
-GET https://management.azure.com/providers/Microsoft.Subscription/aliases/sampleAlias?api-version=2020-09-01
+GET https://management.azure.com/providers/Microsoft.Subscription/aliases/{{guid}}?api-version=2021-10-01
 ```
 
 ### Response
@@ -318,24 +321,24 @@ GET https://management.azure.com/providers/Microsoft.Subscription/aliases/sample
   "name": "sampleAlias",
   "type": "Microsoft.Subscription/aliases",
   "properties": {
-    "subscriptionId": "b5bab918-e8a9-4c34-a2e2-ebc1b75b9d74",
+    "subscriptionId": "cccc2c2c-dd3d-ee4e-ff5f-aaaaaa6a6a6a",
     "provisioningState": "Succeeded"
   }
 }
 ```
 
-An in-progress status is returned as an `Accepted` state under `provisioningState`. 
+An in-progress status is returned as an `Accepted` state under `provisioningState`.
 
 Pass the optional *resellerId* copied from the second step in the request body of the API.
 
 ### [PowerShell](#tab/azure-powershell)
 
-To install the latest version of the module that contains the `New-AzSubscriptionAlias` cmdlet, run `Install-Module Az.Subscription`. To install a recent version of PowerShellGet, see [Get PowerShellGet Module](/powershell/scripting/gallery/installing-psget).
+To install the version of the module that contains the `New-AzSubscriptionAlias` cmdlet, in below example run `Install-Module Az.Subscription -RequiredVersion 0.9.0`. To install version 0.9.0 of PowerShellGet, see [Get PowerShellGet Module](/powershell/gallery/powershellget/install-powershellget).
 
-Run the following [New-AzSubscriptionAlias](/powershell/module/az.subscription/new-azsubscription) command, using the billing scope `"/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx"`. 
+Run the following New-AzSubscriptionAlias command, using the billing scope `"/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx"`.
 
 ```azurepowershell
-New-AzSubscriptionAlias -AliasName "sampleAlias" -SubscriptionName "Dev Team Subscription" -BillingScope "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -Workload 'Production"
+New-AzSubscriptionAlias -AliasName "sampleAlias" -SubscriptionName "Dev Team Subscription" -BillingScope "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx" -Workload 'Production"
 ```
 
 You get the subscriptionId as part of the response from the command.
@@ -346,7 +349,7 @@ You get the subscriptionId as part of the response from the command.
   "name": "sampleAlias",
   "properties": {
     "provisioningState": "Succeeded",
-    "subscriptionId": "4921139b-ef1e-4370-a331-dd2229f4f510"
+    "subscriptionId": "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
   },
   "type": "Microsoft.Subscription/aliases"
 }
@@ -358,10 +361,10 @@ Pass the optional *resellerId* copied from the second step in the `New-AzSubscri
 
 First, install the extension by running `az extension add --name account` and `az extension add --name alias`.
 
-Run the following [az account alias create](/cli/azure/account/alias#az_account_alias_create) command. 
+Run the following [az account alias create](/cli/azure/account/alias#az-account-alias-create) command.
 
 ```azurecli
-az account alias create --name "sampleAlias" --billing-scope "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx" --display-name "Dev Team Subscription" --workload "Production"
+az account alias create --name "sampleAlias" --billing-scope "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx" --display-name "Dev Team Subscription" --workload "Production"
 ```
 
 You get the subscriptionId as part of the response from command.
@@ -372,7 +375,7 @@ You get the subscriptionId as part of the response from command.
   "name": "sampleAlias",
   "properties": {
     "provisioningState": "Succeeded",
-    "subscriptionId": "4921139b-ef1e-4370-a331-dd2229f4f510"
+    "subscriptionId": "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
   },
   "type": "Microsoft.Subscription/aliases"
 }
@@ -382,11 +385,11 @@ Pass the optional *resellerId* copied from the second step in the `az account al
 
 ---
 
-## Use ARM template
+## Use ARM template or Bicep
 
-The previous section showed how to create a subscription with PowerShell, CLI, or REST API. If you need to automate creating subscriptions, consider using an Azure Resource Manager template (ARM template).
+The previous section showed how to create a subscription with PowerShell, CLI, or REST API. If you need to automate creating subscriptions, consider using an Azure Resource Manager template (ARM template) or [Bicep file](../../azure-resource-manager/bicep/overview.md).
 
-The following template creates a subscription. For `billingScope`, provide the customer ID. The subscription is created in the root management group. After creating the subscription, you can move it to another management group.
+The following ARM template creates a subscription. For `billingScope`, provide the customer ID. The subscription is created in the root management group. After creating the subscription, you can move it to another management group.
 
 ```json
 {
@@ -408,10 +411,10 @@ The following template creates a subscription. For `billingScope`, provide the c
     },
     "resources": [
         {
-            "scope": "/", 
+            "scope": "/",
             "name": "[parameters('subscriptionAliasName')]",
             "type": "Microsoft.Subscription/aliases",
-            "apiVersion": "2020-09-01",
+            "apiVersion": "2021-10-01",
             "properties": {
                 "workLoad": "Production",
                 "displayName": "[parameters('subscriptionAliasName')]",
@@ -423,7 +426,29 @@ The following template creates a subscription. For `billingScope`, provide the c
 }
 ```
 
-Deploy the template at the [management group level](../../azure-resource-manager/templates/deploy-to-management-group.md).
+Or, use a Bicep file to create the subscription.
+
+```bicep
+targetScope = 'managementGroup'
+
+@description('Provide a name for the alias. This name will also be the display name of the subscription.')
+param subscriptionAliasName string
+
+@description('Provide the full resource ID of billing scope to use for subscription creation.')
+param billingScope string
+
+resource subscriptionAlias 'Microsoft.Subscription/aliases@2021-10-01' = {
+  scope: tenant()
+  name: subscriptionAliasName
+  properties: {
+    workload: 'Production'
+    displayName: subscriptionAliasName
+    billingScope: billingScope
+  }
+}
+```
+
+Deploy the template at the [management group level](../../azure-resource-manager/templates/deploy-to-management-group.md). The following examples show deploying the JSON ARM template, but you can deploy a Bicep file instead.
 
 ### [REST](#tab/rest)
 
@@ -445,7 +470,7 @@ With a request body:
         "value": "sampleAlias"
       },
       "billingScope": {
-        "value": "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        "value": "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
       }
     },
     "mode": "Incremental"
@@ -462,7 +487,7 @@ New-AzManagementGroupDeployment `
   -ManagementGroupId mg1 `
   -TemplateFile azuredeploy.json `
   -subscriptionAliasName sampleAlias `
-  -billingScope "/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  -billingScope "/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 ```
 
 ### [Azure CLI](#tab/azure-cli)
@@ -473,12 +498,12 @@ az deployment mg create \
   --location eastus \
   --management-group-id mg1 \
   --template-file azuredeploy.json \
-  --parameters subscriptionAliasName='sampleAlias' billingScope='/providers/Microsoft.Billing/billingAccounts/99a13315-xxxx-xxxx-xxxx-xxxxxxxxxxxx:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+  --parameters subscriptionAliasName='sampleAlias' billingScope='/providers/Microsoft.Billing/billingAccounts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_xxxx-xx-xx/customers/2281f543-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
 ```
 
 ---
 
-To move a subscription to a new management group, use the following template.
+To move a subscription to a new management group, use the following ARM template.
 
 ```json
 {
@@ -512,7 +537,25 @@ To move a subscription to a new management group, use the following template.
 }
 ```
 
+Or, the following Bicep file.
+
+```bicep
+targetScope = 'managementGroup'
+
+@description('Provide the ID of the management group that you want to move the subscription to.')
+param targetMgId string
+
+@description('Provide the ID of the existing subscription to move.')
+param subscriptionId string
+
+resource subToMG 'Microsoft.Management/managementGroups/subscriptions@2020-05-01' = {
+  scope: tenant()
+  name: '${targetMgId}/${subscriptionId}'
+}
+```
+
 ## Next steps
 
 * Now that you've created a subscription, you can grant that ability to other users and service principals. For more information, see [Grant access to create Azure Enterprise subscriptions (preview)](grant-access-to-create-subscription.md).
 * For more information about managing large numbers of subscriptions using management groups, see [Organize your resources with Azure management groups](../../governance/management-groups/overview.md).
+* For advanced subscription creation scenarios using REST API, see [Alias - Create](/rest/api/subscription/2021-10-01/alias/create).

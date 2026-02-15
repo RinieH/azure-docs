@@ -1,11 +1,14 @@
----
+﻿---
 title: Reuse templates across clouds
 description: Develop Azure Resource Manager templates (ARM templates) that work consistently for different cloud environments. Create new or update existing templates for Azure Stack.
 author: marcvaneijk
-ms.topic: conceptual
-ms.date: 12/09/2018
+ms.topic: article
+ms.date: 04/28/2025
 ms.author: mavane
-ms.custom: seodec18, devx-track-azurecli, devx-track-azurepowershell
+ms.custom:
+  - devx-track-arm-template
+  - devx-track-azurecli
+  - sfi-ropc-nochange
 ---
 
 # Develop ARM templates for cloud consistency
@@ -17,12 +20,12 @@ A key benefit of Azure is consistency. Development investments for one location 
 Microsoft offers intelligent, enterprise-ready cloud services in many locations, including:
 
 * The global Azure platform supported by a growing network of Microsoft-managed datacenters in regions around the world.
-* Isolated sovereign clouds like Azure Germany, Azure Government, and Azure China 21Vianet. Sovereign clouds provide a consistent platform with most of the same great features that global Azure customers have access to.
+* Isolated sovereign clouds like Azure Germany, Azure Government, and Microsoft Azure operated by 21Vianet. Sovereign clouds provide a consistent platform with most of the same great features that global Azure customers have access to.
 * Azure Stack, a hybrid cloud platform that lets you deliver Azure services from your organization's datacenter. Enterprises can set up Azure Stack in their own datacenters, or consume Azure Services from service providers, running Azure Stack in their facilities (sometimes known as hosted regions).
 
 At the core of all these clouds, Azure Resource Manager provides an API that allows a wide variety of user interfaces to communicate with the Azure platform. This API gives you powerful infrastructure-as-code capabilities. Any type of resource that is available on the Azure cloud platform can be deployed and configured with Azure Resource Manager. With a single template, you can deploy and configure your complete application to an operational end state.
 
-![Azure environments](./media/templates-cloud-consistency/environments.png)
+:::image type="content" source="./media/templates-cloud-consistency/environments.png" alt-text="Diagram of various Azure environments including global Azure, sovereign clouds, and Azure Stack.":::
 
 The consistency of global Azure, the sovereign clouds, hosted clouds, and a cloud in your datacenter helps you benefit from Azure Resource Manager. You can reuse your development investments across these clouds when you set up template-based resource deployment and configuration.
 
@@ -78,7 +81,7 @@ The following code shows how the templateLink parameter refers to a nested templ
 "resources": [
   {
      "type": "Microsoft.Resources/deployments",
-     "apiVersion": "2020-10-01",
+     "apiVersion": "2025-04-01",
      "name": "linkedTemplate",
      "properties": {
        "mode": "incremental",
@@ -95,13 +98,13 @@ Azure Resource Manager evaluates the main template at runtime and retrieves and 
 
 ### Make linked templates accessible across clouds
 
-Consider where and how to store any linked templates you use. At runtime, Azure Resource Manager fetches—and therefore requires direct access to—any linked templates. A common practice is to use GitHub to store the nested templates. A GitHub repository can contain files that are accessible publicly through a URL. Although this technique works well for the public cloud and the sovereign clouds, an Azure Stack environment might be located on a corporate network or on a disconnected remote location, without any outbound Internet access. In those cases, Azure Resource Manager would fail to retrieve the nested templates.
+Consider where and how to store any linked templates you use. At runtime, Azure Resource Manager fetches-and therefore requires direct access to-any linked templates. A common practice is to use GitHub to store the nested templates. A GitHub repository can contain files that are accessible publicly through a URL. Although this technique works well for the public cloud and the sovereign clouds, an Azure Stack environment might be located on a corporate network or on a disconnected remote location, without any outbound Internet access. In those cases, Azure Resource Manager would fail to retrieve the nested templates.
 
 A better practice for cross-cloud deployments is to store your linked templates in a location that is accessible for the target cloud. Ideally all deployment artifacts are maintained in and deployed from a continuous integration/continuous development (CI/CD) pipeline. Alternatively, you can store nested templates in a blob storage container, from which Azure Resource Manager can retrieve them.
 
 Since the blob storage on each cloud uses a different endpoint fully qualified domain name (FQDN), configure the template with the location of the linked templates with two parameters. Parameters can accept user input at deployment time. Templates are typically authored and shared by multiple people, so a best practice is to use a standard name for these parameters. Naming conventions help make templates more reusable across regions, clouds, and authors.
 
-In the following code, `_artifactsLocation` is used to point to a single location, containing all deployment-related artifacts. Notice that a default value is provided. At deployment time, if no input value is specified for `_artifactsLocation`, the default value is used. The `_artifactsLocationSasToken` is used as input for the `sasToken`. The default value should be an empty string for scenarios where the `_artifactsLocation` isn't secured — for example, a public GitHub repository.
+In the following code, `_artifactsLocation` is used to point to a single location, containing all deployment-related artifacts. Notice that a default value is provided. At deployment time, if no input value is specified for `_artifactsLocation`, the default value is used. The `_artifactsLocationSasToken` is used as input for the `sasToken`. The default value should be an empty string for scenarios where the `_artifactsLocation` isn't secured - for example, a public GitHub repository.
 
 ```json
 "parameters": {
@@ -128,7 +131,7 @@ Throughout the template, links are generated by combining the base URI (from the
 "resources": [
   {
     "type": "Microsoft.Resources/deployments",
-    "apiVersion": "2020-10-01",
+    "apiVersion": "2025-04-01",
     "name": "shared",
     "properties": {
       "mode": "Incremental",
@@ -141,7 +144,7 @@ Throughout the template, links are generated by combining the base URI (from the
 ]
 ```
 
-By using this approach, the default value for the `_artifactsLocation` parameter is used. If the linked templates need to be retrieved from a different location, the parameter input can be used at deployment time to override the default value—no change to the template itself is needed.
+By using this approach, the default value for the `_artifactsLocation` parameter is used. If the linked templates need to be retrieved from a different location, the parameter input can be used at deployment time to override the default value-no change to the template itself is needed.
 
 ### Use _artifactsLocation instead of hardcoding links
 
@@ -210,9 +213,9 @@ Knowing that Azure regions and clouds may differ in their available services, yo
 
 A template deploys and configures resources. A resource type is provided by a resource provider. For example, the compute resource provider (Microsoft.Compute), provides multiple resource types such as virtualMachines and availabilitySets. Each resource provider provides an API to Azure Resource Manager defined by a common contract, enabling a consistent, unified authoring experience across all resource providers. However, a resource provider that is available in global Azure may not be available in a sovereign cloud or an Azure Stack region.
 
-![Resource providers](./media/templates-cloud-consistency/resource-providers.png)
+:::image type="content" source="./media/templates-cloud-consistency/resource-providers.png" alt-text="Diagram illustrating the relationship between resource providers, resource types, and API versions.":::
 
-To verify the resource providers that are available in a given cloud, run the following script in the Azure command line interface ([CLI](/cli/azure/install-azure-cli)):
+To verify the resource providers that are available in a given cloud, run the following script in the [Azure CLI](/cli/azure/):
 
 ```azurecli-interactive
 az provider list --query "[].{Provider:namespace, Status:registrationState}" --out table
@@ -280,7 +283,7 @@ By referencing the location key of the object in the defaultValue of the input p
 "resources": [
   {
     "type": "Microsoft.Storage/storageAccounts",
-    "apiVersion": "2015-06-15",
+    "apiVersion": "2025-06-01",
     "name": "storageaccount1",
     "location": "[parameters('location')]",
     ...
@@ -311,7 +314,7 @@ For this reason, Resource Manager introduced the concept of API profiles to temp
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2016-01-01",
+      "apiVersion": "2025-06-01",
       "name": "mystorageaccount",
       "location": "[parameters('location')]",
       "properties": {
@@ -320,7 +323,7 @@ For this reason, Resource Manager introduced the concept of API profiles to temp
     },
     {
       "type": "Microsoft.Compute/availabilitySets",
-      "apiVersion": "2016-03-30",
+      "apiVersion": "2025-04-01",
       "name": "myavailabilityset",
       "location": "[parameters('location')]",
       "properties": {
@@ -337,39 +340,39 @@ An API profile version acts as an alias for a single API version per resource ty
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "apiProfile": "2018–03-01-hybrid",
-    "parameters": {
-        "location": {
-            "type": "string",
-            "metadata": {
-                "description": "Location the resources will be deployed to."
-            },
-            "defaultValue": "[resourceGroup().location]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "apiProfile": "2018-03-01-hybrid",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location the resources will be deployed to."
+      },
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "mystorageaccount",
+      "location": "[parameters('location')]",
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
     },
-    "variables": {},
-    "resources": [
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "name": "mystorageaccount",
-            "location": "[parameters('location')]",
-            "properties": {
-                "accountType": "Standard_LRS"
-            }
-        },
-        {
-            "type": "Microsoft.Compute/availabilitySets",
-            "name": "myavailabilityset",
-            "location": "[parameters('location')]",
-            "properties": {
-                "platformFaultDomainCount": 2,
-                "platformUpdateDomainCount": 2
-            }
-        }
-    ],
-    "outputs": {}
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "myavailabilityset",
+      "location": "[parameters('location')]",
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2
+      }
+    }
+  ],
+  "outputs": {}
 }
 ```
 
@@ -379,40 +382,40 @@ The API profile isn't a required element in a template. Even if you add the elem
 
 ```json
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "apiProfile": "2018–03-01-hybrid",
-    "parameters": {
-        "location": {
-            "type": "string",
-            "metadata": {
-                "description": "Location the resources will be deployed to."
-            },
-            "defaultValue": "[resourceGroup().location]"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "apiProfile": "2018-03-01-hybrid",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location the resources will be deployed to."
+      },
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2025-06-01",
+      "name": "mystorageaccount",
+      "location": "[parameters('location')]",
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
     },
-    "variables": {},
-    "resources": [
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2016-01-01",
-            "name": "mystorageaccount",
-            "location": "[parameters('location')]",
-            "properties": {
-                "accountType": "Standard_LRS"
-            }
-        },
-        {
-            "type": "Microsoft.Compute/availabilitySets",
-            "name": "myavailabilityset",
-            "location": "[parameters('location')]",
-            "properties": {
-                "platformFaultDomainCount": 2,
-                "platformUpdateDomainCount": 2
-            }
-        }
-    ],
-    "outputs": {}
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "myavailabilityset",
+      "location": "[parameters('location')]",
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2
+      }
+    }
+  ],
+  "outputs": {}
 }
 ```
 
@@ -439,7 +442,7 @@ Endpoint namespaces can also be used in the output of a template as information 
 In general, avoid hardcoded endpoints in a template. The best practice is to use the reference template function to retrieve the endpoints dynamically. For example, the endpoint most commonly hardcoded is the endpoint namespace for storage accounts. Each storage account has a unique FQDN that is constructed by concatenating the name of the storage account with the endpoint namespace. A blob storage account named mystorageaccount1 results in different FQDNs depending on the cloud:
 
 * `mystorageaccount1.blob.core.windows.net` when created on the global Azure cloud.
-* `mystorageaccount1.blob.core.chinacloudapi.cn` when created in the Azure China 21Vianet cloud.
+* `mystorageaccount1.blob.core.chinacloudapi.cn` when created in the Azure operated by 21Vianet cloud.
 
 The following reference template function retrieves the endpoint namespace from the storage resource provider:
 
@@ -474,7 +477,7 @@ Specific resources within Azure Stack environments have unique properties you mu
 
 ### Ensure VM images are available
 
-Azure provides a rich selection of VM images. These images are created and prepared for deployment by Microsoft and partners. The images form the foundation for VMs on the platform. However, a cloud-consistent template should refer to available parameters only — in particular, the publisher, offer, and SKU of the VM images available to the global Azure, Azure sovereign clouds, or an Azure Stack solution.
+Azure provides a rich selection of VM images. These images are created and prepared for deployment by Microsoft and partners. The images form the foundation for VMs on the platform. However, a cloud-consistent template should refer to available parameters only - in particular, the publisher, offer, and SKU of the VM images available to the global Azure, Azure sovereign clouds, or an Azure Stack solution.
 
 To retrieve a list of the available VM images in a location, run the following Azure CLI command:
 
@@ -565,11 +568,11 @@ In contrast, to specify a managed disk configuration in a template, remove the `
 }
 ```
 
-The same changes also apply [data disks](../../virtual-machines/using-managed-disks-template-deployments.md).
+The same changes also apply [data disks](/azure/virtual-machines/using-managed-disks-template-deployments).
 
 ### Verify that VM extensions are available in Azure Stack
 
-Another consideration for cloud consistency is the use of [virtual machine extensions](../../virtual-machines/extensions/features-windows.md) to configure the resources inside a VM. Not all VM extensions are available in Azure Stack. A template can specify the resources dedicated to the VM extension, creating dependencies and conditions within the template.
+Another consideration for cloud consistency is the use of [virtual machine extensions](/azure/virtual-machines/extensions/features-windows) to configure the resources inside a VM. Not all VM extensions are available in Azure Stack. A template can specify the resources dedicated to the VM extension, creating dependencies and conditions within the template.
 
 For example, if you want to configure a VM running Microsoft SQL Server, the VM extension can configure SQL Server as part the template deployment. Consider what happens if the deployment template also contains an application server configured to create a database on the VM running SQL Server. Besides also using a VM extension for the application servers, you can configure the dependency of the application server on the successful return of the SQL Server VM extension resource. This approach ensures the VM running SQL Server is configured and available when the application server is instructed to create the database.
 
@@ -598,7 +601,7 @@ Since VM extensions are first-party Resource Manager resources, they have their 
 ```json
 {
     "type": "Microsoft.Compute/virtualMachines/extensions",
-    "apiVersion": "2015-06-15",
+    "apiVersion": "2025-04-01",
     "name": "myExtension",
     "location": "[parameters('location')]",
     ...
@@ -642,7 +645,7 @@ To retrieve a list of the available versions for a specific VM extension, use th
 Get-AzureRmVMExtensionImage -Location myLocation -PublisherName Microsoft.PowerShell -Type DSC | FT
 ```
 
-To get a list of publishers, use the [Get-AzureRmVmImagePublisher](/powershell/module/az.compute/get-azvmimagepublisher) command. To request type, use the [Get-AzureRmVMExtensionImageType](/powershell/module/az.compute/get-azvmextensionimagetype) commend.
+To get a list of publishers, use the [Get-AzureRmVmImagePublisher](/powershell/module/az.compute/get-azvmimagepublisher) command. To request type, use the [Get-AzureRmVMExtensionImageType](/powershell/module/az.compute/get-azvmextensionimagetype) command.
 
 ## Tips for testing and automation
 
@@ -650,7 +653,7 @@ It's a challenge to keep track of all related settings, capabilities, and limita
 
 The following image shows a typical example of a development process for a team using an integrated development environment (IDE). At different stages in the timeline, different test types are executed. Here, two developers are working on the same solution, but this scenario applies equally to a single developer or a large team. Each developer typically creates a local copy of a central repository, enabling each one to work on the local copy without impacting the others who may be working on the same files.
 
-![Diagram shows two sets of unit tests and integration tests in parallel on local I D E, which merge in the C I / C D development flow into unit tests, then integration tests, then test deployment, then deployment.](./media/templates-cloud-consistency/workflow.png)
+:::image type="content" source="./media/templates-cloud-consistency/workflow.png" alt-text="Diagram showing parallel unit tests and integration tests in local IDEs, merging into CI/CD development flow with unit tests, integration tests, test deployment, and final deployment.":::
 
 Consider the following tips for testing and automation:
 
@@ -664,3 +667,4 @@ Consider the following tips for testing and automation:
 
 * [Azure Resource Manager template considerations](/azure-stack/user/azure-stack-develop-templates)
 * [Best practices for ARM templates](./syntax.md)
+

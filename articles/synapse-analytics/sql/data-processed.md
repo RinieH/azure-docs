@@ -3,12 +3,11 @@ title: Cost management for serverless SQL pool
 description: This document describes how to manage cost of serverless SQL pool and how data processed is calculated when querying data in Azure storage.
 services: synapse analytics 
 author: filippopovic 
-ms.service: synapse-analytics 
+ms.service: azure-synapse-analytics
 ms.topic: conceptual
 ms.subservice: sql
 ms.date: 11/05/2020
 ms.author: fipopovi
-ms.reviewer: jrasnick
 ---
 
 # Cost management for serverless SQL pool in Azure Synapse Analytics
@@ -134,6 +133,14 @@ To see how much data was processed during the current day, week, or month, execu
 ```sql
 SELECT * FROM sys.dm_external_data_processed
 ```
+
+## Exceeding the limits defined in the cost control
+
+In case any limit is exceeded during the query execution, query won't be terminated.  
+
+When limit is exceeded, new query will be rejected with the error message which contains details regarding the period, defined limit for that period and data processed for that period. For example, in case new query is executed, where weekly limit is set to 1 TB and it was exceeded, the error message will be: 
+
+```Query is rejected because SQL Serverless budget limit for a period is exceeded. (Period = Weekly: Limit = 1 TB, Data processed = 1 TB))```
 
 ## Next steps
 

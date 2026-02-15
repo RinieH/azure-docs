@@ -1,15 +1,12 @@
 ---
 title: Dedicated SQL pool Azure Advisor recommendations
 description: Learn about Synapse SQL recommendations and how they are generated
-services: synapse-analytics
-author: julieMSFT
-manager: craigg-msft
-ms.service: synapse-analytics
-ms.topic: conceptual
-ms.subservice: sql-dw 
+author: ajagadish-24
+ms.author: ajagadish
 ms.date: 06/26/2020
-ms.author: jrasnick
-ms.reviewer: igorstan
+ms.service: azure-synapse-analytics
+ms.subservice: sql-dw
+ms.topic: conceptual
 ms.custom: azure-synapse
 ---
 
@@ -17,7 +14,7 @@ ms.custom: azure-synapse
 
 This article describes the dedicated SQL pool recommendations available in Azure Advisor.  
 
-Dedicated SQL pool provides recommendations to ensure your data warehouse workload is consistently optimized for performance. Recommendations are tightly integrated with [Azure Advisor](../../advisor/advisor-performance-recommendations.md?toc=/azure/synapse-analytics/sql-data-warehouse/toc.json&bc=/azure/synapse-analytics/sql-data-warehouse/breadcrumb/toc.json) to provide you with best practices directly within the [Azure portal](https://aka.ms/Azureadvisor). Dedicated SQL pool collects telemetry and surfaces recommendations for your active workload on a daily cadence. The supported  recommendation scenarios are outlined below along with how to apply recommended actions.
+Dedicated SQL pool provides recommendations to ensure your data warehouse workload is consistently optimized for performance. Recommendations are tightly integrated with [Azure Advisor](/azure/advisor/advisor-performance-recommendations?toc=/azure/synapse-analytics/sql-data-warehouse/toc.json&bc=/azure/synapse-analytics/sql-data-warehouse/breadcrumb/toc.json) to provide you with best practices directly within the [Azure portal](https://aka.ms/Azureadvisor). Dedicated SQL pool collects telemetry and surfaces recommendations for your active workload on a daily cadence. The supported  recommendation scenarios are outlined below along with how to apply recommended actions.
 
 You can [check your recommendations](https://aka.ms/Azureadvisor) today! 
 
@@ -25,7 +22,7 @@ You can [check your recommendations](https://aka.ms/Azureadvisor) today!
 
 Data skew can cause additional data movement or resource bottlenecks when running your workload. The following documentation describes show to identify data skew and prevent it from happening by selecting an optimal distribution key.
 
-- [Identify and remove skew](sql-data-warehouse-tables-distribute.md#how-to-tell-if-your-distribution-column-is-a-good-choice)
+- [Identify and remove skew](sql-data-warehouse-tables-distribute.md#how-to-tell-if-your-distribution-is-a-good-choice)
 
 ## No or outdated statistics
 
@@ -57,7 +54,7 @@ The following section describes workload-based heuristics you may find in the Az
 Currently Advisor will only show at most four replicated table candidates at once with clustered columnstore indexes prioritizing the highest activity.
 
 > [!IMPORTANT]
-> The replicated table recommendation is not full proof and does not take into account data movement operations. We are working on adding this as a heuristic but in the meantime, you should always validate your workload after applying the recommendation. To learn more about replicated tables, visit the following [documentation](design-guidance-for-replicated-tables.md#what-is-a-replicated-table).
+> The replicated table recommendation is not fool proof and does not take into account data movement operations. We are working on adding this as a heuristic but in the meantime, you should always validate your workload after applying the recommendation. To learn more about replicated tables, visit the following [documentation](design-guidance-for-replicated-tables.md#what-is-a-replicated-table).
 
 
 ## Adaptive (Gen2) cache utilization
@@ -69,4 +66,4 @@ Query performance can degrade when there is high tempdb contention.  Tempdb cont
 
 ## Data loading misconfiguration
 
-You should always load data from a storage account in the same region as your dedicated SQL pool to minimize latency. Use the [COPY statement for high throughput data ingestion](/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest&preserve-view=true) and split your staged files in your storage account to maximize throughput. If you can't use the COPY statement, you can use the SqlBulkCopy API or bcp with a high batch size for better throughput. For additional data loading guidance, visit the following [documentation](./guidance-for-loading-data.md).
+You should always load data from a storage account in the same region as your dedicated SQL pool to minimize latency. Use the [COPY statement for high throughput data ingestion](/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest&preserve-view=true) and split your staged files in your storage account to maximize throughput. If you can't use the COPY statement, you can use the SqlBulkCopy API or bcp with a high batch size for better throughput. See [Best practices for data loading](../sql/data-loading-best-practices.md) for additional data loading guidance.

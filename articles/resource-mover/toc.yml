@@ -4,10 +4,12 @@
   items:
   - name: About Azure Resource Mover
     href: overview.md
-  - name: Select a tool to move resources
-    href: select-move-tool.md
+  - name: Select options to move resources
+    href: select-options-to-move-resources.md
   - name: Common questions
     href: common-questions.md
+  - name: What's new
+    href: whats-new.md
 - name: Tutorials
   items:
   - name: Move Azure VMs to another region
@@ -26,6 +28,8 @@
     href: support-matrix-move-region-azure-vm.md
   - name: Support-Move Azure SQL across regions
     href: support-matrix-move-region-sql.md
+  - name: Support-Move Extension resource types
+    href: support-matrix-extension-resource-types.md
 - name: How-to Guides
   items:
   - name: Move across regions
@@ -46,7 +50,13 @@
   items:
   - name: Migration in the Cloud Adoption Framework
     href: /azure/cloud-adoption-framework/migrate/
+  - name: Azure services relcoation guidance overview
+    href: /azure/operational-excellence/overview-relocation
   - name: Resource Manager template
     href: /azure/templates/microsoft.migrate/allversions
   - name: Azure Roadmap
-    href: https://azure.microsoft.com/roadmap/
+    href: https://azure.microsoft.com/updates/
+- name: Monitoring
+  items:
+  - name: Monitor Move across region
+    href: move-across-region-dashboard.md

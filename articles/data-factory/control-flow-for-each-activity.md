@@ -1,18 +1,49 @@
 ---
-title: ForEach activity in Azure Data Factory 
-description: The For Each Activity defines a repeating control flow in your pipeline. It is used for iterating over a collection and execute specified activities.
-author: chez-charlie
-ms.author: chez
-ms.reviewer: jburchel
-ms.service: data-factory
+title: ForEach activity
+titleSuffix: Azure Data Factory & Azure Synapse
+description: The For Each Activity defines a repeating control flow in an Azure Data Factory or Azure Synapse Analytics pipeline. The For Each Activity is used for iterating over a collection to execute actions on each item in the collection individually.
+author: kromerm
+ms.author: makromer
+ms.reviewer: whhender
+ms.subservice: orchestration
+ms.custom: synapse
 ms.topic: conceptual
-ms.date: 01/23/2019
+ms.date: 03/20/2025
 ---
 
-# ForEach activity in Azure Data Factory
+# ForEach activity in Azure Data Factory and Azure Synapse Analytics
 [!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
 
-The ForEach Activity defines a repeating control flow in your pipeline. This activity is used to iterate over a collection and executes specified activities in a loop. The loop implementation of this activity is similar to Foreach looping structure in programming languages.
+The ForEach Activity defines a repeating control flow in an Azure Data Factory or Synapse pipeline. This activity is used to iterate over a collection and executes specified activities in a loop. The loop implementation of this activity is similar to Foreach looping structure in programming languages.
+
+## Create a ForEach activity with UI
+
+To use a ForEach activity in a pipeline, complete the following steps:
+
+1. You can use any array type variable or [outputs from other activities](how-to-expression-language-functions.md#expressions-with-parameters) as the input for your ForEach activity.  To create an array variable, select the background of the pipeline canvas and then select the **Variables** tab to add an array type variable as shown below.
+
+   :::image type="content" source="media/control-flow-activities-common/pipeline-array-variable.png" alt-text="Shows an empty pipeline canvas with an array type variable added to the pipeline.":::
+
+1. Search for _ForEach_ in the pipeline Activities pane, and drag a ForEach activity to the pipeline canvas.
+1. Select the new ForEach activity on the canvas if it is not already selected, and its  **Settings** tab, to edit its details.
+
+   :::image type="content" source="media/control-flow-for-each-activity/for-each-activity.png" alt-text="Shows the UI for a Filter activity.":::
+
+1. Select the **Items** field and then select the **Add dynamic content** link to open the dynamic content editor pane.
+
+   :::image type="content" source="media/control-flow-for-each-activity/add-dynamic-content-link.png" alt-text="Shows the &nbsp;Add dynamic content&nbsp; link for the Items property.":::
+
+1. Select your input array to be filtered in the dynamic content editor.  In this example, we select the variable created in the first step.
+
+   :::image type="content" source="media/control-flow-activities-common/add-dynamic-content-pane.png" alt-text="Shows the dynamic content editor with the variable created in the first step selected":::
+
+1. Select the Activities editor on the ForEach activity to add one or more activities to be executed for each item in the input **Items** array.
+
+   :::image type="content" source="media/control-flow-for-each-activity/activity-editor-button.png" alt-text="Shows the Activities editor button on the ForEach activity in the pipeline editor window.":::
+
+1. In any activities you create within the ForEach activity, you can reference the current item the ForEach activity is iterating through from the **Items** list.  You can reference the current item anywhere you can use a dynamic expression to specify a property value.  In the dynamic content editor, select the ForEach iterator to return the current item.
+
+   :::image type="content" source="media/control-flow-for-each-activity/add-dynamic-content-for-each-iterator.png" alt-text="Shows the dynamic content editor with the ForEach iterator selected.":::
 
 ## Syntax
 The properties are described later in this article. The items property is the collection and each item in the collection is referred to by using the `@item()` as shown in the following syntax:  
@@ -66,7 +97,7 @@ Property | Description | Allowed values | Required
 name | Name of the for-each activity. | String | Yes
 type | Must be set to **ForEach** | String | Yes
 isSequential | Specifies whether the loop should be executed sequentially or in parallel.  Maximum of 50 loop iterations can be executed at once in parallel). For example, if you have a ForEach activity iterating over a copy activity with 10 different source and sink datasets with **isSequential** set to False, all copies are executed at once. Default is False. <br/><br/> If "isSequential" is set to False, ensure that there is a correct configuration to run multiple executables. Otherwise, this property should be used with caution to avoid incurring write conflicts. For more information, see [Parallel execution](#parallel-execution) section. | Boolean | No. Default is False.
-batchCount | Batch count to be used for controlling the number of parallel execution (when isSequential is set to false). This is the upper concurrency limit, but the for-each activity will not always execute at this number | Integer (maximum 50) | No. Default is 20.
+batchCount | Batch count to be used for controlling the number of parallel executions (when isSequential is set to false). This is the upper concurrency limit, but the for-each activity will not always execute at this number | Integer (maximum 50) | No. Default is 20.
 Items | An expression that returns a JSON Array to be iterated over. | Expression (which returns a JSON Array) | Yes
 Activities | The activities to be executed. | List of Activities | Yes
 
@@ -183,7 +214,7 @@ In the ForEach activity, provide an array to be iterated over for the property *
 ```
 
 ## Iterate over multiple activities
-It's possible to iterate over multiple activities (for example: copy and web activities) in a ForEach activity. In this scenario, we recommend that you abstract out multiple activities into a separate pipeline. Then, you can use the [ExecutePipeline activity](control-flow-execute-pipeline-activity.md) in the pipeline with ForEach activity to invoke the separate pipeline with multiple activities. 
+It's possible to iterate over multiple activities (for example: copy and web activities) in a ForEach activity. In this scenario, we recommend that you abstract out multiple activities into a separate pipeline. Then, you can use the [ExecutePipeline activity](control-flow-execute-pipeline-activity.md) in the pipeline with ForEach activity to invoke the separate pipeline with multiple activities. If you iterate over multiple activities, there is potential delay in exiting the loop because of aggregation and cleanup work performed by the pipeline. 
 
 
 ### Syntax
@@ -481,8 +512,8 @@ Here are some limitations of the ForEach activity and suggested workarounds.
 | SetVariable can't be used inside a ForEach activity that runs in parallel as the variables are global to the whole pipeline, they are not scoped to a ForEach or any other activity. | Consider using sequential ForEach or use Execute Pipeline inside ForEach (Variable/Parameter handled in child Pipeline).|
 | | |
 
-## Next steps
-See other control flow activities supported by Data Factory: 
+## Related content
+See other supported control flow activities: 
 
 - [Execute Pipeline Activity](control-flow-execute-pipeline-activity.md)
 - [Get Metadata Activity](control-flow-get-metadata-activity.md)

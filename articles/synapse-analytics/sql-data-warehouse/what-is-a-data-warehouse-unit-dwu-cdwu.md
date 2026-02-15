@@ -1,21 +1,17 @@
 ---
 title: Data Warehouse Units (DWUs) for dedicated SQL pool (formerly SQL DW)
 description: Recommendations on choosing the ideal number of data warehouse units (DWUs) to optimize price and performance, and how to change the number of units.
-services: synapse-analytics
-author: mlee3gsd
-manager: craigg
-ms.service: synapse-analytics
+author: ajagadish-24
+ms.author: ajagadish
+ms.date: 04/17/2024
+ms.service: azure-synapse-analytics
+ms.subservice: sql-dw
 ms.topic: conceptual
-ms.subservice: sql-dw 
-ms.date: 11/22/2019
-ms.author: martinle
-ms.reviewer: igorstan
-ms.custom: seo-lt-2019, devx-track-azurepowershell
 ---
 
 # Data Warehouse Units (DWUs) for dedicated SQL pool (formerly SQL DW) in Azure Synapse Analytics
 
-Recommendations on choosing the ideal number of data warehouse units (DWUs) to optimize price and performance, and how to change the number of units.
+This document contains recommendations on choosing the ideal number of data warehouse units (DWUs) for dedicated SQL pool (formerly SQL DW) to optimize price and performance, and how to change the number of units.
 
 ## What are Data Warehouse Units
 
@@ -37,16 +33,14 @@ Increasing DWUs:
 
 - Linearly changes performance of the system for scans, aggregations, and CTAS statements
 - Increases the number of readers and writers for PolyBase load operations
-- Increases the maximum number of concurrent queries and concurrency slots.
+- Increases the maximum number of concurrent queries and concurrency slots
 
 ## Service Level Objective
-
-The Service Level Objective (SLO) is the scalability setting that determines the cost and performance level of your data warehouse. The service levels for Gen2 are measured in compute data warehouse units (cDWU), for example DW2000c. Gen1 service levels are measured in DWUs, for example DW2000.
 
 The Service Level Objective (SLO) is the scalability setting that determines the cost and performance level of your dedicated SQL pool (formerly SQL DW). The service levels for Gen2 dedicated SQL pool (formerly SQL DW) are measured in data warehouse units (DWU), for example DW2000c.
 
 > [!NOTE]
-> Dedicated SQL pool (formerly SQL DW) Gen2 recently added additional scale capabilities to support compute tiers as low as 100 cDWU. Existing data warehouses currently on Gen1 that require the lower compute tiers can now upgrade to Gen2 in the regions that are currently available for no additional cost.  If your region is not yet supported, you can still upgrade to a supported region. For more information, see [Upgrade to Gen2](upgrade-to-latest-generation.md).
+> Dedicated SQL pool (formerly SQL DW) Gen2 recently added additional scale capabilities to support compute tiers as low as DW100c. Existing data warehouses currently on Gen1 that require the lower compute tiers can now upgrade to Gen2 in the regions that are currently available for no additional cost.  If your region is not yet supported, you can still upgrade to a supported region. For more information, see [Upgrade to Gen2](upgrade-to-latest-generation.md).
 
 In T-SQL, the SERVICE_OBJECTIVE setting determines the service level and the performance tier for your dedicated SQL pool (formerly SQL DW).
 
@@ -67,11 +61,9 @@ Each performance tier uses a slightly different unit of measure for their data w
 
 Both DWUs and cDWUs support scaling compute up or down, and pausing compute when you don't need to use the data warehouse. These operations are all on-demand. Gen2 uses a local disk-based cache on the compute nodes to improve performance. When you scale or pause the system, the cache is invalidated and so a period of cache warming is required before optimal performance is achieved.
 
-Each SQL server (for example, myserver.database.windows.net) has a [Database Transaction Unit (DTU)](../../azure-sql/database/service-tiers-dtu.md) quota that allows a specific number of data warehouse units. For more information, see the [workload management capacity limits](sql-data-warehouse-service-capacity-limits.md#workload-management).
-
 ## Capacity limits
 
-Each SQL server (for example, myserver.database.windows.net) has a [Database Transaction Unit (DTU)](../../azure-sql/database/service-tiers-dtu.md?bc=%2fazure%2fsynapse-analytics%2fbreadcrumb%2ftoc.json&toc=%2fazure%2fsynapse-analytics%2ftoc.json) quota that allows a specific number of data warehouse units. For more information, see the [workload management capacity limits](sql-data-warehouse-service-capacity-limits.md#workload-management).
+Each SQL server (for example, myserver.database.windows.net) has a [Database Transaction Unit (DTU)](/azure/azure-sql/database/service-tiers-dtu?bc=%2fazure%2fsynapse-analytics%2fbreadcrumb%2ftoc.json&toc=%2fazure%2fsynapse-analytics%2ftoc.json) quota that allows a specific number of data warehouse units. For more information, see the [workload management capacity limits](sql-data-warehouse-service-capacity-limits.md#workload-management).
 
 ## How many data warehouse units do I need
 
@@ -80,7 +72,8 @@ The ideal number of data warehouse units depends very much on your workload and 
 Steps for finding the best DWU for your workload:
 
 1. Begin by selecting a smaller DWU.
-2. Monitor your application performance as you test data loads into the system, observing the number of DWUs selected compared to the performance you observe.
+1. Monitor your application performance as you test data loads into the system, observing the number of DWUs selected compared to the performance you observe. Verify by monitoring [resource utilization](sql-data-warehouse-concept-resource-utilization-query-activity.md).
+
 3. Identify any additional requirements for periodic periods of peak activity. Workloads that show significant peaks and troughs in activity may need to be scaled frequently.
 
 Dedicated SQL pool (formerly SQL DW) is a scale-out system that can provision vast amounts of compute and query sizeable quantities of data.
@@ -128,7 +121,7 @@ To change DWUs:
 
 #### PowerShell
 
-[!INCLUDE [updated-for-az](../../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 To change the DWUs, use the [Set-AzSqlDatabase](/powershell/module/az.sql/set-azsqldatabase) PowerShell cmdlet. The following example sets the service level objective to DW1000 for the database MySQLDW that is hosted on server MyServer.
 
@@ -155,7 +148,7 @@ MODIFY (SERVICE_OBJECTIVE = 'DW1000c')
 
 ### REST APIs
 
-To change the DWUs, use the [Create or Update Database](/rest/api/sql/databases/createorupdate) REST API. The following example sets the service level objective to DW1000c for the database MySQLDW, which is hosted on server MyServer. The server is in an Azure resource group named ResourceGroup1.
+To change the DWUs, use the [Create or Update Database](/rest/api/sql/2022-08-01-preview/databases/create-or-update) REST API. The following example sets the service level objective to DW1000c for the database `MySQLDW`, which is hosted on server MyServer. The server is in an Azure resource group named ResourceGroup1.
 
 ```
 PUT https://management.azure.com/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}/providers/Microsoft.Sql/servers/{server-name}/databases/{database-name}?api-version=2014-04-01-preview HTTP/1.1
@@ -182,14 +175,6 @@ To check the status of DWU changes:
 
 1. Connect to the master database associated with your server.
 2. Submit the following query to check database state.
-
-```sql
-SELECT    *
-FROM      sys.databases
-;
-```
-
-1. Submit the following query to check status of operation
 
     ```sql
     SELECT    *

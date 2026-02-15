@@ -1,81 +1,84 @@
 ---
-title: Diagnose and troubleshoot disconnects with Azure IoT Hub DPS
-description: Learn to diagnose and troubleshoot common errors with device connectivity for Azure IoT Hub Device Provisioning Service (DPS)
-author: xujing-ms
-manager: nberdy
-ms.service: iot-dps
-services: iot-dps
-ms.topic: conceptual
-ms.date: 02/14/2021
-ms.author: xujing
-#Customer intent: As an operator for Azure IoT Hub DPS, I need to know how to find out when devices are disconnecting unexpectedly and troubleshoot resolve those issues right away.
+title: Diagnose and troubleshoot provisioning errors with DPS 
+titleSuffix: Azure IoT Hub Device Provisioning Service
+description: Learn to diagnose and troubleshoot common errors for Azure IoT Hub Device Provisioning Service (DPS)
+author: cwatson-cat
+ms.author: cwatson
+ms.service: azure-iot-hub
+ms.topic: troubleshooting
+ms.date: 01/05/2026
+ms.subservice: azure-iot-hub-dps
 ---
 
-# Troubleshooting with Azure IoT Hub Device Provisioning Service
+# Troubleshoot Azure IoT Hub Device Provisioning Service
 
-Connectivity issues for IoT devices can be difficult to troubleshoot because there are many possible points of failures such as attestation failures, registration failures etc. This article provides guidance on how to detect and troubleshoot device connectivity issues via [Azure Monitor](../azure-monitor/overview.md).
-
-## Using Azure Monitor to view metrics and set up alerts
-
-The following procedure describes how to view and set up alert on IoT Hub Device Provisioning Service metric. 
-
-1. Sign in to the [Azure portal](https://portal.azure.com).
-
-2. Browse to your IoT Hub Device Provisioning Service.
-
-3. Select **Metrics**.
-
-4. Select the desired metric. 
-   <br />Currently there are three metrics for DPS:
-
-    | Metric Name | Description |
-    |-------|------------|
-    | Attestation attempts | Number of devices that attempted to authenticate with Device Provisioning Service|
-    | Registration attempts | Number of devices that attempted to register to IoT Hub after successful authentication|
-    | Device assigned | Number of devices that successfully assigned to IoT Hub|
-
-5. Select desired aggregation method to create a visual view of the metric. 
-
-6. To set up an alert of a metric, select **New alert rules** from the top right of the metric blade, similarly you can go to **Alert** blade and select **New alert rules**.
-
-7. Select **Add condition**, then select the desired metric and threshold by following prompts.
-
-To learn more, see [alerts in Azure Monitor](../azure-monitor/alerts/alerts-overview.md).
-
-## Using Log Analytic to view and resolve errors
-
-1. Sign in to the [Azure portal](https://portal.azure.com).
-
-2. Browse to your IoT hub.
-
-3. Select **Diagnostics settings**.
-
-4. Select **Turn on diagnostics**.
-
-5. Enable the desired logs to be collected.
-
-    | Log Name | Description |
-    |-------|------------|
-    | DeviceOperations | Logs related to device connection events |
-    | ServiceOperations | Event logs related to using service SDK (e.g. Creating or updating enrollment groups)|
-
-6. Turn on **Send to Log Analytics** ([see pricing](https://azure.microsoft.com/pricing/details/log-analytics/)). 
-
-7. Go to **Logs** tab in the Azure portal under Device Provisioning Service resource.
-
-8. Click **Run** to view recent events.
-
-9. If there are results, look for `OperationName`, `ResultType`, `ResultSignature`, and `ResultDescription` (error message) to get more detail on the error.
-
+Provisioning issues for IoT devices can be difficult to troubleshoot because there are many possible points of failures such as attestation failures, registration failures, etc. To learn more about using Azure Monitor with DPS, see [Monitor Azure IoT Hub Device Provisioning Service](monitor-iot-dps.md).
 
 ## Common error codes
+
 Use this table to understand and resolve common errors.
 
 | Error Code| Description | HTTP Status Code |
 |-------|------------|------------|
-| 400 | The body of the request is not valid; for example, it cannot be parsed, or the object cannot be validated.| 400 Bad format |
-| 401 | The authorization token cannot be validated; for example, it is expired or does not apply to the request’s URI. This error code is also returned to devices as part of the TPM attestation flow. | 401 Unauthorized|
-| 404 | The Device Provisioning Service instance, or a resource (e.g. an enrollment) does not exist. |404 Not Found |
-| 412 | The ETag in the request does not match the ETag of the existing resource, as per RFC7232. | 412 Precondition failed |
-| 429 | Operations are being throttled by the service. For specific service limits, see [IoT Hub Device Provisioning Service limits](../azure-resource-manager/management/azure-subscription-service-limits.md#iot-hub-device-provisioning-service-limits). | 429 Too many requests |
-| 500 | An internal error occurred. | 500 Internal Server Error|
+| 400 | The body of the request isn't valid; for example, it can't be parsed, or the object can't be validated.| 400 Bad format |
+| 401 | The authorization token can't be validated; for example, it expired or doesn't apply to the request's URI. This error code is also returned to devices as part of the TPM attestation flow. | 401 Unauthorized |
+| 404 | The Device Provisioning Service instance, or a resource (for example, an enrollment) doesn't exist. | 404 Not Found |
+| 405 | The client service knows the request method, but the target service doesn't recognize this method; for example, a rest operation is missing the enrollment or registration ID parameters | 405 Method Not Allowed |
+| 409 | The request couldn't be completed due to a conflict with the current state of the target Device Provisioning Service instance. For example, the customer created a data point and is attempting to recreate the same data point again. | 409 Conflict |
+| 412 | The ETag in the request doesn't match the ETag of the existing resource, as per RFC7232. | 412 Precondition failed |
+| 415 | The server refuses to accept the request because the payload format is in an unsupported format. For supported formats, see [Azure IoT Hub Device Provisioning Service REST API](/rest/api/iot-dps/) | 415 Unsupported Media Type |
+| 429 | Operations are being throttled by the service. For specific service limits, see [Azure IoT Hub Device Provisioning Service limits](../azure-resource-manager/management/azure-subscription-service-limits.md#azure-iot-hub-device-provisioning-service-limits). | 429 Too many requests |
+| 500 | An internal error occurred. | 500 Internal Server Error |
+
+### Suggested actions
+
+* If an IoT Edge device fails to start with error message `failed to provision with IoT Hub, and no valid device backup was found dps client error`, see [DPS client error](/previous-versions/azure/iot-edge/troubleshoot-common-errors#dps-client-error) in the IoT Edge (1.1) documentation.
+
+* For 401 Unauthorized, 403 Forbidden, or 404 Not Found errors perform a full re-registration by calling the [DPS registration API](/rest/api/iot-dps/device/runtime-registration).
+
+* For a 429 error, follow the retry pattern of IoT Hub that has exponential backoff with a random jitter. You can follow the retry-after header provided by the SDK.
+
+* For 500-series server errors, retry your [connection](./concepts-deploy-at-scale.md#iot-hub-connectivity-considerations) using cached credentials or a [Device Registration Status Lookup](/rest/api/iot-dps/device/runtime-registration/device-registration-status-lookup) API call.
+
+For related best practices, such as retrying operations, see [Best practices for large-scale IoT device deployments](./concepts-deploy-at-scale.md).
+
+## 4042xx Device Registration Service NotFound errors
+
+You might see that your requests to IoT Hub fail with an error that begins with **4042**. The following table lists the error codes, their descriptions, and possible solutions.
+
+| Error Code | Description | Solution |
+|------------|-------------|----------|
+|**404201 EnrollmentNotFound**| The specified enrollment isn't found. | Check the enrollment ID and try again. |
+|**404202 DeviceRegistrationNotFound**| The specified device registration isn't found. | Check the device registration ID and try again. |
+|**404203 AsyncOperationNotFound**| The specified asynchronous operation isn't found. | Check the operation ID and try again. |
+|**404204 EnrollmentGroupNotFound**| The specified enrollment group isn't found. | Check the enrollment group ID and try again. |
+|**404205 DeviceRecordNotFound**| The specified device record isn't found. | Check the device record ID and try again. |
+|**404206 GroupRecordNotFound**| The specified group record isn't found. | Check the group record ID and try again. |
+|**404207 DeviceGroupNotFound**| The specified device group isn't found. | Check the device group ID and try again. |
+|**404208 ProvisioningSettingsNotFound**| The specified provisioning settings aren't found. | Check the provisioning settings ID and try again. |
+|**404209 ProvisioningRecordNotFound**| The specified provisioning record isn't found. | Check the provisioning record ID and try again. |
+|**404210 LinkedHubNotFound**| The specified linked hub isn't found. | Check the linked hub ID and try again. |
+|**404211 CertificateAuthorityNotFound**| The specified certificate authority isn't found. | Check the certificate authority ID and try again. |
+
+## 4092xx Device Provisioning Service conflict errors
+
+You might see that your requests to IoT Hub fail with an error that begins with **4092**. The following table lists the error codes, their descriptions, and possible solutions.
+
+| Error Code | Description | Solution |
+|------------|-------------|----------|
+|**409201  EnrollmentConflict**| The specified enrollment already exists. | Check the enrollment ID and try again. |
+|**409202  EnrollmentGroupConflict**| The specified enrollment group already exists. | Check the enrollment group ID and try again. |
+|**409203  RegistrationStatusConflict**| The specified registration status is conflicting. | Check the registration status and try again. |
+|**409205  DeviceRecordConflict**| The specified device record is conflicting. | Check the device record and try again. |
+|**409206  GroupRecordConflict**| The specified group record is conflicting. | Check the group record and try again. |
+|**409207  DeviceGroupConflict**| The specified device group is conflicting. | Check the device group and try again. |
+|**409208  ProvisioningSettingsConflict**| The specified provisioning settings are conflicting. | Check the provisioning settings and try again. |
+|**409209  ProvisioningRecordConflict**| The specified provisioning record is conflicting. | Check the provisioning record and try again. |
+|**409210  LinkedHubConflict**| The specified linked hub is conflicting. | Check the linked hub and try again. |
+|**409211  CertificateAuthorityConflict**| The specified certificate authority is conflicting. | Check the certificate authority and try again. |
+
+## Related content
+
+- [Monitor Azure IoT Hub Device Provisioning Service](monitor-iot-dps.md)
+- [Azure IoT Hub Device Provisioning Service monitoring data reference](monitor-iot-dps-reference.md)
+- [Understand and resolve Azure IoT Hub errors](../iot-hub/troubleshoot-error-codes.md)

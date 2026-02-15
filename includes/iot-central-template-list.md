@@ -3,9 +3,9 @@
  description: include file
  services: iot-central
  author: dominicbetts
- ms.service: iot-central
+ ms.service: azure-iot-central
  ms.topic: include
- ms.date: 02/11/2020
+ ms.date: 06/14/2023
  ms.author: dobett
  ms.custom: include file
 ---
@@ -24,5 +24,4 @@
 | iotc-power               | Solar Power Monitoring | Energy | Creates an application to monitor solar panel status and energy generation trends. |
 | iotc-quality             | Water Quality Monitoring | Government | Creates an application to digitally monitor water quality. |
 | iotc-store               | In-store Analytics – Checkout | Retail |Creates an application to monitor and manage the checkout flow inside your store. |
-| iotc-video-analytics-om  | Video analytics - object and motion detection | Retail |Use cameras as a sensor in intelligent video analytics solutions powered by Azure IoT Edge, AI, and Azure Media Services. |
 | iotc-waste               | Connected Waste Management | Government | Creates an application to monitor waste bins and dispatch field operators. |

@@ -1,256 +1,173 @@
 ---
-title: Use JavaScript to create a chat room with Azure Functions and SignalR Service
+title: Azure SignalR Service serverless quickstart - JavaScript
 description: A quickstart for using Azure SignalR Service and Azure Functions to create an App showing GitHub star count using JavaScript.
-author: sffamily
-ms.author: zhshang
-ms.date: 06/09/2021
+author: vicancy
+ms.author: lianwei
+ms.date: 04/19/2023
 ms.topic: quickstart
-ms.service: signalr
+ms.service: azure-signalr-service
 ms.devlang: javascript
-ms.custom:
-  - devx-track-js
-  - mode-api
+ms.custom: devx-track-js, mode-api
 ---
-# Quickstart: Use JavaScript to create an App showing GitHub star count with Azure Functions and SignalR Service
+# Quickstart: Create a serverless app with Azure Functions and SignalR Service using JavaScript
 
-Azure SignalR Service lets you easily add real-time functionality to your application and Azure Functions is a serverless platform that lets you run your code without managing any infrastructure. In this quickstart, learn how to use SignalR Service and Azure Functions to build a serverless application with JavaScript to broadcast messages to clients.
+ In this article, you use Azure SignalR Service, Azure Functions, and JavaScript to build a serverless application to broadcast messages to clients.
 
-> [!NOTE]
-> You can get all codes mentioned in the article from [GitHub](https://github.com/aspnet/AzureSignalR-samples/tree/main/samples/QuickStartServerless/javascript)
+[!INCLUDE [Connection string security](includes/signalr-connection-string-security.md)]
 
 ## Prerequisites
 
-- A code editor, such as [Visual Studio Code](https://code.visualstudio.com/)
-- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio).
-- [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools#installing), version 2 or above. Used to run Azure Function apps locally.
-- [Node.js](https://nodejs.org/en/download/), version 10.x
+This quickstart can be run on macOS, Windows, or Linux.
 
-   > [!NOTE]
-   > The examples should work with other versions of Node.js, see [Azure Functions runtime versions documentation](../azure-functions/functions-versions.md#languages) for more information.
+| Prerequisite | Description |
+| --- | --- |
+| An Azure subscription |If you don't have a subscription, create an [Azure free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn)|
+| A code editor | You need a code editor such as [Visual Studio Code](https://code.visualstudio.com/). |
+| [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools#installing)| Requires version 4.0.5611 or higher to run Node.js v4 programming model.|
+|[Node.js LTS](https://nodejs.org/en/download/package-manager/)| See supported node.js versions in the [Azure Functions JavaScript developer guide](../azure-functions/functions-reference-node.md#node-version).|
+| [Azurite](../storage/common/storage-use-azurite.md)| SignalR binding needs Azure Storage. You can use a local storage emulator when a function is running locally. |
+| [Azure CLI](/cli/azure/install-azure-cli)| Optionally, you can use the Azure CLI to create an Azure SignalR Service instance. 
 
-> [!NOTE]
-> This quickstart can be run on macOS, Windows, or Linux.
-
-Having issues? Try the [troubleshooting guide](signalr-howto-troubleshoot-guide.md) or [let us know](https://aka.ms/asrs/qsjs).
-
-## Log in to Azure
-
-Sign in to the Azure portal at <https://portal.azure.com/> with your Azure account.
-
-Having issues? Try the [troubleshooting guide](signalr-howto-troubleshoot-guide.md) or [let us know](https://aka.ms/asrs/qsjs).
+## Create an Azure SignalR Service instance
 
 [!INCLUDE [Create instance](includes/signalr-quickstart-create-instance.md)]
 
-Having issues? Try the [troubleshooting guide](signalr-howto-troubleshoot-guide.md) or [let us know](https://aka.ms/asrs/qsjs).
+## Setup function project
 
+Make sure you have Azure Functions Core Tools installed.
 
-## Setup and run the Azure Function locally
+1. Open a command line.
+1. Create project directory and then change into it. 
+1. Run the Azure Functions `func init` command to initialize a new project.
 
-1. Make sure you have Azure Function Core Tools installed. And create an empty directory and navigate to the directory with command line.
+  ```bash
+  func init --worker-runtime javascript --language javascript --model V4
+  ```
+  
+## Create the project functions
 
-    ```bash
-    # Initialize a function project
-    func init --worker-runtime javascript
-    ```
+After you initialize a project, you need to create functions. This project requires three functions: 
 
-2. After you initialize a project, you need to create functions. In this sample, we need to create 3 functions.
+- `index`: Hosts a web page for a client.
+- `negotiate`: Allows a client to get an access token.
+- `broadcast`: Uses a time trigger to periodically broadcast messages to all clients.
 
-    1. Run the following command to create a `index` function, which will host a web page for client.
+When you run the `func new` command from the root directory of the project, the Azure Functions Core Tools creates the function source files storing them in a folder with the function name.  You edit the files as necessary replacing the default code with the app code.
 
-        ```bash
-        func new -n index -t HttpTrigger
-        ```
-        
-        Open `index/index.js` and copy the following codes.
+### Create the index function
 
-        ```javascript
-        var fs = require('fs').promises
-    
-        module.exports = async function (context, req) {
-            const path = context.executionContext.functionDirectory + '/../content/index.html'
-            try {
-                var data = await fs.readFile(path);
-                context.res = {
-                    headers: {
-                        'Content-Type': 'text/html'
-                    },
-                    body: data
-                }
-                context.done()
-            } catch (error) {
-                context.log.error(err);
-                context.done(err);
-            }
-        }
-        ```
-    
-    2. Create a `negotiate` function for clients to get access token.
-    
-        ```bash
-        func new -n negotiate -t SignalRNegotiateHTTPTrigger
-        ```
-        
-        Open `negotiate/function.json` and copy the following json codes:
-    
-        ```json
-        {
-          "disabled": false,
-          "bindings": [
-            {
-              "authLevel": "anonymous",
-              "type": "httpTrigger",
-              "direction": "in",
-              "methods": [
-                "post"
-              ],
-              "name": "req",
-              "route": "negotiate"
-            },
-            {
-              "type": "http",
-              "direction": "out",
-              "name": "res"
-            },
-            {
-              "type": "signalRConnectionInfo",
-              "name": "connectionInfo",
-              "hubName": "serverless",
-              "connectionStringSetting": "AzureSignalRConnectionString",
-              "direction": "in"
-            }
-          ]
-        }
-        ```
-    
-    3. Create a `broadcast` function to broadcast messages to all clients. In the sample, we use time trigger to broadcast messages periodically.
-    
-        ```bash
-        func new -n broadcast -t TimerTrigger
-        ```
-    
-        Open `broadcast/function.json` and copy the following codes.
-    
-        ```json
-        {
-          "bindings": [
-            {
-              "name": "myTimer",
-              "type": "timerTrigger",
-              "direction": "in",
-              "schedule": "*/5 * * * * *"
-            },
-            {
-              "type": "signalR",
-              "name": "signalRMessages",
-              "hubName": "serverless",
-              "connectionStringSetting": "AzureSignalRConnectionString",
-              "direction": "out"
-            }
-          ]
-        }
-        ```
-    
-        Open `broadcast/index.js` and copy the following codes.
-    
-        ```javascript
-        var https = require('https');
-        
-        module.exports = function (context) {
-            var req = https.request("https://api.github.com/repos/azure/azure-signalr", {
-                method: 'GET',
-                headers: {'User-Agent': 'serverless'}
-            }, res => {
-                var body = "";
-        
-                res.on('data', data => {
-                    body += data;
-                });
-                res.on("end", () => {
-                    var jbody = JSON.parse(body);
-                    context.bindings.signalRMessages = [{
-                        "target": "newMessage",
-                        "arguments": [ `Current star count of https://github.com/Azure/azure-signalr is: ${jbody['stargazers_count']}` ]
-                    }]
-                    context.done();
-                });
-            }).on("error", (error) => {
-                context.log(error);
-                context.res = {
-                  status: 500,
-                  body: error
-                };
-                context.done();
-            });
-            req.end();
-        }    
-        ```
-
-3. The client interface of this sample is a web page. Considered we read HTML content from `content/index.html` in `index` function, create a new file `index.html` in `content` directory. And copy the following content.
-
-    ```html
-    <html>
-    
-    <body>
-      <h1>Azure SignalR Serverless Sample</h1>
-      <div id="messages"></div>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.7/signalr.min.js"></script>
-      <script>
-        let messages = document.querySelector('#messages');
-        const apiBaseUrl = window.location.origin;
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl(apiBaseUrl + '/api')
-            .configureLogging(signalR.LogLevel.Information)
-            .build();
-          connection.on('newMessage', (message) => {
-            document.getElementById("messages").innerHTML = message;
-          });
-    
-          connection.start()
-            .catch(console.error);
-      </script>
-    </body>
-    
-    </html>
-    ```
-
-4. It's almost done now. The last step is to set a connection string of the SignalR Service to Azure Function settings.
-
-    1. In the browser where the Azure portal is opened, confirm the SignalR Service instance you deployed earlier was successfully created by searching for its name in the search box at the top of the portal. Select the instance to open it.
-
-        ![Search for the SignalR Service instance](media/signalr-quickstart-azure-functions-csharp/signalr-quickstart-search-instance.png)
-
-    1. Select **Keys** to view the connection strings for the SignalR Service instance.
-    
-        ![Screenshot that highlights the primary connection string.](media/signalr-quickstart-azure-functions-javascript/signalr-quickstart-keys.png)
-
-    1. Copy the primary connection string. And execute the command below.
-    
-        ```bash
-        func settings add AzureSignalRConnectionString '<signalr-connection-string>'
-        ```
-    
-5. Run the Azure Function in local:
+1. Run the following command to create the `index` function.
 
     ```bash
-    func start
+    func new -n index -t HttpTrigger
     ```
 
-    After Azure Function running locally. Use your browser to visit `http://localhost:7071/api/index` and you can see the current start count. And if you star or unstar in the GitHub, you will get a start count refreshing every few seconds.
+1. Edit *src/functions/httpTrigger.js* and replace the contents with the following json code:
 
-    > [!NOTE]
-    > SignalR binding needs Azure Storage, but you can use local storage emulator when the Function is running locally.
-    > If you got some error like `There was an error performing a read operation on the Blob Storage Secret Repository. Please ensure the 'AzureWebJobsStorage' connection string is valid.` You need to download and enable [Storage Emulator](../storage/common/storage-use-emulator.md)
+    :::code language="javascript" source="~/azuresignalr-samples/samples/QuickStartServerless/javascript/v4-programming-model/src/functions/index.js":::
 
-Having issues? Try the [troubleshooting guide](signalr-howto-troubleshoot-guide.md) or [let us know](https://aka.ms/asrs/qscsharp)
+
+### Create the negotiate function
+
+1. Run the following command to create the `negotiate` function.
+
+    ```bash
+    func new -n negotiate -t HttpTrigger
+    ```
+
+1. Edit *src/functions/negotiate.js* and replace the contents with the following json code:
+
+    :::code language="javascript" source="~/azuresignalr-samples/samples/QuickStartServerless/javascript/v4-programming-model/src/functions/negotiate.js":::
+
+### Create a broadcast function.
+
+1. Run the following command to create the `broadcast` function.
+
+    ```bash
+    func new -n broadcast -t TimerTrigger
+    ```
+
+1. Edit *src/functions/broadcast.js* and replace the contents with the following code:
+  
+    :::code language="javascript" source="~/azuresignalr-samples/samples/QuickStartServerless/javascript/v4-programming-model/src/functions/broadcast.js":::
+
+### Create the index.html file
+
+The client interface for this app is a web page. The `index` function reads HTML content from the *content/index.html* file.
+
+1. Create a folder called `content` in your project root folder.
+1. Create the file *content/index.html*.
+1. Copy the following content to the *content/index.html* file and save it:
+
+    :::code language="html" source="~/azuresignalr-samples/samples/QuickStartServerless/javascript/v4-programming-model/src/content/index.html":::
+
+### Setup Azure Storage
+
+Azure Functions requires a storage account to work. Choose either of the two following options:
+
+* Run the free [Azure Storage Emulator](../storage/common/storage-use-azurite.md).
+* Use the Azure Storage service. This may incur costs if you continue to use it.
+
+#### [Local emulation](#tab/storage-azurite) 
+
+1. Start the Azurite storage emulator:
+
+    ```bash
+    azurite -l azurite -d azurite\debug.log
+    ```
+
+1. Make sure the `AzureWebJobsStorage` in *local.settings.json* set to `UseDevelopmentStorage=true`.
+
+#### [Azure Blob Storage](#tab/azure-blob-storage) 
+
+Update the project to use the Azure Blob Storage connection string.
+
+```bash
+func settings add AzureWebJobsStorage "<storage-connection-string>"
+```
+
+---
+
+### Add the SignalR Service connection string to the function app settings
+
+You're almost done now. The last step is to set the SignalR Service connection string in Azure Function app settings.
+
+1. In the Azure portal, go to the SignalR instance you deployed earlier.
+1. Select **Keys** to view the connection strings for the SignalR Service instance.
+
+    :::image type="content" source="media/signalr-quickstart-azure-functions-javascript/signalr-quickstart-keys.png" alt-text="Screenshot of Azure SignalR service Keys page.":::
+
+1. Copy the primary connection string, and execute the command.
+
+    [!INCLUDE [Connection string security comment](includes/signalr-connection-string-security-comment.md)]
+
+    ```bash
+    func settings add AzureSignalRConnectionString "<signalr-connection-string>"
+    ```
+  
+### Run the Azure Function app locally
+
+Run the Azure Function app in the local environment:
+
+  ```bash
+  func start
+  ```
+
+After the Azure Function is running locally, go to `http://localhost:7071/api/index`. The page displays the current star count for the GitHub Azure/azure-signalr repository. When you star or unstar the repository in GitHub, you'll see the refreshed count every few seconds.
+
+Having issues? Try the [troubleshooting guide](signalr-howto-troubleshoot-guide.md) or [let us know.](https://aka.ms/asrs/qscsharp)
 
 [!INCLUDE [Cleanup](includes/signalr-quickstart-cleanup.md)]
 
-Having issues? Try the [troubleshooting guide](signalr-howto-troubleshoot-guide.md) or [let us know](https://aka.ms/asrs/qsjs).
+## Sample code
+
+You can get all code used in the article from GitHub repository: 
+
+* [aspnet/AzureSignalR-samples](https://github.com/aspnet/AzureSignalR-samples/tree/main/samples/QuickStartServerless/javascript/v4-programming-model).
 
 ## Next steps
 
-In this quickstart, you built and ran a real-time serverless application in local. Learn more how to use SignalR Service bindings for Azure Functions.
-Next, learn more about how to bi-directional communicating between clients and Azure Function with SignalR Service.
+In this quickstart, you built and ran a real-time serverless application in localhost. Next, learn more about how to bi-directional communicating between clients and Azure Function with SignalR Service.
 
 > [!div class="nextstepaction"]
 > [SignalR Service bindings for Azure Functions](../azure-functions/functions-bindings-signalr-service.md)

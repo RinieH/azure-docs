@@ -2,15 +2,18 @@
 title: Automate Mobility Service for disaster recovery of installation in Azure Site Recovery
 description: How to automatically install the Mobility Service for VMware /physical server disaster recovery with Azure Site Recovery.
 services: site-recovery
-author: Sharmistha-Rai
-manager: gaggupta
-ms.service: site-recovery
+author: Jeronika-MS
+ms.service: azure-site-recovery
 ms.topic: how-to
-ms.author: sharrai
-ms.date: 05/27/2021
+ms.author: v-gajeronika
+ms.date: 05/02/2022
+# Customer intent: As a system administrator, I want to automate the installation of the Mobility Service for disaster recovery, so that I can efficiently manage multiple server installations in accordance with company policies and reduce manual intervention during the process.
 ---
 
 # Automate Mobility Service installation
+
+> [!CAUTION]
+> This article references CentOS, a Linux distribution that is End Of Life (EOL) status. Please consider your use and plan accordingly. For more information, see the [CentOS End Of Life guidance](/azure/virtual-machines/workloads/centos/centos-end-of-life).
 
 This article describes how to automate installation and updates for the Mobility Service agent in [Azure Site Recovery](site-recovery-overview.md).
 
@@ -18,7 +21,7 @@ When you deploy Site Recovery for disaster recovery of on-premises VMware VMs an
 
 - **Push installation**: Let Site Recovery install  the Mobility service agent when you enable replication for a machine in the Azure portal.
 - **Manual installation**: Install the Mobility service manually on each machine. [Learn more](vmware-physical-mobility-service-overview.md) about push and manual installation.
-- **Automated deployment**: Automate installation with software deployment tools such as Microsoft Endpoint Configuration Manager, or third-party tools such as JetPatch.
+- **Automated deployment**: Automate installation with software deployment tools such as Microsoft Configuration Manager, or third-party tools such as JetPatch. [Learn more](vmware-physical-mobility-service-overview.md)
 
 Automated installation and updating provides a solution if:
 
@@ -236,6 +239,13 @@ elif [ -f /etc/redhat-release ]; then
             echo $OS >> /tmp/MobSvc/sccm.log
             cp *RHEL7*.tar.gz /tmp/MobSvc
                 fi
+    elif grep -q 'Red Hat Enterprise Linux release 8.* (Ootpa)' /etc/redhat-release || \
+        grep -q 'CentOS Linux release 8.* (Core)' /etc/redhat-release; then
+        if uname -a | grep -q x86_64; then
+            OS="RHEL8-64"
+            echo $OS >> /tmp/MobSvc/sccm.log
+            cp *RHEL8*.tar.gz /tmp/MobSvc
+                fi
     fi
 elif [ -f /etc/SuSE-release ] && grep -q 'VERSION = 11' /etc/SuSE-release; then
     if grep -q "SUSE Linux Enterprise Server 11" /etc/SuSE-release && grep -q 'PATCHLEVEL = 3' /etc/SuSE-release; then
@@ -270,7 +280,7 @@ fi
 Install()
 {
     echo "Perform Installation." >> /tmp/MobSvc/sccm.log
-    ./install -q -d ${INSTALL_DIR} -r MS -v VmWare
+    ./install -q -d ${INSTALL_DIR} -r MS -v VmWare -c CSLegacy -a Install
     RET_VAL=$?
     echo "Installation Returncode: $RET_VAL" >> /tmp/MobSvc/sccm.log
     if [ $RET_VAL -eq 0 ]; then
@@ -299,7 +309,7 @@ Configure()
 Upgrade()
 {
     echo "Perform Upgrade." >> /tmp/MobSvc/sccm.log
-    ./install -q -v VmWare
+    ./install -q -v VmWare -r MS -v VmWare -c CSLegacy -a Upgrade
     RET_VAL=$?
     echo "Upgrade Returncode: $RET_VAL" >> /tmp/MobSvc/sccm.log
     if [ $RET_VAL -eq 0 ]; then

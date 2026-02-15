@@ -1,49 +1,16 @@
 ---
 title: Bicep functions - string
 description: Describes the functions to use in a Bicep file to work with strings.
-author: mumian
-ms.author: jgao
-ms.topic: conceptual
-ms.date: 06/01/2021
+ms.topic: reference
+ms.date: 12/22/2025
+ms.custom:
+  - devx-track-bicep
+  - sfi-ropc-nochange
 ---
 
 # String functions for Bicep
 
-Resource Manager provides the following functions for working with strings in your Bicep file:
-
-* [base64](#base64)
-* [base64ToJson](#base64tojson)
-* [base64ToString](#base64tostring)
-* [concat](#concat)
-* [contains](#contains)
-* [dataUri](#datauri)
-* [dataUriToString](#datauritostring)
-* [empty](#empty)
-* [endsWith](#endswith)
-* [first](#first)
-* [format](#format)
-* [guid](#guid)
-* [indexOf](#indexof)
-* [json](#json)
-* [last](#last)
-* [lastIndexOf](#lastindexof)
-* [length](#length)
-* [newGuid](#newguid)
-* [padLeft](#padleft)
-* [replace](#replace)
-* [skip](#skip)
-* [split](#split)
-* [startsWith](#startswith)
-* [string](#string)
-* [substring](#substring)
-* [take](#take)
-* [toLower](#tolower)
-* [toUpper](#toupper)
-* [trim](#trim)
-* [uniqueString](#uniquestring)
-* [uri](#uri)
-* [uriComponent](#uricomponent)
-* [uriComponentToString](#uricomponenttostring)
+This article describes the Bicep functions for working with strings.
 
 ## base64
 
@@ -51,11 +18,13 @@ Resource Manager provides the following functions for working with strings in yo
 
 Returns the base64 representation of the input string.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| inputString |Yes |string |The value to return as a base64 representation. |
+| inputString | Yes | string | The value to return as a base64 representation. |
 
 ### Return value
 
@@ -87,15 +56,17 @@ The output from the preceding example with the default values is:
 
 ## base64ToJson
 
-`base64tojson`
+`base64ToJson(base64Value)`
 
 Converts a base64 representation to a JSON object.
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| base64Value |Yes |string |The base64 representation to convert to a JSON object. |
+| base64Value | Yes | string | The base64 representation to convert to a JSON object. |
 
 ### Return value
 
@@ -132,11 +103,13 @@ The output from the preceding example with the default values is:
 
 Converts a base64 representation to a string.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| base64Value |Yes |string |The base64 representation to convert to a string. |
+| base64Value | Yes | string | The base64 representation to convert to a string. |
 
 ### Return value
 
@@ -168,38 +141,149 @@ The output from the preceding example with the default values is:
 | toStringOutput | String | one, two, three |
 | toJsonOutput | Object | {"one": "a", "two": "b"} |
 
+## buildUri
+
+`buildUri(uriComponent)`
+
+Constructs a URI by combining the provided scheme, host, port, path, and query component object into a single URI string. To parse a URI, see [parseUri](#parseuri).
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
+### Parameters
+
+| Parameter | Required | Type | Description |
+|:--- |:--- |:--- |:--- |
+| scheme | Yes | String | The protocol of the URI (e.g., `http`, `https`, `ftp`). |
+| host | Yes | String | The domain or hostname (e.g., `example.com`). |
+| port | No | Int or Null | The port number (e.g., `443`). If not specified, defaults to `null`, which means the default port for the scheme is used. |
+| path | Yes | String | The path component (e.g., `/path/to/resource`). |
+| query | No | String | The query string, including the leading `?` if present (e.g., `?key=value`). Defaults to an empty string if not provided. |
+
+### Return Value
+
+A string representing the absolute URI constructed from the provided components.
+
+### Examples
+
+The following example shows how to use `buildUri` to construct a URI from individual components:
+
+```bicep
+param uriComponents object = {
+  scheme: 'https'
+  host: 'mystorage.blob.core.windows.net'
+  port: 8080
+  path: '/templates/nestedTemplate.json'
+  query: '?st=2025-05-09'
+}
+
+output constructedUri string = buildUri((uriComponents))
+```
+
+The output from the preceding example is:
+
+| Name | Type | Value |
+| ---- | ---- | ----- |
+| constructedUri | String | `https://mystorage.blob.core.windows.net:8080/templates/nestedTemplate.json?st=2025-05-09` |
+
+The following example shows how to use `parseUri` to extract components from an existing URI, modify them, and then use `buildUri` to reconstruct a new URI:
+
+```bicep
+param uriComponents object = parseUri('https://mystorage.blob.core.windows.net:8080/templates/nestedTemplate.json?st=2025-05-09')
+param newQuery string = 'st-2025-06-19'
+
+var updatedUriComponents object = { 
+  scheme: uriComponents.schema
+  host: uriComponents.host
+  port: uriComponents.port
+  path: uriComponents.path
+  query: newQuery
+}
+
+// Reconstruct the URI using buildUri
+output reconstructedUri string = buildUri(updatedUriComponents)
+```
+
+The output from the preceding example is:
+
+| Name | Type | Value |
+| ---- | ---- | ----- |
+| reconstrcutedUri | String | `https://mystorage.blob.core.windows.net/newdata/newfile.json?newParam=value` |
+
 ## concat
 
-Instead of using the concat function, use string interpolation. 
+`concat(arg1, arg2, arg3, ...)`
+
+Combines multiple string values and returns the concatenated string, or combines multiple arrays and returns the concatenated array. To improve readability, use [string interpolation](./data-types.md#strings) instead of the `concat()` function. However, in some cases such as string replacement in [multi-line strings](../bicep/data-types.md#multi-line-strings), you may need to fall back on using the `concat()` function or the [`replace()` function](#replace).
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
+### Parameters
+
+| Parameter | Required | Type | Description |
+|:--- |:--- |:--- |:--- |
+| arg1 | Yes | string or array | The first string or array for concatenation. |
+| more arguments | No | string or array | More strings or arrays in sequential order for concatenation. |
+
+This function can take any number of arguments, and can accept either strings or arrays for the parameters. However, you can't provide both arrays and strings for parameters. Strings are only concatenated with other strings.
+
+### Return value
+
+A string or array of concatenated values.
+
+### Examples
+
+The following example shows a comparison between using interpolation and using the `concat()` function. The two outputs return the same value.
 
 ```bicep
 param prefix string = 'prefix'
 
-output concatOutput string = '${prefix}And${uniqueString(resourceGroup().id)}'
+output concatOutput string = concat(prefix, 'And', uniqueString(resourceGroup().id))
+output interpolationOutput string = '${prefix}And${uniqueString(resourceGroup().id)}'
+```
+
+The outputs from the preceding example with the default value are:
+
+| Name | Type | Value |
+| ---- | ---- | ----- |
+| concatOutput | String | prefixAnd5yj4yjf5mbg72 |
+| interpolationOutput | String | prefixAnd5yj4yjf5mbg72 |
+
+Interpolation is not currently supported in multi-line strings. The following example shows a comparison between using interpolation and using the `concat()` function.
+
+```bicep
+var blocked = 'BLOCKED'
+
+output concatOutput string = concat('''interpolation
+is ''', blocked)
+output interpolationOutput string = '''interpolation
+is ${blocked}'''
 ```
 
 The output from the preceding example with the default values is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
-| concatOutput | String | prefixAnd5yj4yjf5mbg72 |
+| concatOutput | String | interpolation\nis BLOCKED |
+| interpolationOutput | String | interpolation\nis ${blocked} |
 
 ## contains
 
-`contains (container, itemToFind)`
+`contains(container, itemToFind)`
 
 Checks whether an array contains a value, an object contains a key, or a string contains a substring. The string comparison is case-sensitive. However, when testing if an object contains a key, the comparison is case-insensitive.
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| container |Yes |array, object, or string |The value that contains the value to find. |
-| itemToFind |Yes |string or int |The value to find. |
+| container | Yes | array, object, or string | The value that contains the value to find. |
+| itemToFind | Yes | string or int | The value to find. |
 
 ### Return value
 
-**True** if the item is found; otherwise, **False**.
+`True` if the item is found; otherwise, `False`.
 
 ### Examples
 
@@ -208,9 +292,9 @@ The following example shows how to use contains with different types:
 ```bicep
 param stringToTest string = 'OneTwoThree'
 param objectToTest object = {
-  'one': 'a'
-  'two': 'b'
-  'three': 'c'
+  one: 'a'
+  two: 'b'
+  three: 'c'
 }
 param arrayToTest array = [
   'one'
@@ -245,11 +329,13 @@ The output from the preceding example with the default values is:
 
 Converts a value to a data URI.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| stringToConvert |Yes |string |The value to convert to a data URI. |
+| stringToConvert | Yes | string | The value to convert to a data URI. |
 
 ### Return value
 
@@ -280,11 +366,13 @@ The output from the preceding example with the default values is:
 
 Converts a data URI formatted value to a string.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| dataUriToConvert |Yes |string |The data URI value to convert. |
+| dataUriToConvert | Yes | string | The data URI value to convert. |
 
 ### Return value
 
@@ -313,17 +401,19 @@ The output from the preceding example with the default values is:
 
 `empty(itemToTest)`
 
-Determines if an array, object, or string is empty.
+Determines if an array, object, or string is empty or null.
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| itemToTest |Yes |array, object, or string |The value to check if it's empty. |
+| itemToTest | Yes | array, object, or string | The value to check if it's empty or null. |
 
 ### Return value
 
-Returns **True** if the value is empty; otherwise, **False**.
+Returns **True** if the value is empty or null; otherwise, **False**.
 
 ### Examples
 
@@ -333,10 +423,12 @@ The following example checks whether an array, object, and string are empty.
 param testArray array = []
 param testObject object = {}
 param testString string = ''
+param testNullString string?
 
 output arrayEmpty bool = empty(testArray)
 output objectEmpty bool = empty(testObject)
 output stringEmpty bool = empty(testString)
+output stringNull bool = empty(testNullString)
 ```
 
 The output from the preceding example with the default values is:
@@ -346,6 +438,7 @@ The output from the preceding example with the default values is:
 | arrayEmpty | Bool | True |
 | objectEmpty | Bool | True |
 | stringEmpty | Bool | True |
+| stringNull | Bool | True |
 
 ## endsWith
 
@@ -353,16 +446,18 @@ The output from the preceding example with the default values is:
 
 Determines whether a string ends with a value. The comparison is case-insensitive.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| stringToSearch |Yes |string |The value that contains the item to find. |
-| stringToFind |Yes |string |The value to find. |
+| stringToSearch | Yes | string | The value that contains the item to find. |
+| stringToFind | Yes | string | The value to find. |
 
 ### Return value
 
-**True** if the last character or characters of the string match the value; otherwise, **False**.
+`True` if the last character or characters of the string match the value; otherwise, `False`.
 
 ### Examples
 
@@ -392,13 +487,15 @@ The output from the preceding example with the default values is:
 
 `first(arg1)`
 
-Returns the first character of the string, or first element of the array.
+Returns the first character of the string, or first element of the array. If an empty string is given, the function results in an empty string. In the case of an empty array, the function returns `null`.
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| arg1 |Yes |array or string |The value to retrieve the first element or character. |
+| arg1 | Yes | array or string | The value to retrieve the first element or character. |
 
 ### Return value
 
@@ -432,6 +529,8 @@ The output from the preceding example with the default values is:
 
 Creates a formatted string from input values.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
@@ -452,15 +551,19 @@ The following example shows how to use the format function.
 param greeting string = 'Hello'
 param name string = 'User'
 param numberToFormat int = 8175133
+param objectToFormat object = { prop: 'value' }
 
 output formatTest string = format('{0}, {1}. Formatted number: {2:N0}', greeting, name, numberToFormat)
+output formatObject string = format('objectToFormat: {0}', objectToFormat)
+
 ```
 
 The output from the preceding example with the default values is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
-| formatTest | String | Hello, User. Formatted number: 8,175,133 |
+| formatTest | String | `Hello, User. Formatted number: 8,175,133` |
+| formatObject | String | `objectToFormat: {'prop':'value'}` |
 
 ## guid
 
@@ -468,18 +571,27 @@ The output from the preceding example with the default values is:
 
 Creates a value in the format of a globally unique identifier based on the values provided as parameters.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| baseString |Yes |string |The value used in the hash function to create the GUID. |
-| additional parameters as needed |No |string |You can add as many strings as needed to create the value that specifies the level of uniqueness. |
+| baseString | Yes | string | The value used in the hash function to create the GUID. |
+| additional parameters as needed | No | string | You can add as many strings as needed to create the value that specifies the level of uniqueness. |
 
 ### Remarks
 
 This function is helpful when you need to create a value in the format of a globally unique identifier. You provide parameter values that limit the scope of uniqueness for the result. You can specify whether the name is unique down to subscription, resource group, or deployment.
 
 The returned value isn't a random string, but rather the result of a hash function on the parameters. The returned value is 36 characters long. It isn't globally unique. To create a new GUID that isn't based on that hash value of the parameters, use the [newGuid](#newguid) function.
+
+> [!NOTE]
+> The order of the parameters affects the returned value. For example:
+>
+> `guid('hello', 'world')` and `guid('world', 'hello')`
+>
+> don't return the same value.
 
 The following examples show how to use guid to create a unique value for commonly used levels.
 
@@ -501,6 +613,8 @@ Unique scoped to deployment for a resource group
 guid(resourceGroup().id, deployment().name)
 ```
 
+The `guid` function implements the algorithm from [RFC 4122 §4.3](https://www.ietf.org/rfc/rfc4122.txt). The original source can be found in [GuidUtility](https://github.com/LogosBible/Logos.Utility/blob/e7fc45123da090b8cf34da194a1161ed6a34d20d/src/Logos.Utility/GuidUtility.cs) with some modifications. In the `guid()` function implementation, the `namespaceId` is set to `11fb06fb-712d-4ddd-98c7-e71bbd588830`, and the `version` is set to `5`. The value is generated by converting each parameter of the `guid()` function to a string and concatenating them with `-` as delimiters.
+
 ### Return value
 
 A string containing 36 characters in the format of a globally unique identifier.
@@ -521,12 +635,14 @@ output guidPerDeployment string = guid(resourceGroup().id, deployment().name)
 
 Returns the first position of a value within a string. The comparison is case-insensitive.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| stringToSearch |Yes |string |The value that contains the item to find. |
-| stringToFind |Yes |string |The value to find. |
+| stringToSearch | Yes | string | The value that contains the item to find. |
+| stringToFind | Yes | string | The value to find. |
 
 ### Return value
 
@@ -554,6 +670,49 @@ The output from the preceding example with the default values is:
 | lastString | Int | 0 |
 | notFound | Int | -1 |
 
+## join
+
+`join(inputArray, delimiter)`
+
+Joins a string array into a single string, separated using a delimiter.
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
+### Parameters
+
+| Parameter | Required | Type | Description |
+|:--- |:--- |:--- |:--- |
+| inputArray | Yes | An array of string. | An array of strings to join. |
+| delimiter | Yes | The delimiter to use for splitting the string. |
+
+### Return value
+
+A string.
+
+### Examples
+
+The following example joins the input string array into strings delimited by either a comma or a semi-colon.
+
+```bicep
+var arrayString = [
+  'one'
+  'two'
+  'three'
+]
+
+output firstOutput string = join(arrayString, ',')
+output secondOutput string = join(arrayString, ';')
+```
+
+The output from the preceding example with the default values is:
+
+| Name | Type | Value |
+| ---- | ---- | ----- |
+| firstOutput | String | "one,two,three" |
+| secondOutput | String | "one;two;three" |
+
+This function requires [Bicep CLI version 0.8.X or higher](./install.md).
+
 <a id="json"></a>
 
 ## json
@@ -562,17 +721,21 @@ The output from the preceding example with the default values is:
 
 Converts a valid JSON string into a JSON data type. For more information, see [json function](./bicep-functions-object.md#json).
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ## last
 
-`last (arg1)`
+`last(arg1)`
 
 Returns last character of the string, or the last element of the array.
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| arg1 |Yes |array or string |The value to retrieve the last element or character. |
+| arg1 | Yes | array or string | The value to retrieve the last element or character. |
 
 ### Return value
 
@@ -606,12 +769,14 @@ The output from the preceding example with the default values is:
 
 Returns the last position of a value within a string. The comparison is case-insensitive.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| stringToSearch |Yes |string |The value that contains the item to find. |
-| stringToFind |Yes |string |The value to find. |
+| stringToSearch | Yes | string | The value that contains the item to find. |
+| stringToFind | Yes | string | The value to find. |
 
 ### Return value
 
@@ -619,7 +784,7 @@ An integer that represents the last position of the item to find. The value is z
 
 ### Examples
 
-The following example shows how to use the indexOf and lastIndexOf functions:
+The following example shows how to use the `indexOf` and `lastIndexOf` functions:
 
 ```bicep
 output firstT int = indexOf('test', 't')
@@ -645,11 +810,13 @@ The output from the preceding example with the default values is:
 
 Returns the number of characters in a string, elements in an array, or root-level properties in an object.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| arg1 |Yes |array, string, or object |The array to use for getting the number of elements, the string to use for getting the number of characters, or the object to use for getting the number of root-level properties. |
+| arg1 | Yes | array, string, or object | The array to use for getting the number of elements, the string to use for getting the number of characters, or the object to use for getting the number of root-level properties. |
 
 ### Return value
 
@@ -667,10 +834,10 @@ param arrayToTest array = [
 ]
 param stringToTest string = 'One Two Three'
 param objectToTest object = {
-  'propA': 'one'
-  'propB': 'two'
-  'propC': 'three'
-  'propD': {
+  propA: 'one'
+  propB: 'two'
+  propC: 'three'
+  propD: {
     'propD-1': 'sub'
     'propD-2': 'sub'
   }
@@ -695,11 +862,13 @@ The output from the preceding example with the default values is:
 
 Returns a value in the format of a globally unique identifier. **This function can only be used in the default value for a parameter.**
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Remarks
 
 You can only use this function within an expression for the default value of a parameter. Using this function anywhere else in a Bicep file returns an error. The function isn't allowed in other parts of the Bicep file because it returns a different value each time it's called. Deploying the same Bicep file with the same parameters wouldn't reliably produce the same results.
 
-The newGuid function differs from the [guid](#guid) function because it doesn't take any parameters. When you call guid with the same parameter, it returns the same identifier each time. Use guid when you need to reliably generate the same GUID for a specific environment. Use newGuid when you need a different identifier each time, such as deploying resources to a test environment.
+The newGuid function differs from the [guid](#guid) function because it doesn't take any parameters. When you call guid with the same parameters, it returns the same identifier each time. Use guid when you need to reliably generate the same GUID for a specific environment. Use newGuid when you need a different identifier each time, such as deploying resources to a test environment.
 
 The newGuid function uses the [Guid structure](/dotnet/api/system.guid) in the .NET Framework to generate the globally unique identifier.
 
@@ -738,7 +907,7 @@ param guidValue string = newGuid()
 
 var storageName = 'storage${uniqueString(guidValue)}'
 
-resource myStorage 'Microsoft.Storage/storageAccounts@2018-07-01' = {
+resource myStorage 'Microsoft.Storage/storageAccounts@2025-06-01' = {
   name: storageName
   location: 'West US'
   sku: {
@@ -763,13 +932,15 @@ The output from the preceding example varies for each deployment but will be sim
 
 Returns a right-aligned string by adding characters to the left until reaching the total specified length.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| valueToPad |Yes |string or int |The value to right-align. |
-| totalLength |Yes |int |The total number of characters in the returned string. |
-| paddingCharacter |No |single character |The character to use for left-padding until the total length is reached. The default value is a space. |
+| valueToPad | Yes | string or int | The value to right-align. |
+| totalLength | Yes | int | The total number of characters in the returned string. |
+| paddingCharacter | No | single character | The character to use for left-padding until the total length is reached. The default value is a space. |
 
 If the original string is longer than the number of characters to pad, no characters are added.
 
@@ -793,19 +964,95 @@ The output from the preceding example with the default values is:
 | ---- | ---- | ----- |
 | stringOutput | String | 0000000123 |
 
+## parseUri
+
+`parseUri(uriString)`
+
+Parses a URI string into its constituent components, such as scheme, host, port, path, and query. To build a URI string, see [buildUri](#builduri).
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
+### Parameters
+
+| Parameter | Required | Type | Description |
+|:--- |:--- |:--- |:--- |
+| uriString | Yes | string | The URI string to parse. Must be a valid URI as per RFC 3986. |
+
+### Return Value
+
+An object containing the parsed URI components with the following properties:
+
+| Property | Type | Description |
+|:--- |:--- |:--- |
+| scheme | String | The protocol of the URI (e.g., `http`, `https`, `ftp`). |
+| host | String | The domain or hostname (e.g., `example.com`). |
+| port | Int or null | The port number (e.g., `443`), or `null` if not specified. |
+| path | String | The path component (e.g., `/path/to/resource`). |
+| query | String | The query string, including the leading `?` (e.g., `?key=value`), or empty string if not present. |
+
+For complete details, the URI is parsed as specified in [RFC 3986, section 3](https://tools.ietf.org/html/rfc3986#section-3).
+
+### Examples
+
+The following example shows how to use `parseUri` to extract components from a URI:
+
+```bicep
+param inputUri string = 'https://mystorage.blob.core.windows.net:8080/templates/nestedTemplate.json?st=2025-05-09'
+
+var parsedUri = parseUri(inputUri)
+
+output scheme string = parsedUri.scheme
+output host string = parsedUri.host
+output port int = parsedUri.port
+output path string = parsedUri.path
+output query string = parsedUri.query
+```
+
+The output from the preceding example with the default values is:
+
+| Name | Type | Value |
+| ---- | ---- | ----- |
+| scheme | String | `https` |
+| host | String | `mystorage.blob.core.windows.net` |
+| port | Int | `8080` |
+| path | String | `/templates/nestedTemplate.json` |
+| query | String | `?st=2025-05-09` |
+
+The following example shows how to use `parseUri` to extract the host and scheme, then reconstruct a new URI with a different path using the `uri` function:
+
+```bicep
+param originalUri string = 'https://mystorage.blob.core.windows.net/data/file.json?st=2025-05-09'
+
+var parsedUri = parseUri(originalUri)
+var newPath = '/newdata/newfile.json'
+var modifiedUri = uri('${parsedUri.scheme}://${parsedUri.host}', newPath)
+
+output originalHost string = parsedUri.host
+output newUri string = modifiedUri
+```
+
+The output from the preceding example is:
+
+| Name | Type | Value |
+| ---- | ---- | ----- |
+| originalHost | String | `mystorage.blob.core.windows.net` |
+| newUri | String | `https://mystorage.blob.core.windows.net/newdata/newfile.json` |
+
 ## replace
 
 `replace(originalString, oldString, newString)`
 
 Returns a new string with all instances of one string replaced by another string.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| originalString |Yes |string |The value that has all instances of one string replaced by another string. |
-| oldString |Yes |string |The string to be removed from the original string. |
-| newString |Yes |string |The string to add in place of the removed string. |
+| originalString | Yes | string | The value that has all instances of one string replaced by another string. |
+| oldString | Yes | string | The string to be removed from the original string. |
+| newString | Yes | string | The string to add in place of the removed string. |
 
 ### Return value
 
@@ -835,12 +1082,14 @@ The output from the preceding example with the default values is:
 
 Returns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| originalValue |Yes |array or string |The array or string to use for skipping. |
-| numberToSkip |Yes |int |The number of elements or characters to skip. If this value is 0 or less, all the elements or characters in the value are returned. If it's larger than the length of the array or string, an empty array or string is returned. |
+| originalValue | Yes | array or string | The array or string to use for skipping. |
+| numberToSkip | Yes | int | The number of elements or characters to skip. If this value is 0 or less, all the elements or characters in the value are returned. If it's larger than the length of the array or string, an empty array or string is returned. |
 
 ### Return value
 
@@ -877,12 +1126,14 @@ The output from the preceding example with the default values is:
 
 Returns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| inputString |Yes |string |The string to split. |
-| delimiter |Yes |string or array of strings |The delimiter to use for splitting the string. |
+| inputString | Yes | string | The string to split. |
+| delimiter | Yes | string or array of strings | The delimiter to use for splitting the string. |
 
 ### Return value
 
@@ -918,16 +1169,18 @@ The output from the preceding example with the default values is:
 
 Determines whether a string starts with a value. The comparison is case-insensitive.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| stringToSearch |Yes |string |The value that contains the item to find. |
-| stringToFind |Yes |string |The value to find. |
+| stringToSearch | Yes | string | The value that contains the item to find. |
+| stringToFind | Yes | string | The value to find. |
 
 ### Return value
 
-**True** if the first character or characters of the string match the value; otherwise, **False**.
+`True` if the first character or characters of the string match the value; otherwise, `False`.
 
 ### Examples
 
@@ -958,12 +1211,16 @@ The output from the preceding example with the default values is:
 `string(valueToConvert)`
 
 Converts the specified value to a string.
+Strings are returned as-is. Other types are converted to their equivalent JSON representation.
+If you need to convert a string to JSON, i.e. quote/escape it, you can use `substring(string([value]), 1, length(string([value]) - 2)`.
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| valueToConvert |Yes | Any |The value to convert to string. Any type of value can be converted, including objects and arrays. |
+| valueToConvert | Yes | Any | The value to convert to string. Any type of value can be converted, including objects and arrays. |
 
 ### Return value
 
@@ -975,28 +1232,34 @@ The following example shows how to convert different types of values to strings:
 
 ```bicep
 param testObject object = {
-  'valueA': 10
-  'valueB': 'Example Text'
+  valueA: 10
+  valueB: 'Example Text'
 }
 param testArray array = [
-  'a'
-  'b'
-  'c'
+  '\'a\''
+  '"b"'
+  '\\c\\'
 ]
 param testInt int = 5
+param testString string = 'foo " \' \\'
 
 output objectOutput string = string(testObject)
 output arrayOutput string = string(testArray)
 output intOutput string = string(testInt)
+output stringOutput string = string(testString)
+output stringEscapedOutput string = substring(string([testString]), 1, length(string([testString])) - 2)
+
 ```
 
 The output from the preceding example with the default values is:
 
 | Name | Type | Value |
 | ---- | ---- | ----- |
-| objectOutput | String | {"valueA":10,"valueB":"Example Text"} |
-| arrayOutput | String | ["a","b","c"] |
-| intOutput | String | 5 |
+| objectOutput | String | `{"valueA":10,"valueB":"Example Text"}` |
+| arrayOutput | String | `["'a'","\"b\"","\\c\\"]` |
+| intOutput | String | `5` |
+| stringOutput | String | `foo " ' \` |
+| stringEscapedOutput | String | `"foo \" ' \\"` |
 
 ## substring
 
@@ -1004,13 +1267,15 @@ The output from the preceding example with the default values is:
 
 Returns a substring that starts at the specified character position and contains the specified number of characters.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| stringToParse |Yes |string |The original string from which the substring is extracted. |
-| startIndex |No |int |The zero-based starting character position for the substring. |
-| length |No |int |The number of characters for the substring. Must refer to a location within the string. Must be zero or greater. |
+| stringToParse | Yes | string | The original string from which the substring is extracted. |
+| startIndex | No | int | The zero-based starting character position for the substring. |
+| length | No | int | The number of characters for the substring. Must refer to a location within the string. Must be zero or greater. If omitted, the remainder of the string from the start position will be returned.|
 
 ### Return value
 
@@ -1047,12 +1312,14 @@ The output from the preceding example with the default values is:
 
 Returns a string with the specified number of characters from the start of the string, or an array with the specified number of elements from the start of the array.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| originalValue |Yes |array or string |The array or string to take the elements from. |
-| numberToTake |Yes |int |The number of elements or characters to take. If this value is 0 or less, an empty array or string is returned. If it's larger than the length of the given array or string, all the elements in the array or string are returned. |
+| originalValue | Yes | array or string | The array or string to take the elements from. |
+| numberToTake | Yes | int | The number of elements or characters to take. If this value is 0 or less, an empty array or string is returned. If it's larger than the length of the given array or string, all the elements in the array or string are returned. |
 
 ### Return value
 
@@ -1089,11 +1356,13 @@ The output from the preceding example with the default values is:
 
 Converts the specified string to lower case.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| stringToChange |Yes |string |The value to convert to lower case. |
+| stringToChange | Yes | string | The value to convert to lower case. |
 
 ### Return value
 
@@ -1123,11 +1392,13 @@ The output from the preceding example with the default values is:
 
 Converts the specified string to upper case.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| stringToChange |Yes |string |The value to convert to upper case. |
+| stringToChange | Yes | string | The value to convert to upper case. |
 
 ### Return value
 
@@ -1153,15 +1424,17 @@ The output from the preceding example with the default values is:
 
 ## trim
 
-`trim (stringToTrim)`
+`trim(stringToTrim)`
 
 Removes all leading and trailing white-space characters from the specified string.
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| stringToTrim |Yes |string |The value to trim. |
+| stringToTrim | Yes | string | The value to trim. |
 
 ### Return value
 
@@ -1185,16 +1458,18 @@ The output from the preceding example with the default values is:
 
 ## uniqueString
 
-`uniqueString (baseString, ...)`
+`uniqueString(baseString, ...)`
 
 Creates a deterministic hash string based on the values provided as parameters.
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| baseString |Yes |string |The value used in the hash function to create a unique string. |
-| additional parameters as needed |No |string |You can add as many strings as needed to create the value that specifies the level of uniqueness. |
+| baseString | Yes | string | The value used in the hash function to create a unique string. |
+| additional parameters as needed | No | string | You can add as many strings as needed to create the value that specifies the level of uniqueness. |
 
 ### Remarks
 
@@ -1227,13 +1502,13 @@ uniqueString(resourceGroup().id, deployment().name)
 The following example shows how to create a unique name for a storage account based on your resource group. Inside the resource group, the name isn't unique if constructed the same way.
 
 ```bicep
-resource mystorage 'Microsoft.Storage/storageAccounts@@2018-07-01' = {
+resource mystorage 'Microsoft.Storage/storageAccounts@2025-06-01' = {
   name: 'storage${uniqueString(resourceGroup().id)}'
   ...
 }
 ```
 
-If you need to create a new unique name each time you deploy a Bicep file, and don't intend to update the resource, you can use the [utcNow](./bicep-functions-date.md#utcnow) function with uniqueString. You could use this approach in a test environment. For an example, see [utcNow](./bicep-functions-date.md#utcnow).
+If you need to create a new unique name each time you deploy a Bicep file, and don't intend to update the resource, you can use the [utcNow](./bicep-functions-date.md#utcnow) function with uniqueString. You could use this approach in a test environment. For an example, see [utcNow](./bicep-functions-date.md#utcnow). Note the utcNow function can only be used within an expression for the default value of a parameter.
 
 ### Return value
 
@@ -1250,40 +1525,42 @@ output uniqueDeploy string = uniqueString(resourceGroup().id, deployment().name)
 
 ## uri
 
-`uri (baseUri, relativeUri)`
+`uri(baseUri, relativeUri)`
 
 Creates an absolute URI by combining the baseUri and the relativeUri string.
+
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
 
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| baseUri |Yes |string |The base uri string. Take care to observe the behavior regarding the handling of the trailing slash ('/'), as described following this table.  |
-| relativeUri |Yes |string |The relative uri string to add to the base uri string. |
+| baseUri | Yes | string | The base uri string. Take care to observe the behavior regarding the handling of the trailing slash ('/'), as described following this table.  |
+| relativeUri | Yes | string | The relative uri string to add to the base uri string. |
 
-* If **baseUri** ends in a trailing slash, the result is simply
-  **baseUri** followed by **relativeUri**.
+* If `baseUri` ends with a trailing slash, the result is simply `baseUri` followed by `relativeUri`. If `relativeUri` also begins with a leading slash, the trailing slash and the leading slash will be combined into one.
 
-* If **baseUri** does not end in a trailing slash one of two things
+* If `baseUri` does not end in a trailing slash one of two things
   happens.
 
-   * If **baseUri** has no slashes at all (aside from the "//" near
-     the front) the result is simply **baseUri** followed by **relativeUri**.
+   * If `baseUri` has no slashes at all (aside from the "//" near
+     the front) the result is simply `baseUri` followed by `relativeUri`.
 
-   * If **baseUri** has some slashes, but doesn't end with a slash,
-     everything from the last slash onward is removed from **baseUri**
-     and the result is **baseUri** followed by **relativeUri**.
+   * If `baseUri` has some slashes, but doesn't end with a slash,
+     everything from the last slash onward is removed from `baseUri`
+     and the result is `baseUri` followed by `relativeUri`.
 
 Here are some examples:
 
 ```
 uri('http://contoso.org/firstpath', 'myscript.sh') -> http://contoso.org/myscript.sh
 uri('http://contoso.org/firstpath/', 'myscript.sh') -> http://contoso.org/firstpath/myscript.sh
+uri('http://contoso.org/firstpath/', '/myscript.sh') -> http://contoso.org/firstpath/myscript.sh
 uri('http://contoso.org/firstpath/azuredeploy.json', 'myscript.sh') -> http://contoso.org/firstpath/myscript.sh
 uri('http://contoso.org/firstpath/azuredeploy.json/', 'myscript.sh') -> http://contoso.org/firstpath/azuredeploy.json/myscript.sh
 ```
 
-For complete details, the **baseUri** and **relativeUri** parameters are
+For complete details, the `baseUri` and `relativeUri` parameters are
 resolved as specified in
 [RFC 3986, section 5](https://tools.ietf.org/html/rfc3986#section-5).
 
@@ -1318,11 +1595,13 @@ The output from the preceding example with the default values is:
 
 Encodes a URI.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| stringToEncode |Yes |string |The value to encode. |
+| stringToEncode | Yes | string | The value to encode. |
 
 ### Return value
 
@@ -1357,11 +1636,13 @@ The output from the preceding example with the default values is:
 
 Returns a string of a URI encoded value.
 
+Namespace: [sys](bicep-functions.md#namespaces-for-functions).
+
 ### Parameters
 
 | Parameter | Required | Type | Description |
 |:--- |:--- |:--- |:--- |
-| uriEncodedString |Yes |string |The URI encoded value to convert to a string. |
+| uriEncodedString | Yes | string | The URI encoded value to convert to a string. |
 
 ### Return value
 
@@ -1393,5 +1674,5 @@ The output from the preceding example with the default values is:
 ## Next steps
 
 * For a description of the sections in a Bicep file, see [Understand the structure and syntax of Bicep files](./file.md).
-* To iterate a specified number of times when creating a type of resource, see [Deploy multiple instances of resources in Bicep](./loop-resources.md).
+* To iterate a specified number of times when creating a type of resource, see [Iterative loops in Bicep](loops.md).
 * To see how to deploy the Bicep file you've created, see [Deploy resources with Bicep and Azure PowerShell](./deploy-powershell.md).

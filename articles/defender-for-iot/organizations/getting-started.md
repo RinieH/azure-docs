@@ -1,140 +1,128 @@
 ---
-title: 'Quickstart: Getting started'
-description: In this quickstart, learn how to get started with understanding the basic workflow for Defender for IoT deployment.
-ms.topic: quickstart
-ms.date: 06/06/2021
+title: Get started with OT monitoring - Microsoft Defender for IoT
+description: Use this quickstart to set up a trial OT plan with Microsoft Defender for IoT and understand the next steps required to configure your network sensors.
+ms.topic: get-started
+ms.date: 11/17/2024
+#CustomerIntent: As a prospective Defender for IoT customer with OT networks, I want to understand how I can set up a trial and evaluate Defender for IoT.
 ---
 
-# Quickstart: Get started with Defender for IoT
+# Start a Microsoft Defender for IoT trial
 
-This article provides an overview of the steps you'll take to set up Azure Defender for IoT. The process requires that you:
+This article describes how to set up a trial license and create an initial OT plan for Microsoft Defender for IoT, for customers who don't have any Microsoft tenant or Azure subscription at all. Use Defender for IoT to monitor network traffic across your OT networks.
 
-- Register your subscription and sensors on the Azure Defender for IoT portal.
-- Install the sensor and on-premises management console software.
-- Perform initial activation of the sensor and management console.
+A trial supports a **Large** site size with up to 1,000 devices. You might want to use this trial with a [virtual sensor](tutorial-onboarding.md) or on-premises sensors to monitor traffic, analyze data, generate alerts, understand network risks and vulnerabilities, and more.
 
-## Permission requirements
+There are two stages to starting a trial for Defender for IoT.
 
-### For sensors and on-premises management consoles
+1. Stage 1: [Add a trial license](#add-a-trial-license).
+1. Stage 2: [Add an OT plan](#add-an-ot-plan).
 
-Some of the setup steps require specific user permissions.
+Once you set up the trial license and OT plan, you can onboard OT sensors and associate them with this license and plan.
 
-Administrative user permissions are required to activate the sensor and management console, upload SSL/TLS certificates, and generate new passwords.
-### For the Defender for IoT portal
+For more information, see [Free trial](billing.md#free-trial).
 
-The following table describes user access permissions to Azure Defender for IoT portal tools:
+A trial license can be extended up to 15 days before the trail expires. For more information, see [extend your trial license](license-and-trial-license-extention.md#trial-license-extension).
 
-| Permission | Security reader | Security administrator | Subscription contributor | Subscription owner |
-|--|--|--|--|--|
-| View details and access software, activation files and threat intelligence packages  | ✓ | ✓ | ✓ | ✓ |
-| Onboard a sensor  |  |  ✓ | ✓ | ✓ |
-| Update pricing  |  |  ✓ | ✓ | ✓ |
-| Recover password  | ✓  |  ✓ | ✓ | ✓ |
+## Prerequisites
 
-## Identify the solution infrastructure
+Before you start, you need:
 
-**Clarify your network setup needs**
+1. An email address to be used as the contact for your new Microsoft tenant.
+1. A Microsoft tenant, with Global or Billing admin access to the tenant.
 
-Research your network architecture, monitored bandwidth, and other network details. For more information, see [About Azure Defender for IoT network setup](how-to-set-up-your-network.md).
+    For more information, see [Buy or remove licenses for a Microsoft business subscription](/microsoft-365/commerce/licenses/buy-licenses) and [About admin roles in the Microsoft 365 admin center](/microsoft-365/admin/add-users/about-admin-roles).
 
-**Clarify which sensors and management console appliances are required to handle the network load**
+1. Credit card details for your new Azure subscription, although you aren't charged until you switch from the **Free Trial** to the **Pay-As-You-Go** plan.
 
-Azure Defender for IoT supports both physical and virtual deployments. For the physical deployments, you can purchase various certified appliances. For more information, see [Identify required appliances](how-to-identify-required-appliances.md).
+## Add a trial license
 
-We recommend that you calculate the approximate number of devices that will be monitored. Later, when you register your Azure subscription to the portal, you'll be asked to enter this number. Numbers can be added in intervals of 1,000 seconds. The numbers of monitored devices are called *committed devices*.
+This procedure describes how to add a trial license for Defender for IoT to your Azure subscription. One trial license is available per tenant.
 
-## Register with Azure Defender for IoT
+To add a trial license with a new tenant, we recommend that you use the Trial wizard. If you already have a tenant, use the Microsoft 365 Marketplace to add a trial license to your tenant.
 
-Registration includes:
+# [Add a trial with the Trial wizard](#tab/wizard)
 
-- Onboarding your Azure subscriptions to Defender for IoT.
-- Defining committed devices.
-- Downloading an activation file for the on-premises management console.
+**To add a trial license with a new tenant**:
 
-**To register**:
+1. In a browser, open the [Microsoft Defender for IoT - OT Site License (1000 max devices per site) Trial wizard](https://signup.microsoft.com/get-started/signup?products=d2bdd05f-4856-4569-8474-2f9ec298923b).
 
-1. Go to the Azure Defender for IoT portal.
+1. In the **Email** box, enter the email address you want to associate with the trial license, and select **Next**.
 
-1. Select **Onboard subscription**.
+1. Confirm that the email address is correct by selecting **Set up account**.
 
-1. On the **Pricing** page, select a subscription or create a new one, and add the number of committed devices.
+1. In the **Tell us about yourself** page, enter your details, and then select **Next**.
 
-1. Select the **Download the on-premises management console** tab and save the downloaded activation file. This file contains the aggregate committed devices that you defined. The file will be uploaded to the management console after initial sign-in.
+1. Select whether you want the confirmation message to be sent to you via SMS or a phone call. Verify your phone number, and then select **Send verification code**.
 
-For information on how to offboard a subscription, see [Offboard a subscription](how-to-manage-subscriptions.md#offboard-a-subscription).
+1. After receiving the code, enter it in the **Enter your verification code** box.
 
-## Install and set up the on-premises management console
+1. In the **How you'll sign in** page, enter a username and password and select **Next**.
 
-After you acquire your on-premises management console appliance:
+1. In the **Confirmation details** page, note your order number and username, and then select **Start using Microsoft Defender for IoT - OT Site License (1000 max devices per site) Trial** button to continue. We recommend that you copy your full username to the clipboard as you need it to access the Azure portal.
 
-- Download the ISO package from the Azure Defender for IoT portal.
-- Install the software.
-- Activate and carry out initial management console setup.
+# [Add a trial from the Microsoft 365 Marketplace](#tab/marketplace)
 
-**To install and set up**:
+**To add a trial license with an existing tenant**:
 
-1. Select **Getting Started** from the Defender for IoT portal.
+1. Go to the [Microsoft 365 admin center](https://portal.office.com/AdminPortal/Home#/catalog) **Billing > Purchase services**. If you don't have this option, select **Marketplace** instead.
 
-1. Select the **On-premises management console** tab.
+1. Search for **Microsoft Defender for IoT** and locate the **Microsoft Defender for IoT - OT site license - Trial Trial** item.
 
-1. Choose a version and select **Download**.
+1. Select **Details** > **Start free trial** > **Try now** to start the trial.
 
-1. Install the on-premises management console software. For more information, see [Defender for IoT installation](how-to-install-software.md).
+For more information, see the [Microsoft 365 admin center help](/microsoft-365/admin/).
 
-1. Activate and set up the management console. For more information, see [Activate and set up your on-premises management console](how-to-activate-and-set-up-your-on-premises-management-console.md).
+---
 
-## Onboard a sensor ##
+Use the Microsoft 365 admin center manage your users, billing details, and more. For more information, see the [Microsoft 365 admin center help](/microsoft-365/admin/).
 
-Onboard a sensor by registering it with Azure Defender for IoT and downloading a sensor activation file:
+## Add an OT plan
 
-1. Define a sensor name and associate it with a subscription.
+This procedure describes how to add an OT plan for Defender for IoT in the Azure portal, based on your [new trial license](#add-a-trial-license).
 
-1. Choose a sensor connection mode:
+**To add an OT plan in Defender for IoT**:
 
-   - **Cloud connected sensors**: Information that sensors detect is displayed in the sensor console. In addition, alert information is delivered through an IoT hub and can be shared with other Azure services, such as Azure Sentinel.  You can also choose to automatically push threat intelligence packages from the Azure Defender for IoT portal to your sensors. For more information, see [Threat intelligence research and packages](how-to-work-with-threat-intelligence-packages.md).
+1. Open [Defender for IoT](https://portal.azure.com/#view/Microsoft_Azure_IoT_Defender/IoTDefenderDashboard/~/Getting_started) in the Azure portal, select **Plans and pricing**, where you're prompted to create a new subscription.
 
-   - **Locally managed sensors**: Information that sensors detect is displayed in the sensor console. If you're working in an air-gapped network and want a unified view of all information detected by multiple locally managed sensors, work with the on-premises management console.
+    :::image type="content" source="media/getting-started/subscriptions.png" alt-text="Screenshot of the Go to subscriptions message for creating a Defender for IoT subscription after starting a trial license." lightbox="media/getting-started/subscriptions.png":::
 
-1. Select a site to associate your sensor to within an IoT Hub. The IoT Hub will serve as a gateway between this sensor and Azure Defender for IoT. Define the display name, and zone. You can also add descriptive tags. The display name, zone, and tags are descriptive entries on the [Sites and Sensors page](how-to-manage-sensors-on-the-cloud.md#view-onboarded-sensors).
+1. Select **Go to subscriptions** to create a new subscription on the [Azure **Subscriptions** page](https://portal.azure.com/?quickstart=True#view/Microsoft_Azure_Billing/SubscriptionsBlade). Make sure to select the **Free Trial** option.
 
-1. Select **Register**.
+1. Back in the Defender for IoT's **Plans and pricing** page, select **Add plan**. In the **Plan settings** pane, select your new subscription.
 
-1. Select **Download activation file**.
+   The **Price plan** value is updated automatically to read **Microsoft 365**, reflecting your Microsoft 365 license.
 
-For details about onboarding, see [Onboard and manage sensors in the Defender for IoT portal](how-to-manage-sensors-on-the-cloud.md).
+    :::image type="content" source="media/getting-started/plan-set-up.png" alt-text="Screenshot of the Plan settings pane for completing the set up of a license and site for Defender for IoT in the Azure portal." lightbox="media/getting-started/plan-set-up.png":::
 
-## Install and set up the sensor
+1. Select **Next** and review the details for your licensed site. The details listed on the **Review and purchase** pane reflect your trial license.
 
-Download the ISO package from the Azure Defender for IoT portal, install the software, and set up the sensor.
+1. Select the terms and conditions, and then select **Save**.
 
-1. Select **Getting Started** from the Defender for IoT portal.
+Your new plan is listed under the relevant subscription on the **Plans and pricing** > **Plans** page. For more information, see [Manage your subscriptions](how-to-manage-subscriptions.md).
 
-1. Select **Set up sensor**.
+## Government customers trial license
 
-1. Choose a version and select **Download**.
+### Azure Commercial portal trial license for GCC customers
 
-1. Install the sensor software. For more information, see [Defender for IoT installation](how-to-install-software.md).
+Government Community Cloud (GCC) customers using the Azure Commercial portal should contact the sales team to activate the Defender for IoT trial license.  
 
-1. Activate and set up your sensor. For more information, see [Sign in and activate a sensor](how-to-activate-and-set-up-your-sensor.md).
+### Azure Government portal trial license for GCC-H or DoD customers
 
-## Connect sensors to an on-premises management console
+Government Community Cloud High (GCC-H) and U.S. Department of Defense (DoD) customers using the Azure Government portal have the Defender for IoT trial license available as part of their plan.
 
-Connect sensors to the management console to ensure that:
+To activate the trial:
 
-- Sensors send alert and device inventory information to the on-premises management console.
+1. In the Defender for IoT menu, select **Management > Plans and pricing**.
+1. Select **Add plan**.
+1. Select **Trial – 30 days**.
 
-- The on-premises management console can perform sensor backups, manage alerts that sensors detect, investigate sensor disconnections, and carry out other activity on connected sensors.
+## Onboard an OT sensor
 
-We recommend that you group multiple sensors monitoring the same networks in one zone. Doing this will coalesce information collected by multiple sensors.
+If you already have a network plan ready, you can onboard the OT sensor and associate it with a plan and the assign the relevant site and zone settings. For more information, see [onboard an OT sensor to the Azure portal](onboard-sensors.md).
 
-For more information, see [Connect sensors to the on-premises management console](how-to-activate-and-set-up-your-on-premises-management-console.md#connect-sensors-to-the-on-premises-management-console).
+## Next steps
 
-## Populate Azure Sentinel with alert information (optional)
-
-Send alert information to Azure Sentinel by configuring Azure Sentinel. See [Connect your data from Defender for IoT to Azure Sentinel](how-to-configure-with-sentinel.md).  
-
-## Next steps ##
-
-[Welcome to Azure Defender for IoT](overview.md)
-
-[Azure Defender for IoT architecture](architecture.md)
+> [!div class="step-by-step"]
+> [Defender for IoT OT deployment path »](ot-deploy/ot-deploy-path.md)
+> [!div class="step-by-step"]
+> [Defender for IoT onboard an OT sensor »](onboard-sensors.md)

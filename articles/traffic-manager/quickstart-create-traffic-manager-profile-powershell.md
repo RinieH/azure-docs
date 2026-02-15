@@ -2,18 +2,15 @@
 title: 'Quickstart: Create a profile for high availability of applications - Azure PowerShell - Azure Traffic Manager'
 description: This quickstart article describes how to create a Traffic Manager profile to build a highly available web application.
 services: traffic-manager
-author: duongau
-ms.author: duau
+author: asudbring
+ms.author: allensu
 manager: kumud
-ms.date: 04/19/2021
+ms.date: 02/18/2023
 ms.topic: quickstart
-ms.service: traffic-manager
-ms.workload: infrastructure-services
-ms.tgt_pltfrm: na
-ms.devlang: na
-ms.custom: devx-track-azurepowershell
-  - mode-api
-# Customer intent: As an IT admin, I want to direct user traffic to ensure high availability of web applications.
+ms.service: azure-traffic-manager
+ms.custom: template-quickstart, devx-track-azurepowershell, mode-api
+#Customer intent: As an IT admin, I want to direct user traffic to ensure high availability of web applications.
+# Customer intent: As an IT administrator, I want to configure a Traffic Manager profile for my web applications, so that I can ensure high availability and automatic failover in case of primary site failure.
 ---
 
 # Quickstart: Create a Traffic Manager profile for a highly available web application using Azure PowerShell
@@ -22,15 +19,15 @@ This quickstart describes how to create a Traffic Manager profile that delivers 
 
 In this quickstart, you'll create two instances of a web application. Each of them is running in a different Azure region. You'll create a Traffic Manager profile based on [endpoint priority](traffic-manager-routing-methods.md#priority-traffic-routing-method). The profile directs user traffic to the primary site running the web application. Traffic Manager continuously monitors the web application. If the primary site is unavailable, it provides automatic failover to the backup site.
 
-:::image type="content" source="./media/quickstart-create-traffic-manager-profile/environment-diagram.png" alt-text="Diagram of Traffic Manager deployment environment using Azure PowerShell." border="false":::
+:::image type="content" source="./media/quickstart-create-traffic-manager-profile/environment-diagram.png" alt-text="Diagram of Traffic Manager deployment environment." lightbox="./media/quickstart-create-traffic-manager-profile/environment-diagram.png":::
 
 ## Prerequisites
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) now.
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) now.
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
-If you choose to install and use PowerShell locally, this article requires the Azure PowerShell module version 5.4.1 or later. Run `Get-Module -ListAvailable Az` to find the installed version. If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-Az-ps). If you're running PowerShell locally, you also need to run `Connect-AzAccount` to create a connection with Azure.
+If you choose to install and use PowerShell locally, this article requires the Azure PowerShell module version 5.4.1 or later. Run `Get-Module -ListAvailable Az` to find the installed version. If you need to upgrade, see [Install Azure PowerShell module](/powershell/azure/install-azure-powershell). If you're running PowerShell locally, you also need to run `Connect-AzAccount` to create a connection with Azure.
 
 ## Create a Resource Group
 Create a resource group using [New-AzResourceGroup](/powershell/module/az.resources/new-azresourcegroup).
@@ -79,8 +76,8 @@ $Location1="EastUS"
 $Location2="WestEurope"
 
 # Create an App service plan
-New-AzAppservicePlan -Name "myAppServicePlanEastUS" -ResourceGroupName MyResourceGroup -Location $Location1 -Tier Standard
-New-AzAppservicePlan -Name "myAppServicePlanEastUS" -ResourceGroupName MyResourceGroup -Location $Location2 -Tier Standard
+New-AzAppservicePlan -Name "myAppServicePlanEastUS$Random" -ResourceGroupName MyResourceGroup -Location $Location1 -Tier Standard
+New-AzAppservicePlan -Name "myAppServicePlanWestEurope$Random" -ResourceGroupName MyResourceGroup -Location $Location2 -Tier Standard
 
 ```
 ### Create a Web App in the App Service Plan

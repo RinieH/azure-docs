@@ -1,13 +1,13 @@
 ---
 title: Fortanix Confidential Computing Manager in an Azure managed application
 description: Learn how to deploy Fortanix Confidential Computing Manager (CCM) in a managed application in the Azure portal.
-author: JBCook
-ms.service: virtual-machines
-ms.subservice: confidential-computing
-ms.workload: infrastructure
+author: cynthn
+ms.service: azure-confidential-computing
 ms.topic: how-to
 ms.date: 02/03/2021
-ms.author: jencook
+ms.author: cynthn
+ms.custom: sfi-image-nochange
+# Customer intent: As a cloud administrator, I want to deploy Fortanix Confidential Computing Manager in an Azure managed application, so that I can secure and manage confidential workloads effectively in the cloud environment.
 ---
 
 # Fortanix Confidential Computing Manager in an Azure managed application
@@ -28,7 +28,7 @@ Fortanix is a third-party software vendor with products and services built on to
 
 1. Go to the [Azure portal](https://portal.azure.com/).
 
-    :::image type="content" source="media/how-to-fortanix-confidential-computing-manager/azure-portal.png" alt-text="Azure portal.":::
+    :::image type="content" source="media/how-to-fortanix-confidential-computing-manager/Azure-portal.png" alt-text="Azure portal.":::
 
 2. In the Search Bar, search "Fortanix Confidential Computing Manager" and you will find the Marketplace listing for Fortanix CCM. Select **Fortanix Confidential Computing Manager on Azure**.
 
@@ -78,7 +78,7 @@ Fortanix is a third-party software vendor with products and services built on to
 
 4.  In the CCM node agent form, fill all the required fields. Paste the join token that you copied in Step 2 in **Join Token**. Select **Review + submit** to confirm.
 
-    For more information on how to enroll a CCM compute node, see [Enroll Compute Node](https://support.fortanix.com/hc/en-us/articles/360043085652-User-s-Guide-Compute-Nodes).
+    For more information on how to enroll a CCM compute node, see [Enroll Compute Node](https://support.fortanix.com/docs/users-guide-compute-nodes).
     
     :::image type="content" source="media/how-to-fortanix-confidential-computing-manager/enroll-compute-node.png" alt-text="Screenshot that shows enrolling the compute node.":::
     
@@ -112,9 +112,8 @@ The user also can delete a CCM node agent from the Confidential Computing Node A
 
 ## Next steps
 
-In this quickstart, you enrolled a node using an Azure managed app to Fortanix's Confidential Computing Manager. The node enrollment allows you to convert your application image to run on top of a confidential computing virtual machine. For more information about confidential computing virtual machines on Azure, see [Solutions on Virtual Machines](virtual-machine-solutions.md).
+In this quickstart, you enrolled a node using an Azure managed app to Fortanix's Confidential Computing Manager. The node enrollment allows you to convert your application image to run on top of a confidential computing virtual machine. For more information about confidential computing virtual machines on Azure, see [Solutions on Virtual Machines](virtual-machine-solutions-sgx.md).
 
 To learn more about Azure's confidential computing offerings, see [Azure confidential computing](overview.md).
 
-Learn how to complete similar tasks using other third-party offerings on Azure, like [Anjuna](https://azuremarketplace.microsoft.com/marketplace/apps/anjuna-5229812.aee-az-v1) and [Scone](https://sconedocs.github.io).
-
+Learn how to complete similar tasks using other third-party offerings on Azure, like [Anjuna](https://azuremarketplace.microsoft.com/marketplace/apps/anjuna1646713490052.anjuna_cc_saas?tab=Overview) and [Scone](https://sconedocs.github.io).

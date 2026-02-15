@@ -1,18 +1,25 @@
 ---
 title: Repair a broken Azure Automanage Account
-description: If you've recently moved a subscription that contains an Automanage Account to a new tenant, you need to reconfigure it. In this article, you'll learn how. 
-author: asinn826
-ms.service: virtual-machines
-ms.subservice: automanage
-ms.workload: infrastructure
-ms.topic: conceptual
+description: If you've recently moved a subscription that contains an Automanage Account to a new tenant, you need to reconfigure it. In this article, you'll learn how.
+ms.service: azure-automanage
+ms.topic: concept-article
 ms.date: 11/05/2020
-ms.author: alsin 
-ms.custom: devx-track-azurepowershell, devx-track-azurecli
+ms.custom: devx-track-azurecli, subject-rbac-steps
+# Customer intent: As an IT administrator managing Azure subscriptions, I want to reconfigure an Automanage Account after moving it to a new tenant, so that I can ensure proper identity and role assignments for automated operations within my environment.
 ---
 
 # Repair an Automanage Account
-Your [Azure Automanage Account](./automanage-virtual-machines.md#automanage-account) is the security context or identity under which the automated operations occur. If you've recently moved a subscription that contains an Automanage Account to a new tenant, you need to reconfigure the account. To reconfigure it, you need to reset the identity type and assign the appropriate roles for the account.
+
+> [!CAUTION]
+> On September 30, 2027, the Azure Automanage Best Practices service will be retired. As a result, attempting to create a new configuration profile or onboarding a new subscription to the service will result in an error. Learn more [here](https://aka.ms/automanagemigration/) about how to migrate to Azure Policy before that date. 
+
+> [!CAUTION]
+> Starting February 1st 2025, Azure Automanage will begin rolling out changes to halt support and enforcement for all services dependent on the deprecated Microsoft Monitoring Agent (MMA). To continue using Change Tracking and Management, VM Insights, Update Management, and Azure Automation, [migrate to the new Azure Monitor Agent (AMA)](https://aka.ms/mma-to-ama/).
+
+> [!IMPORTANT]
+> This article is only relevant for machines that were onboarded to the earlier version of Automanage (API version 2020-06-30-preview). The status for these machines will be **Needs upgrade**. 
+
+Your Azure Automanage Account is the security context or identity under which the automated operations occur. If you've recently moved a subscription that contains an Automanage Account to a new tenant, you need to reconfigure the account. To reconfigure it, you need to reset the identity type and assign the appropriate roles for the account.
 
 ## Step 1: Reset the Automanage Account identity type
 Reset the Automanage Account identity type by using the following Azure Resource Manager (ARM) template. Save the file locally as armdeploy.json or a similar name. Note your Automanage Account name and location because they're required parameters in the ARM template.
@@ -61,15 +68,27 @@ If you're using an ARM template or the Azure CLI, you'll need the Principal ID (
 
 - [Azure CLI](/cli/azure/ad/sp): Use the command `az ad sp list --display-name <name of your Automanage Account>`.
 
-- Azure portal: Go to **Azure Active Directory** and search for your Automanage Account by name. Under **Enterprise Applications**, select the Automanage Account name when it appears.
+- Azure portal: Go to **Microsoft Entra ID** and search for your Automanage Account by name. Under **Enterprise Applications**, select the Automanage Account name when it appears.
 
 ### Azure portal
+
 1. Under **Subscriptions**, go to the subscription that contains your automanaged VMs.
-1. Go to **Access control (IAM)**.
-1. Select **Add role assignments**.
-1. Select the **Contributor** role and enter the name of your Automanage Account.
-1. Select **Save**.
-1. Repeat steps 3 through 5, this time with the **Resource Policy Contributor** role.
+
+1. Select **Access control (IAM)**.
+
+1. Select **Add** > **Add role assignment** to open the **Add role assignment** page.
+
+1. Assign the following role. For detailed steps, see [Assign Azure roles using the Azure portal](/azure/role-based-access-control/role-assignments-portal).
+
+    | Setting          | Value                              |
+    | ---------------- | ---------------------------------- |
+    | Role             | Contributor                        |
+    | Assign access to | User, group, or service principal  |
+    | Members          | \<Name of your Automanage account> |
+
+    ![Screenshot showing Add role assignment page in Azure portal.](~/reusable-content/ce-skilling/azure/media/role-based-access-control/add-role-assignment-page.png)
+
+1. Repeat steps 2 through 4, selecting the **Resource Policy Contributor** role.
 
 ### ARM template
 Run the following ARM template. You'll need the Principal ID of your Automanage Account. The steps to get it are at the start of this section. Enter the ID when you're prompted.
@@ -123,4 +142,4 @@ az role assignment create --assignee-object-id <your Automanage Account Object I
 ```
 
 ## Next steps
-[Learn more about Azure Automanage](./automanage-virtual-machines.md)
+[Learn more about Azure Automanage](./overview-about.md)

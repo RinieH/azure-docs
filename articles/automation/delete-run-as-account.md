@@ -3,28 +3,35 @@ title: Delete an Azure Automation Run As account
 description: This article tells how to delete a Run As account with PowerShell or from the Azure portal.
 services: automation
 ms.subservice: process-automation
-ms.date: 01/06/2021
-ms.topic: conceptual
+ms.date: 04/11/2025
+ms.topic: how-to
+ms.service: azure-automation
+ms.author: v-rochak2
+author: RochakSingh-blr
 ---
 
 # Delete an Azure Automation Run As account
 
-Run As accounts in Azure Automation provide authentication for managing resources on the Azure Resource Manager or Azure Classic deployment model using Automation runbooks and other Automation features. This article describes how to delete a Run As or Classic Run As account. When you perform this action, the Automation account is retained. After you delete the Run As account, you can re-create it in the Azure portal or with the provided PowerShell script.
+> [!IMPORTANT]
+> Azure Automation Run as accounts, including  Classic Run as accounts have retired on **30 September 2023** and replaced with [Managed Identities](automation-security-overview.md#managed-identities). You would no longer be able to create or renew Run as accounts through the Azure portal. For more information, see [migrating from an existing Run As accounts to managed identity](migrate-run-as-accounts-managed-identity.md?tabs=run-as-account#sample-scripts).
 
-## Delete a Run As or Classic Run As account
+Run As accounts in Azure Automation provide authentication for managing resources on the Azure Resource Manager or Azure Classic deployment model using Automation runbooks and other Automation features. This article describes how to delete a Run As or Classic Run As account. When you perform this action, the Automation account is retained.
 
-1. In the Azure portal, open the Automation account.
+## Permissions for Run As accounts and Classic Run As accounts
 
-2. In the left pane, select **Run As Accounts** in the account settings section.
+To configure or update or delete a Run As account and a Classic Run As accounts, you must either be:
 
-3. On the Run As Accounts properties page, select either the Run As account or Classic Run As account that you want to delete.
+- An owner of the Microsoft Entra Application for the Run As Account.
 
-4. On the Properties pane for the selected account, click **Delete**.
+    (or)
 
-   ![Delete Run As account](media/delete-run-as-account/automation-account-delete-run-as.png)
+- A member in one of the following Microsoft Entra roles.
+    - Application Administrator
+    - Cloud Application Administrator
 
-5. While the account is being deleted, you can track the progress under **Notifications** from the menu.
+You can delete the Service principal from the **Microsoft Entra ID** portal > **App registrations** > search and select your Automation account name and in the **Overview** page, select **Delete**.
 
 ## Next steps
 
-To recreate your Run As or Classic Run As account, see [Create Run As accounts](create-run-as-account.md).
+- [Use system-assigned managed identity](enable-managed-identity-for-automation.md).
+- [Use user-assigned managed identity](add-user-assigned-identity.md).

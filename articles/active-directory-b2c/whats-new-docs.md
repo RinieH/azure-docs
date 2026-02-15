@@ -1,95 +1,43 @@
 ---
 title: "What's new in Azure Active Directory business-to-customer (B2C)"
 description: "New and updated documentation for the Azure Active Directory business-to-customer (B2C)."
-ms.date: 06/02/2021
-ms.service: active-directory
-ms.subservice: B2C
-ms.topic: reference
-ms.workload: identity
-ms.author: mimart
-author: msmimart
+ms.date: 02/03/2026
+ms.service: azure-active-directory
+ms.subservice: b2c
+ms.topic: whats-new
+
+ms.author: kengaderdus
+author: kengaderdus
 manager: CelesteDG
+ms.custom: sfi-ropc-nochange
+
+#Customer intent: As a developer using Azure Active Directory B2C, I want to stay updated on the latest documentation changes and new features, so that I can effectively use and implement the B2C service in my applications.
 ---
 
 # Azure Active Directory B2C: What's new
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
-Welcome to what's new in Azure Active Directory B2C documentation. This article lists new docs that have been added and those that have had significant updates in the last three months. To learn what's new with the B2C service, see [What's new in Azure Active Directory](../active-directory/fundamentals/whats-new.md).
+Welcome to what's new in Azure Active Directory B2C documentation. This article lists new and significantly updated docs from the past three months. To learn what's new with the B2C service, see [What's new in Microsoft Entra ID](../active-directory/fundamentals/whats-new.md), [Azure AD B2C developer release notes](custom-policy-developer-notes.md) and [What's new in Microsoft Entra External ID](/entra/external-id/whats-new-docs).
 
-## May 2021
-
-### New articles
-
-- [Define an OAuth2 custom error technical profile in an Azure Active Directory B2C custom policy](oauth2-error-technical-profile.md)
-- [Configure authentication in a sample web application using Azure Active Directory B2C](configure-authentication-sample-web-app.md)
-- [Configure authentication in a sample web application using Azure Active Directory B2C options](enable-authentication-web-application-options.md)
-- [Enable authentication in your own web application using Azure Active Directory B2C](enable-authentication-web-application.md)
-- [Azure Active Directory B2C TLS and cipher suite requirements](https-cipher-tls-requirements.md)
+## January 2026
 
 ### Updated articles
 
-- [Add Conditional Access to user flows in Azure Active Directory B2C](conditional-access-user-flow.md)
-- [Mitigate credential attacks in Azure AD B2C](threat-management.md)
-- [Azure Active Directory B2C service limits and restrictions](service-limits.md)
+- [OAuth 2.0 authorization code flow in Azure Active Directory B2C](authorization-code-flow.md) - Added security guidance on using the `state` parameter
+- [Azure Active Directory B2C service limits and restrictions](service-limits.md) - Updated region specific service limits
+- [Securing phone-based multifactor authentication](phone-based-mfa.md) - Updated the XML code snippets
 
-
-## April 2021
-
-### New articles
-
-- [Set up sign-up and sign-in with a eBay account using Azure Active Directory B2C](identity-provider-ebay.md)
-- [Clean up resources and delete the tenant](tutorial-delete-tenant.md)
-- [Define a Conditional Access technical profile in an Azure Active Directory B2C custom policy](conditional-access-technical-profile.md)
-- [Manage your Azure Active Directory B2C tenant](tenant-management.md)
+## October 2025
 
 ### Updated articles
 
-- [Developer notes for Azure Active Directory B2C](custom-policy-developer-notes.md)
-- [Add an API connector to a sign-up user flow](add-api-connector.md)
-- [Walkthrough: Add REST API claims exchanges to custom policies in Azure Active Directory B2C](custom-policy-rest-api-claims-exchange.md)
-- [Secure your API Connector](secure-rest-api.md)
-- [Use API connectors to customize and extend sign-up user flows](api-connectors-overview.md)
-- [Technical and feature overview of Azure Active Directory B2C](technical-overview.md)
-- [Overview of policy keys in Azure Active Directory B2C](policy-keys-overview.md)
-- [Custom email verification with Mailjet](custom-email-mailjet.md)
-- [Custom email verification with SendGrid](custom-email-sendgrid.md)
-- [Tutorial: Create user flows in Azure Active Directory B2C](tutorial-create-user-flows.md)
-- [Azure AD B2C custom policy overview](custom-policy-overview.md)
-- [User flows and custom policies overview](user-flow-overview.md)
-- [Tutorial: Enable authentication in a single-page application with Azure AD B2C](tutorial-single-page-app.md)
-- [Set up phone sign-up and sign-in for user flows](phone-authentication-user-flows.md)
-- [Enable multi-factor authentication in Azure Active Directory B2C](multi-factor-authentication.md)
-- [User flow versions in Azure Active Directory B2C](user-flow-versions.md)
+- [Migrate applications using header-based authentication to Azure Active Directory B2C with Grit's app proxy](partner-grit-app-proxy.md) - Updated Grit app proxy information
+- [Edit Azure Active Directory B2C Identity Experience Framework (IEF) XML with Grit Visual IEF Editor](partner-grit-editor.md) - Updated IEF editor information
+- [Tutorial: Configure the Grit IAM B2B2C solution with Azure Active Directory B2C](partner-grit-iam.md) - Updated Grit IAM solution information
 
-
-## March 2021
-
-### New articles
-
-- [Enable custom domains for Azure Active Directory B2C](custom-domain.md)
-- [Investigate risk with Identity Protection in Azure AD B2C](identity-protection-investigate-risk.md)
-- [Set up sign-up and sign-in with an Apple ID  using Azure Active Directory B2C (Preview)](identity-provider-apple-id.md)
-- [Set up a force password reset flow in Azure Active Directory B2C](force-password-reset.md)
-- [Embedded sign-in experience](embedded-login.md)
+## August 2025
 
 ### Updated articles
 
-- [Set up sign-up and sign-in with an Amazon account using Azure Active Directory B2C](identity-provider-amazon.md)
-- [Set up sign-in with a Salesforce SAML provider by using SAML protocol in Azure Active Directory B2C](identity-provider-salesforce-saml.md)
-- [Migrate an OWIN-based web API to b2clogin.com or a custom domain](multiple-token-endpoints.md)
-- [Technical profiles](technicalprofiles.md)
-- [Add Conditional Access to user flows in Azure Active Directory B2C](conditional-access-user-flow.md)
-- [Set up a password reset flow in Azure Active Directory B2C](add-password-reset-policy.md)
-- [RelyingParty](relyingparty.md)
-
-
-## February 2021
-
-### New articles
-
-- [Securing phone-based multi-factor authentication (MFA)](phone-based-mfa.md)
-
-### Updated articles
-
-- [Azure Active Directory B2C code samples](code-samples.md)
-- [Track user behavior in Azure AD B2C by using Application Insights](analytics-with-application-insights.md)
-- [Configure session behavior in Azure Active Directory B2C](session-behavior.md)
+- [Azure Active Directory B2C service limits and restrictions](service-limits.md) - Added new object limits
+- [StringCollection claims transformations](stringcollection-transformations.md) - Updated claim type information

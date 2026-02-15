@@ -1,16 +1,17 @@
 ---
-title: Apache Hadoop components and versions - Azure HDInsight 
-description: Learn about the Apache Hadoop components and versions in Azure HDInsight.
-ms.service: hdinsight
+title: Open-source components and versions - Azure HDInsight 
+description: Learn about the open-source components and versions in Azure HDInsight.
+ms.service: azure-hdinsight
 ms.topic: conceptual
-author: deshriva
-ms.author: deshriva
-ms.date: 02/08/2021
+author: apurbasroy
+ms.author: apsinhar
+ms.reviewer: nijelsf
+ms.date: 11/04/2024
 ---
 
 # Azure HDInsight versions
 
-HDInsight bundles Apache Hadoop environment components and HDInsight platform into a package that is deployed on a cluster. For more details see [how HDInsight versioning works](hdinsight-overview-versioning.md).
+HDInsight bundles open-source components and HDInsight platform into a package that's deployed on a cluster. For more information, see [how HDInsight versioning works](hdinsight-overview-versioning.md).
 
 ## Supported HDInsight versions
 
@@ -18,32 +19,103 @@ This table lists the versions of HDInsight that are available in the Azure porta
 
 | HDInsight version | VM OS | Release date| Support type | Support expiration date | Retirement date | High availability |
 | --- | --- | --- | --- | --- | --- | ---|
-| [HDInsight 4.0](hdinsight-40-component-versioning.md) |Ubuntu 16.0.4 LTS |September 24, 2018 | [Standard](hdinsight-component-versioning.md#support-options-for-hdinsight-versions) | | |Yes |
-| [HDInsight 3.6](hdinsight-36-component-versioning.md) |Ubuntu 16.0.4 LTS |April 4, 2017      | [Basic](hdinsight-component-versioning.md#support-options-for-hdinsight-versions) | Standard support expiration - June 30, 2021 <br> Basic support expiration - April 3, 2022 |April 4, 2022 |Yes |
+| [HDInsight 5.1](./hdinsight-5x-component-versioning.md) |Ubuntu 18.0.4 LTS |November 1, 2023 | [Standard](hdinsight-component-versioning.md#support-options-for-hdinsight-versions) | Not announced |Not announced| Yes |
+| [HDInsight 5.0](./hdinsight-5x-component-versioning.md) |Ubuntu 18.0.4 LTS |March 11, 2022 | [Basic](hdinsight-component-versioning.md#support-options-for-hdinsight-versions) | March 31, 2025 | March 31, 2025| Yes |
+| [HDInsight 4.0](hdinsight-40-component-versioning.md) |Ubuntu 18.0.4 LTS |September 24, 2018 | [Basic](hdinsight-component-versioning.md#support-options-for-hdinsight-versions) | March 31, 2025 | March 31, 2025 |Yes |
 
-*Starting July 1st, 2021 Microsoft will offer Basic support for certain HDI 3.6 cluster types. See [HDInsight 3.6 component versions](hdinsight-36-component-versioning.md).
+**Support expiration** means that Microsoft no longer provides support for the specific HDInsight version. You might not be able to create clusters from the Azure portal.
 
-## Release notes
+**Retirement** means that existing clusters of the particular HDInsight version has reached its retirement date and is no longer supported. Customers who continue to use this version after the retirement date should be aware of the following:
+- No support or maintenance (including security updates, bug fixes,scaling clusters or performance improvements) will be provided for the retired version.
+- New clusters cannot be created through any means inclusing portal, CLI and SDKs.
+- Microsoft reserves the right to remove, disable, or delete all instances of retired versions of this service at any time after the retirement date.
+- Customers who continue using the retired version may experience service degradation, feature disruptions, or functionality issues without notice.
+- Microsoft strongly recommends upgrading to the latest supported Azure HDInsight version to maintain security, reliability, and full access to all capabilities.
+  
+### Spark versions supported in Azure HDInsight
 
-For additional release notes on the latest versions of HDInsight, see [HDInsight release notes](hdinsight-release-notes.md).
+Azure HDInsight supports the following Apache Spark versions.
+
+| HDInsight versions | Apache Spark version on HDInsight | Release date | Release stage |End-of-life announcement date|End of standard support|End of basic support|
+| -- | -- |--|--|--|--|--|
+| 4.0 | 2.4 | July 8, 2019 | End of life announced (EOLA)| February 10, 2023| August 10, 2023 | February 10, 2024 |
+| 5.0 | 3.1 | March 11, 2022 | General availability |March 28, 2024|March 28, 2024| March 31, 2025|
+| 5.1 |   3.3  | November 1, 2023 | General availability |-|-|-|
 
 ## Support options for HDInsight versions
 
-Support is defined as a time period that an HDInsight version is supported by Microsoft Customer Service and Support. HDInsight offers two types of support: 
-- **Standard support** is a time period in which Microsoft provides updates and support on HDInsight clusters.  
-    We recommend building solutions using the most recent fully supported version. 
-- **Basic support** is a time period in which Microsoft will provide limited servicing to HDInsight Resource provider. HDInsight images and open-source software (OSS) components will not be serviced.   Only critical security fixes will be patched on HDInsight clusters.  
-  Microsoft does not encourage creating new clusters or building any fresh solutions when a version is in Basic support. We recommend migrating existing clusters to the most recent fully supported version. 
+Support is defined as a time period that a HDInsight version supported by Microsoft Customer Service and Support. HDInsight offers two types of support: 
+- **Standard support**
+- **Basic support**
 
-**Support expiration** means that Microsoft no longer provides support for the specific HDInsight version. And it may no longer available through the Azure portal for cluster creation.
+### Support Summary
 
-**Retirement** means that existing clusters of an HDInsight version continue to run as is. New clusters of this version can't be created through any means, which includes the CLI and SDKs. Other control plane features, such as manual scaling and autoscaling, are not guaranteed to work after retirement date. Support isn't available for retired versions.
+| Action | Standard Support| Basic support | Retirement |
+| -- | -- |--|--|
+| Use existing cluster without support | Yes | Yes | No |
+| Create Cluster | Yes | Yes | No |
+| Scale up/down cluster | Yes | Yes | No |
+| Troubleshoot runtime issues | Yes | No | No |
+| RCA | Yes | No | No |
+| Performance Tuning | Yes | No | No |
+| Assistance in onboarding | Yes | No | No |
+| Spark core issues/updates | Yes | No | No |
+| Security/CVE updates | Yes | No | No |
+
+
+### Standard support
+
+Standard support provides updates and support on HDInsight clusters. Microsoft recommends building solutions using the most recent fully supported version. 
+
+Standard support includes
+- Ability to create support requests for the cluster.
+- Support for troubleshooting solutions built on the cluster(s). 
+- Requests to restart services or nodes.
+- Root cause analysis investigations on support requests.
+- Root cause analysis or fixes to improve job or query performance.
+- Root cause analysis or fixes to improve customer-initiated changes, for example, changing service configurations or issues due to custom script actions.
+- Product updates for critical security fixes until version retirement.
+- Scoped product updates to the HDInsight Resource provider.
+- Selective fixes or changes to HDInsight images or open-source software (OSS) component versions.
+
+### Basic support
+
+Basic support provides limited servicing to the HDInsight Resource provider. HDInsight images and open-source software (OSS) components won't be serviced. Only critical security fixes patched on HDInsight clusters. 
+
+Basic support includes
+- Continued use of existing clusters.
+- Ability for existing HDInsight customers to create new clusters in the same version.
+- Ability to scale clusters up and down via autoscale or manual scale.
+- Scoped product updates to the HDInsight Resource provider.
+- Product updates for critical security fixes until version retirement.
+- Ability to create support requests for the cluster.
+- Requests to restart services or nodes.
+
+Basic support doesn't include
+- Fixes or changes to HDInsight images or open-source software (OSS) component versions.
+- Support for troubleshooting solutions built on the cluster version. 
+- Adding new features or functionality.
+- Support for advice or ad-hoc queries.
+- Root cause analysis investigations on support requests.
+- Root cause analysis or fixes to improve job or query performance.
+- Root cause analysis or fixes to improve customer-initiated changes, for example, changing service configurations or issues due to custom script actions.
+
+Microsoft doesn't encourage creating analytics pipelines or solutions on clusters in basic support. We recommend migrating existing clusters to the most recent fully supported version. 
+
+## HDInsight 3.6 to 4.0 Migration Guides
+- [Migrate Azure HDInsight 3.6 Hive workloads to HDInsight 4.0](interactive-query/apache-hive-migrate-workloads.md).
+- [Migrate Apache Kafka workloads to Azure HDInsight 4.0](kafka/migrate-versions.md).
+- [Migrate an Apache HBase cluster to a new version](hbase/apache-hbase-migrate-new-version.md).
+
+## Release notes
+
+For extra release notes on the latest versions of HDInsight, see [HDInsight release notes](hdinsight-release-notes.md).
 
 ## Versioning considerations
-- Once a cluster is deployed with an image, that cluster is not automatically upgraded to newer image version. When creating new clusters, most recent image version will be deployed.
+- Once a cluster deployed with an image, that cluster can't automatically upgrade to newer image version. When you create new clusters, the most recent image version is deployed.
 - Customers should test and validate that applications run properly when using new HDInsight version.
 - HDInsight reserves the right to change the default version without prior notice. If you have a version dependency, specify the HDInsight version when you create your clusters.
-- HDInsight may retire an OSS component version before retiring the HDInsight version.
+- HDInsight might retire an OSS component version before retiring the HDInsight version.
 
 ## Next steps
 

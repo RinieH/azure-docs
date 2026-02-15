@@ -1,19 +1,27 @@
 ---
 title: 'Quickstart: Create a Python app in the Azure portal'
 description: Get started with Azure App Service by deploying your first Python app to a Linux container in App Service by using the Azure portal.
+ms.author: msangapu
+author: msangapu-msft
 ms.topic: quickstart
 ms.date: 04/01/2021
-ms.custom: devx-track-python
-robots: noindex
+ms.devlang: python
+ROBOTS: noindex
+ms.service: azure-app-service
+ms.custom:
+  - devx-track-python
+  - mode-ui
+  - linux-related-content
+  - sfi-image-nochange
 ---
 
 # Quickstart: Create a Python app using Azure App Service on Linux (Azure portal)
 
-In this quickstart, you deploy a Python web app to [App Service on Linux](overview.md#app-service-on-linux), Azure's highly scalable, self-patching web hosting service. You use the Azure portal to deploy a sample with either the Flask or Django frameworks. The web app you configure uses a basic App Service tier that incurs a small cost in your Azure subscription.
+In this quickstart, you deploy a Python web app to [App Service on Linux](overview.md), Azure's highly scalable, self-patching web hosting service. You use the Azure portal to deploy a sample with either the Flask or Django frameworks. The web app you configure uses a basic App Service tier that incurs a small cost in your Azure subscription.
 
 ## Configure accounts
 
-- If you don't yet have an Azure account with an active subscription, [create an account for free](https://azure.microsoft.com/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio).
+- If you don't yet have an Azure account with an active subscription, [create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 
 - If you don't have a GitHub account, visit [github.com](https://github.com) to create one. 
 
@@ -27,7 +35,7 @@ In this quickstart, you deploy a Python web app to [App Service on Linux](overvi
 
 1. On the upper right of the GitHub page, select **Fork** to make a copy of the repository in your own GitHub account:
 
-    ![Github fork command](media/quickstart-python-portal/github-fork-command.png)
+    ![GitHub fork command](media/quickstart-python-portal/github-fork-command.png)
 
     Azure requires that you have access to the GitHub organization that contains the repository. By forking the sample to your own GitHub account, you automatically have the necessary access and can also make changes to the code.
 
@@ -53,7 +61,7 @@ An App Service web app is the web server to which you deploy your code.
     | Resource Group | Select **Create New** below the drop-down. In the popup, enter "AppService-PythonQuickstart" and select "**OK**. |
     | Name | Enter a name that's unique across all of Azure, typically using a combination of your personal or company names, such as *contoso-testapp-123*. |
     | Publish | Select **Code**. |
-    | Runtime stack | Select **Python 3.8**. |
+    | Runtime stack | Select **Python 3.14**. |
     | Operating System | Select **Linux** (Python is supported only on Linux). |
     | Region | Select a region near you. |
     | Linux Plan | Select an exiting App Service Plan or use **Create new** to create a new one. We recommend using the **Basic B1** plan. |
@@ -88,7 +96,7 @@ Having issues? [Let us know](https://aka.ms/FlaskPortalQuickstartHelp).
 
     ![Deployment Center GitHub source configuration](media/quickstart-python-portal/deployment-center-configure-github-source.png)
 
-1. At the top of the page, select **Save** to apply the settings.:
+1. At the top of the page, select **Save** to apply the settings.
 
     ![Save the GitHub source configuration on Deployment Center](media/quickstart-python-portal/deployment-center-configure-save.png)
 
@@ -148,7 +156,7 @@ Having issues? [Let us know](https://aka.ms/FlaskCLIQuickstartHelp).
 ## Next steps
 
 > [!div class="nextstepaction"]
-> [Tutorial: Python (Django) web app with PostgreSQL](/azure/developer/python/tutorial-python-postgresql-app-portal)
+> [Tutorial: Python (Django) web app with PostgreSQL](./tutorial-python-postgresql-app-django.md)
 
 > [!div class="nextstepaction"]
 > [Configure Python app](configure-language-python.md)
@@ -158,3 +166,6 @@ Having issues? [Let us know](https://aka.ms/FlaskCLIQuickstartHelp).
 
 > [!div class="nextstepaction"]
 > [Tutorial: Run Python app in custom container](tutorial-custom-container.md)
+
+> [!div class="nextstepaction"]
+> [Secure with custom domain and certificate](tutorial-secure-domain-certificate.md)

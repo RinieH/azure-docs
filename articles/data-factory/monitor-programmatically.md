@@ -1,20 +1,20 @@
 ---
-title: Programmatically monitor an Azure data factory 
+title: Programmatically monitor an Azure Data Factory 
 description: Learn how to monitor a pipeline in a data factory by using different software development kits (SDKs).
-ms.service: data-factory
+ms.subservice: monitoring
 ms.topic: conceptual
-ms.date: 01/16/2018
-author: minhe-msft
-ms.author: hemin
-ms.custom: devx-track-python
+ms.date: 02/13/2025
+author: nabhishek
+ms.author: abnarain
+ms.custom: devx-track-python, devx-track-dotnet
 ---
-# Programmatically monitor an Azure data factory
+# Programmatically monitor an Azure Data Factory
 
 [!INCLUDE[appliesto-adf-xxx-md](includes/appliesto-adf-xxx-md.md)]
 
 This article describes how to monitor a pipeline in a data factory by using different software development kits (SDKs). 
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 ## Data range
 
@@ -160,5 +160,5 @@ For a complete walk-through of creating and monitoring a pipeline using PowerShe
 
 For complete documentation on PowerShell cmdlets, see [Data Factory PowerShell cmdlet reference](/powershell/module/az.datafactory).
 
-## Next steps
+## Related content
 See [Monitor pipelines using Azure Monitor](monitor-using-azure-monitor.md) article to learn about using Azure Monitor to monitor Data Factory pipelines.

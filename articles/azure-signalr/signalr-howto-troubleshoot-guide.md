@@ -1,15 +1,16 @@
 ---
 title: "Troubleshooting guide for Azure SignalR Service"
 description: Learn how to troubleshoot common issues
-author: yjin81
-ms.service: signalr
-ms.topic: conceptual
-ms.date: 11/06/2020
-ms.author: yajin1
+author: vicancy
+ms.service: azure-signalr-service
+ms.topic: how-to
+ms.date: 08/29/2024
+ms.author: lianwei
+ms.devlang: csharp
 ---
 # Troubleshooting guide for Azure SignalR Service common issues
 
-This guidance is to provide useful troubleshooting guide based on the common issues customers met and resolved in the past years.
+This article provides troubleshooting guidance for some of the common issues that customers might encounter.
 
 ## Access token too long
 
@@ -22,21 +23,21 @@ This guidance is to provide useful troubleshooting guide based on the common iss
 
 ### Root cause
 
-For HTTP/2, the max length for a single header is **4 K**, so if using browser to access Azure service, there will be an error `ERR_CONNECTION_` for this limitation.
+For HTTP/2, the max length for a single header is **4 K**, so if using browser to access Azure service, there's an error `ERR_CONNECTION_` for this limitation.
 
-For HTTP/1.1, or C# clients, the max URI length is **12 K**, the max header length is **16 K**.
+For HTTP/1.1, or C# clients, the max URI length is **12 K** and the max header length is **16 K**.
 
-With SDK version **1.0.6** or higher, `/negotiate` will throw `413 Payload Too Large` when the generated access token is larger than **4 K**.
+With SDK version **1.0.6** or higher, `/negotiate` throws `413 Payload Too Large` when the generated access token is larger than **4 K**.
 
 ### Solution
 
 By default, claims from `context.User.Claims` are included when generating JWT access token to **ASRS**(**A**zure **S**ignal**R** **S**ervice), so that the claims are preserved and can be passed from **ASRS** to the `Hub` when the client connects to the `Hub`.
 
-In some cases, `context.User.Claims` are used to store lots of information for app server, most of which are not used by `Hub`s but by other components.
+In some cases, `context.User.Claims` are used to store lots of information for app server, most of which aren't used by `Hub`s but by other components.
 
 The generated access token is passed through the network, and for WebSocket/SSE connections, access tokens are passed through query strings. So as the best practice, we suggest only passing **necessary** claims from the client through **ASRS** to your app server when the Hub needs.
 
-There is a `ClaimsProvider` for you to customize the claims passing to **ASRS** inside the access token.
+There's a `ClaimsProvider` for you to customize the claims passing to **ASRS** inside the access token.
 
 For ASP.NET Core:
 
@@ -66,12 +67,12 @@ services.MapAzureSignalR(GetType().FullName, options =>
 ### Possible errors
 
 * ASP.NET "No server available" error [#279](https://github.com/Azure/azure-signalr/issues/279)
-* ASP.NET "The connection is not active, data cannot be sent to the service." error [#324](https://github.com/Azure/azure-signalr/issues/324)
-* "An error occurred while making the HTTP request to https://<API endpoint>. This error could be because the server certificate is not configured properly with HTTP.SYS in the HTTPS case. This error could also be caused by a mismatch of the security binding between the client and the server."
+* ASP.NET "The connection isn't active, data can't be sent to the service." error [#324](https://github.com/Azure/azure-signalr/issues/324)
+* "An error occurred while making the HTTP request to `https://<API endpoint>`. This error might occur if the server certificate isn't properly configured with HTTP.SYS in the HTTPS case. The possible cause of this error is a mismatch of the security binding between the client and server."
 
 ### Root cause
 
-Azure Service only supports TLS1.2 for security concerns. With .NET framework, it is possible that TLS1.2 is not the default protocol. As a result, the server connections to ASRS cannot be successfully established.
+Azure Service only supports TLS1.2 for security concerns. With .NET framework, it's possible that TLS1.2 isn't the default protocol. As a result, the server connections to ASRS can't be successfully established.
 
 ### Troubleshooting guide
 
@@ -110,7 +111,7 @@ ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
 ### Root cause
 
-Check if your client request has multiple `hub` query strings. `hub` is a preserved query parameter and 400 will throw if the service detects more than one `hub` in the query.
+Check if your client request has multiple `hub` query strings. The `hub` is preserved query parameter, and if the service detects more than one `hub` in the query, it returns a 400 error.
 
 [Having issues or feedback about the troubleshooting? Let us know.](https://aka.ms/asrs/survey/troubleshooting)
 
@@ -118,17 +119,17 @@ Check if your client request has multiple `hub` query strings. `hub` is a preser
 
 ### Root cause
 
-Currently the default value of JWT token's lifetime is 1 hour.
+Currently the default value of JWT's lifetime is one (1) hour.
 
-For ASP.NET Core SignalR, when it is using WebSocket transport type, it is OK.
+For ASP.NET Core SignalR, when it's using WebSocket transport type, it's OK.
 
-For ASP.NET Core SignalR's other transport type, SSE and long-polling, this means by default the connection can at most persist for 1 hour.
+For ASP.NET Core SignalR's other transport type, SSE and long-polling, the default lifetime means by default the connection can at most persist for one hour.
 
-For ASP.NET SignalR, the client sends a `/ping` KeepAlive request to the service from time to time, when the `/ping` fails, the client **aborts** the connection and never reconnect. This means, for ASP.NET SignalR, the default token lifetime makes the connection lasts for **at most** 1 hour for all the transport type.
+For ASP.NET SignalR, the client sends a `/ping` "keep alive" request to the service from time to time, when the `/ping` fails, the client **aborts** the connection and never reconnect. For ASP.NET SignalR, the default token lifetime makes the connection last for *at most* one hour for all the transport type.
 
 ### Solution
 
-For security concerns, extend TTL is not encouraged. We suggest adding reconnect logic from the client to restart the connection when such 401 occurs. When the client restarts the connection, it will negotiate with app server to get the JWT token again and get a renewed token.
+For security concerns, extend TTL isn't encouraged. We suggest adding reconnect logic from the client to restart the connection when such 401 occurs. When the client restarts the connection, it negotiates with app server to get the JWT again and get a renewed token.
 
 Check [here](#restart_connection) for how to restart client connections.
 
@@ -141,14 +142,14 @@ For a SignalR persistent connection, it first `/negotiate` to Azure SignalR serv
 ### Troubleshooting guide
 
 * Following [How to view outgoing requests](#view_request) to get the request from the client to the service.
-* Check the URL of the request when 404 occurs. If the URL is targeting to your web app, and similar to `{your_web_app}/hubs/{hubName}`, check if the client `SkipNegotiation` is `true`. When using Azure SignalR, the client receives redirect URL when it first negotiates with the app server. The client should **NOT** skip negotiation when using Azure SignalR.
-* Another 404 can happen when the connect request is handled more than **5** seconds after `/negotiate` is called. Check the timestamp of the client request, and open an issue to us if the request to the service has a slow response.
+* Check the URL of the request when 404 occurs. If the URL is targeting to your web app, and similar to `{your_web_app}/hubs/{hubName}`, check if the client `SkipNegotiation` is `true`. The client receives a redirect URL when it first negotiates with the app server. The client must *not* skip negotiation when using Azure SignalR.
+* Another 404 can happen when the connect request is handled more than five (5) seconds after `/negotiate` is called. Check the timestamp of the client request, and open an issue to us if the request to the service has a slow response.
 
 [Having issues or feedback about the troubleshooting? Let us know.](https://aka.ms/asrs/survey/troubleshooting)
 
 ## 404 returned for ASP.NET SignalR's reconnect request
 
-For ASP.NET SignalR, when the [client connection drops](#client_connection_drop), it reconnects using the same `connectionId` for three times before stopping the connection. `/reconnect` can help if the connection is dropped due to network intermittent issues that `/reconnect` can reestablish the persistent connection successfully. Under other circumstances, for example, the client connection is dropped due to the routed server connection is dropped, or SignalR Service has some internal errors like instance restart/failover/deployment, the connection no longer exists, thus `/reconnect` returns `404`. It is the expected behavior for `/reconnect` and after three times retry the connection stops. We suggest having [connection restart](#restart_connection) logic when connection stops.
+For ASP.NET SignalR, when the [client connection drops](#client_connection_drop), it reconnects using the same `connectionId` for three times before stopping the connection. `/reconnect` can help if the connection is dropped due to network intermittent issues that `/reconnect` can reestablish the persistent connection successfully. Under other circumstances, for example, the client connection is dropped due to the routed server connection is dropped, or SignalR Service has some internal errors like instance restart/failover/deployment. The connection no longer exists, thus `/reconnect` returns `404`. It's the expected behavior for `/reconnect` and after three times retry the connection stops. We suggest having [connection restart](#restart_connection) logic when connection stops.
 
 [Having issues or feedback about the troubleshooting? Let us know.](https://aka.ms/asrs/survey/troubleshooting)
 
@@ -161,11 +162,11 @@ There are two cases.
 For **Free** instances, **Concurrent** connection count limit is 20
 For **Standard** instances, **concurrent** connection count limit **per unit** is 1 K, which means Unit100 allows 100-K concurrent connections.
 
-The connections include both client and server connections. check [here](./signalr-concept-messages-and-connections.md#how-connections-are-counted) for how connections are counted.
+The connections include both client and server connections. Check [here](./signalr-concept-messages-and-connections.md#how-connections-are-counted) for how connections are counted.
 
-### Too many negotiate requests at the same time
+### NegotiateThrottled
 
-We suggest having a random delay before reconnecting, check [here](#restart_connection) for retry samples.
+When there are too many clients negotiate requests at the **same** time, it might get throttled. The limit relates to the unit counts that more units have a higher limit. Besides, we suggest having a random delay before reconnecting, check [here](#restart_connection) for retry samples.
 
 [Having issues or feedback about the troubleshooting? Let us know.](https://aka.ms/asrs/survey/troubleshooting)
 
@@ -173,7 +174,7 @@ We suggest having a random delay before reconnecting, check [here](#restart_conn
 
 ### Root cause
 
-This error is reported when there is no server connection to Azure SignalR Service connected.
+This error is reported when there's no server connection to Azure SignalR Service connected.
 
 ### Troubleshooting guide
 
@@ -191,7 +192,7 @@ Server-side logging for ASP.NET Core SignalR integrates with the `ILogger` based
         })
 ```
 
-Logger categories for Azure SignalR always start with `Microsoft.Azure.SignalR`. To enable detailed logs from Azure SignalR, configure the preceding prefixes to `Debug` level in your **appsettings.json** file like below:
+Logger categories for Azure SignalR always start with `Microsoft.Azure.SignalR`. To enable detailed logs from Azure SignalR, configure the preceding prefixes to `Debug` level in your **appsettings.json** file, see the following example:
 
 ```json
 {
@@ -241,17 +242,17 @@ When the client is connected to the Azure SignalR, the persistent connection bet
 ### Possible errors seen from the client side
 
 * `The remote party closed the WebSocket connection without completing the close handshake`
-* `Service timeout. 30.00ms elapsed without receiving a message from service.`
+* `Service timeout. 30000.00ms elapsed without receiving a message from service.`
 * `{"type":7,"error":"Connection closed with an error."}`
 * `{"type":7,"error":"Internal server error."}`
 
 ### Root cause
 
 Client connections can drop under various circumstances:
-* When `Hub` throws exceptions with the incoming request.
-* When the server connection, which the client routed to, drops, see below section for details on [server connection drops](#server_connection_drop).
-* When a network connectivity issue happens between client and SignalR Service.
-* When SignalR Service has some internal errors like instance restart, failover, deployment, and so on.
+* When `Hub` throws exceptions with the incoming request
+* When the server connection, which the client routed to, drops, see the following section for details on [server connection drops](#server_connection_drop)
+* When a network connectivity issue happens between client and SignalR Service
+* When SignalR Service has some internal errors like instance restart, failover, deployment, and so on
 
 ### Troubleshooting guide
 
@@ -263,9 +264,9 @@ Client connections can drop under various circumstances:
 
 ## Client connection increases constantly
 
-It might be caused by improper usage of client connection. If someone forgets to stop/dispose SignalR client, the connection remains open.
+Improper usage of the client connection might cause it. If someone forgets to stop/dispose SignalR client, the connection remains open.
 
-### Possible errors seen from the SignalR's metrics that is in Monitoring section of Azure portal resource menu
+### Possible errors seen from the SignalR's metrics that are in Monitoring section of Azure portal resource menu
 
 Client connections rise constantly for a long time in Azure SignalR's Metrics.
 
@@ -273,7 +274,7 @@ Client connections rise constantly for a long time in Azure SignalR's Metrics.
 
 ### Root cause
 
-SignalR client connection's `DisposeAsync` never be called, the connection keeps open.
+SignalR client connection's `DisposeAsync` never be called and the connection keeps open.
 
 ### Troubleshooting guide
 
@@ -303,15 +304,15 @@ finally
 
 ### Common improper client connection usage
 
-#### Azure Function example 
+#### Azure Function example
 
-This issue often occurs when someone establishes SignalR client connection in Azure Function method instead of making it a static member to your Function class. You might expect only one client connection is established, but you see client connection count increases constantly in Metrics that is in Monitoring section of Azure portal resource menu, all these connections drop only after the Azure Function or Azure SignalR service restarts. This is because for **each** request, Azure Function creates **one** client connection, if you don't stop client connection in Function method, the client keeps the connections alive to Azure SignalR service.
+This issue often occurs when someone establishes a SignalR client connection in an Azure Function method instead of making it a static member in the function class. You might expect only one client connection to be established, but instead you see the client connection count increase constantly in metrics. All these connections drop only after the Azure Function or Azure SignalR service restarts. This behavior occurs because Azure Function establishes **one** client connection for **each** request and if you don't stop the client connection in the function method, the client keeps the connections alive to Azure SignalR service.
 
 #### Solution
 
 * Remember to close client connection if you use SignalR clients in Azure function or use SignalR client as a singleton.
-* Instead of using SignalR clients in Azure function, you can create SignalR clients anywhere else and use [Azure Functions Bindings for Azure SignalR Service](https://github.com/Azure/azure-functions-signalrservice-extension) to [negotiate](https://github.com/Azure/azure-functions-signalrservice-extension/blob/dev/samples/simple-chat/csharp/FunctionApp/Functions.cs#L22) the client to Azure SignalR. And you can also utilize the binding to [send messages](https://github.com/Azure/azure-functions-signalrservice-extension/blob/dev/samples/simple-chat/csharp/FunctionApp/Functions.cs#L40). Samples to negotiate client and send messages can be found [here](https://github.com/Azure/azure-functions-signalrservice-extension/tree/dev/samples). Further information can be found [here](https://github.com/Azure/azure-functions-signalrservice-extension).
-* When you use SignalR clients in Azure function, there might be a better architecture to your scenario. Check if you design a proper serverless architecture. You can refer to [Real-time serverless applications with the SignalR Service bindings in Azure Functions](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.SignalRService).
+* Instead of using SignalR clients in Azure function, you can create SignalR clients anywhere else and use [Azure Functions Bindings for Azure SignalR Service](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/signalr/Microsoft.Azure.WebJobs.Extensions.SignalRService) to [negotiate](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/signalr/Microsoft.Azure.WebJobs.Extensions.SignalRService/tests/Samples/BasicNegotiate.cs) the client to Azure SignalR. And you can also utilize the binding to [send messages](https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/signalr/Microsoft.Azure.WebJobs.Extensions.SignalRService/tests/Samples/SendMessages.cs). Samples to negotiate client and send messages can be found [here](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/signalr/Microsoft.Azure.WebJobs.Extensions.SignalRService/tests/Samples). Further information can be found [here](signalr-concept-serverless-development-config.md).
+* When you use SignalR clients in Azure function, there might be a better architecture to your scenario. Check if you design a proper serverless architecture. You can refer to [Real-time apps with Azure SignalR Service and Azure Functions](signalr-concept-azure-functions.md).
 
 <a name="server_connection_drop"></a>
 
@@ -319,11 +320,11 @@ This issue often occurs when someone establishes SignalR client connection in Az
 
 ## Server connection drops
 
-When the app server starts, in the background, the Azure SDK starts to initiate server connections to the remote Azure SignalR. As described in [Internals of Azure SignalR Service](https://github.com/Azure/azure-signalr/blob/dev/docs/internal.md), Azure SignalR routes incoming client traffics to these server connections. Once a server connection is dropped, all the client connections it serves will be closed too.
+When the app server starts, in the background, the Azure SDK starts to initiate server connections to the remote Azure SignalR. As described in [Internals of Azure SignalR Service](https://github.com/Azure/azure-signalr/blob/dev/docs/internal.md), Azure SignalR routes incoming client traffics to these server connections. When a server connection is dropped, it closes all the client connections it was serving.
 
-As the connections between the app server and SignalR Service are persistent connections, they may experience network connectivity issues. In the Server SDK, we have **Always Reconnect** strategy to server connections. As the best practice, we also encourage users to add continuous reconnect logic to the clients with a random delay time to avoid massive simultaneous requests to the server.
+As the connections between the app server and SignalR Service are persistent connections, they might experience network connectivity issues. In the Server SDK, we have an **Always Reconnect** strategy to server connections. As a best practice, we also encourage users to add continuous reconnection logic to the clients with a random delay time to avoid massive simultaneous requests to the server.
 
-On a regular basis, there are new version releases for the Azure SignalR Service, and sometimes the Azure-wide OS patching or upgrades or occasionally interruption from our dependent services. These may bring in a short period of service disruption, but as long as client-side has the disconnect/reconnect mechanism, the impact is minimal like any client-side caused disconnect-reconnect.
+Regularly, there are new version releases for the Azure SignalR Service, and sometimes the Azure-wide patching or upgrades or occasionally interruption from our dependent services. These events might bring in a short period of service disruption, but as long as client-side has a disconnect/reconnect mechanism, the effect is minimal like any client-side caused disconnect-reconnect.
 
 This section describes several possibilities leading to server connection drop, and provides some guidance on how to identify the root cause.
 
@@ -331,21 +332,21 @@ This section describes several possibilities leading to server connection drop, 
 
 * `[Error]Connection "..." to the service was dropped`
 * `The remote party closed the WebSocket connection without completing the close handshake`
-* `Service timeout. 30.00ms elapsed without receiving a message from service.`
+* `Service timeout. 30000.00ms elapsed without receiving a message from service.`
 
 ### Root cause
 
 Server-service connection is closed by **ASRS**(**A**zure **S**ignal**R** **S**ervice).
 
-For ping timeout, it might be caused by high CPU usage or thread pool starvation on the server side.
+High CPU usage or thread pool starvation on the server side might cause a ping timeout.
 
 For ASP.NET SignalR, a known issue was fixed in SDK 1.6.0. Upgrade your SDK to newest version.
 
 ## Thread pool starvation
 
-If your server is starving, that means no threads are working on message processing. All threads are not responding in a certain method.
+If your server is starving, that means no threads are working on message processing. All threads aren't responding in a certain method.
 
-Normally, this scenario is caused by async over sync or by `Task.Result`/`Task.Wait()` in async methods.
+Normally, in async methods, async over sync or by `Task.Result`/`Task.Wait()` causes this scenario.
 
 See [ASP.NET Core performance best practices](/aspnet/core/performance/performance-best-practices#avoid-blocking-calls).
 
@@ -386,9 +387,9 @@ public class ThreadPoolStarvationDetector : EventListener
 
     protected override void OnEventWritten(EventWrittenEventArgs eventData)
     {
-        // See: https://docs.microsoft.com/en-us/dotnet/framework/performance/thread-pool-etw-events#threadpoolworkerthreadadjustmentadjustment
+        // See: https://learn.microsoft.com/dotnet/framework/performance/thread-pool-etw-events#threadpoolworkerthreadadjustmentadjustment
         if (eventData.EventId == EventIdForThreadPoolWorkerThreadAdjustmentAdjustment &&
-            eventData.Payload[3] as uint? == ReasonForStarvation)
+            eventData.Payload[2] as uint? == ReasonForStarvation)
         {
             _logger.LogWarning("Thread pool starvation detected!");
         }
@@ -402,7 +403,7 @@ Add it to your service:
 service.AddSingleton<ThreadPoolStarvationDetector>();
 ```
 
-Then, check your log when the server connection is disconnected by ping timeout.
+Then, check your log when the server disconnected due to ping timeout.
 
 ### How to find the root cause of thread pool starvation
 
@@ -423,33 +424,34 @@ To find the root cause of thread pool starvation:
 
 <a name="view_request"></a>
 
-* How to view the outgoing request from client?
+### How to view the outgoing request from the client?
+
 Take ASP.NET Core one for example (ASP.NET one is similar):
-    * From browser:
 
-        Take Chrome as an example, you can use **F12** to open the console window, and switch to **Network** tab. You might need to refresh the page using **F5** to capture the network from the very beginning.
+* From browser:
+    Take Chrome as an example, you can use **F12** to open the console window, and switch to **Network** tab. You might need to refresh the page using **F5** to capture the network from the very beginning.
 
-        :::image type="content" source="./media/signalr-howto-troubleshoot-guide/chrome-network.gif" alt-text="Chrome View Network":::
+    :::image type="content" source="./media/signalr-howto-troubleshoot-guide/chrome-network.gif" alt-text="Chrome View Network":::
 
-    * From C# client:
+* From C# client:
 
-        You can view local web traffics using [Fiddler](https://www.telerik.com/fiddler). WebSocket traffics are supported since Fiddler 4.5.
+    You can view local web traffics using [Fiddler](https://www.telerik.com/fiddler). WebSocket traffics are supported since Fiddler 4.5.
 
-        :::image type="content" source="./media/signalr-howto-troubleshoot-guide/fiddler-view-network-inline.png" alt-text="Fiddler View Network" lightbox="./media/signalr-howto-troubleshoot-guide/fiddler-view-network.png":::
+    :::image type="content" source="./media/signalr-howto-troubleshoot-guide/fiddler-view-network-inline.png" alt-text="Fiddler View Network" lightbox="./media/signalr-howto-troubleshoot-guide/fiddler-view-network.png":::
 
 <a name="restart_connection"></a>
 
-* How to restart client connection?
+### How to restart client connection?
 	
-	Here are the [Sample codes](https://github.com/Azure/azure-signalr/tree/dev/samples) containing restarting connection logic with *ALWAYS RETRY* strategy:
+Here are the [Sample codes](https://github.com/Azure/azure-signalr/tree/dev/samples) containing restarting connection logic with *ALWAYS RETRY* strategy:
 
-	* [ASP.NET Core C# Client](https://github.com/Azure/azure-signalr/tree/dev/samples/ChatSample/ChatSample.CSharpClient/Program.cs#L64)
+* [ASP.NET Core C# Client](https://github.com/Azure/azure-signalr/tree/dev/samples/ChatSample/ChatSample.CSharpClient/Program.cs#L64)
 
-	* [ASP.NET Core JavaScript Client](https://github.com/Azure/azure-signalr/blob/release/1.0.0-preview1/samples/ChatSample/wwwroot/index.html#L164)
+* [ASP.NET Core JavaScript Client](https://github.com/Azure/azure-signalr/blob/dev/samples/ChatSample/ChatSample.RazorPages/wwwroot/js/chat.js#L53)
 
-	* [ASP.NET C# Client](https://github.com/Azure/azure-signalr/tree/dev/samples/AspNet.ChatSample/AspNet.ChatSample.CSharpClient/Program.cs#L78)
+* [ASP.NET C# Client](https://github.com/Azure/azure-signalr/tree/dev/samples/AspNet.ChatSample/AspNet.ChatSample.CSharpClient/Program.cs#L78)
 
-	* [ASP.NET JavaScript Client](https://github.com/Azure/azure-signalr/tree/dev/samples/AspNet.ChatSample/AspNet.ChatSample.JavaScriptClient/wwwroot/index.html#L71)
+* [ASP.NET JavaScript Client](https://github.com/Azure/azure-signalr/tree/dev/samples/AspNet.ChatSample/AspNet.ChatSample.JavaScriptClient/wwwroot/index.html#L71)
 
 [Having issues or feedback about the troubleshooting? Let us know.](https://aka.ms/asrs/survey/troubleshooting)
 

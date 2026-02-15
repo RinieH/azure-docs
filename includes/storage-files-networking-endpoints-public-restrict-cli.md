@@ -2,11 +2,11 @@
  title: include file
  description: include file
  services: storage
- author: roygara
- ms.service: storage
+ author: khdownie
+ ms.service: azure-file-storage
  ms.topic: include
  ms.date: 6/2/2020
- ms.author: rogarana
+ ms.author: kendownie
  ms.custom: include file, devx-track-azurecli
 ---
 
@@ -39,7 +39,7 @@ subnet=$(az network vnet subnet show \
     tr -d '"')
 ```
 
-In order for traffic from the virtual network to be allowed by the Azure network fabric to get to the storage account public endpoint, the virtual network's subnet must have the `Microsoft.Storage` service endpoint exposed. The following CLI commands will add the the `Microsoft.Storage` service endpoint to the subnet if it's not already there.
+In order for traffic from the virtual network to be allowed by the Azure network fabric to get to the storage account public endpoint, the virtual network's subnet must have the `Microsoft.Storage` service endpoint exposed. The following CLI commands will add the `Microsoft.Storage` service endpoint to the subnet if it's not already there.
 
 ```bash
 serviceEndpoints=$(az network vnet subnet show \

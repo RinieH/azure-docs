@@ -3,10 +3,10 @@ title: Incrementally copy a table using PowerShell
 description: In this tutorial, you create an Azure Data Factory pipeline that incrementally copies data from an Azure SQL database to Azure Blob storage.'
 author: dearandyxu
 ms.author: yexu
-ms.service: data-factory
+ms.custom: devx-track-azurepowershell
 ms.topic: tutorial
-ms.custom: seo-dt-2019
-ms.date: 02/18/2021
+ms.date: 10/03/2024
+ms.subservice: data-movement
 ---
 
 # Incrementally load data from Azure SQL Database to Azure Blob storage using PowerShell
@@ -29,7 +29,7 @@ You perform the following steps in this tutorial:
 ## Overview
 Here is the high-level solution diagram:
 
-![Incrementally load data](media/tutorial-Incrementally-copy-powershell/incrementally-load.png)
+:::image type="content" source="media/tutorial-Incrementally-copy-powershell/incrementally-load.png" alt-text="Incrementally load data":::
 
 Here are the important steps to create this solution:
 
@@ -44,19 +44,19 @@ Here are the important steps to create this solution:
     The pipeline in this solution has the following activities:
 
     * Create two Lookup activities. Use the first Lookup activity to retrieve the last watermark value. Use the second Lookup activity to retrieve the new watermark value. These watermark values are passed to the Copy activity.
-    * Create a Copy activity that copies rows from the source data store with the value of the watermark column greater than the old watermark value and less than the new watermark value. Then, it copies the delta data from the source data store to Blob storage as a new file.
+    * Create a Copy activity that copies rows from the source data store with the value of the watermark column greater than the old watermark value and less than or equal to the new watermark value. Then, it copies the delta data from the source data store to Blob storage as a new file.
     * Create a StoredProcedure activity that updates the watermark value for the pipeline that runs next time.
 
 
-If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/free/) account before you begin.
+If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) account before you begin.
 
 ## Prerequisites
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
-* **Azure SQL Database**. You use the database as the source data store. If you don't have a database in Azure SQL Database, see [Create a database in Azure SQL Database](../azure-sql/database/single-database-create-quickstart.md) for steps to create one.
+* **Azure SQL Database**. You use the database as the source data store. If you don't have a database in Azure SQL Database, see [Create a database in Azure SQL Database](/azure/azure-sql/database/single-database-create-quickstart) for steps to create one.
 * **Azure Storage**. You use the blob storage as the sink data store. If you don't have a storage account, see [Create a storage account](../storage/common/storage-account-create.md) for steps to create one. Create a container named adftutorial. 
-* **Azure PowerShell**. Follow the instructions in [Install and configure Azure PowerShell](/powershell/azure/install-Az-ps).
+* **Azure PowerShell**. Follow the instructions in [Install and configure Azure PowerShell](/powershell/azure/install-azure-powershell).
 
 ### Create a data source table in your SQL database
 1. Open SQL Server Management Studio. In **Server Explorer**, right-click the database, and choose **New Query**.
@@ -140,9 +140,10 @@ END
 ```
 
 ## Create a data factory
+
 1. Define a variable for the resource group name that you use in PowerShell commands later. Copy the following command text to PowerShell, specify a name for the [Azure resource group](../azure-resource-manager/management/overview.md) in double quotation marks, and then run the command. An example is `"adfrg"`. 
    
-     ```powershell
+    ```powershell
     $resourceGroupName = "ADFTutorialResourceGroup";
     ```
 
@@ -221,16 +222,18 @@ You create linked services in a data factory to link your data stores and comput
     ```
 
 ### Create a SQL Database linked service
-1. Create a JSON file named AzureSQLDatabaseLinkedService.json in the C:\ADF folder with the following content. (Create the folder ADF if it doesn't already exist.) Replace &lt;server&gt;, &lt;database&gt;, &lt;user id&gt;, and &lt;password&gt; with the name of your server, database, user ID, and password before you save the file.
+1. Create a JSON file named AzureSQLDatabaseLinkedService.json in the C:\ADF folder with the following content. (Create the folder ADF if it doesn't already exist.) Replace &lt;your-server-name&gt; and &lt;your-database-name&gt; with the name of your server and database before you save the file. You must also configure your Azure SQL Server to [grant access to your data factory's managed identity](connector-azure-sql-database.md#user-assigned-managed-identity-authentication).
 
     ```json
     {
-        "name": "AzureSQLDatabaseLinkedService",
-        "properties": {
+    "name": "AzureSqlDatabaseLinkedService",
+    "properties": {
             "type": "AzureSqlDatabase",
             "typeProperties": {
-                "connectionString": "Server = tcp:<server>.database.windows.net,1433;Initial Catalog=<database>; Persist Security Info=False; User ID=<user> ; Password=<password>; MultipleActiveResultSets = False; Encrypt = True; TrustServerCertificate = False; Connection Timeout = 30;"
-            }
+                "connectionString": "Server=tcp:<your-server-name>.database.windows.net,1433;Database=<your-database-name>;"
+            },
+            "authenticationType": "ManagedIdentity",
+            "annotations": []
         }
     }
     ```
@@ -711,7 +714,7 @@ In this tutorial, you create a pipeline with two Lookup activities, one Copy act
     data_source_table | 2017-09-07 09:01:00.000
 
 
-## Next steps
+## Related content
 You performed the following steps in this tutorial:
 
 > [!div class="checklist"]

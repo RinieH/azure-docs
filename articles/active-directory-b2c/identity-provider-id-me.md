@@ -2,20 +2,25 @@
 title: Set up sign-up and sign-in with a ID.me account
 titleSuffix: Azure AD B2C
 description: Provide sign-up and sign-in to customers with ID.me accounts in your applications using Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
 
-ms.service: active-directory
-ms.workload: identity
+author: garrodonnell
+manager: CelesteDG
+
+ms.service: azure-active-directory
+
 ms.topic: how-to
-ms.date: 03/15/2021
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 09/16/2021
+ms.author: godonnell
+ms.subservice: b2c
 zone_pivot_groups: b2c-policy-type
+
+#Customer Intent: As a developer, I want to set up sign-up and sign-in with an ID.me account using Azure Active Directory B2C, so that I can enable users to authenticate with their ID.me accounts.
+
 ---
 
 # Set up sign-up and sign-in with a ID.me account using Azure Active Directory B2C
+
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-choose-user-flow-or-custom-policy](../../includes/active-directory-b2c-choose-user-flow-or-custom-policy.md)]
 
@@ -35,7 +40,7 @@ zone_pivot_groups: b2c-policy-type
 
 ## Create an ID.me application
 
-To enable sign-in for users with an ID.me account in Azure Active Directory B2C (Azure AD B2C), you need to create an application in [ID.me Developer Resources for API & SDK](https://developers.id.me/). For more information, see [OAuth Integration Guide](https://developers.id.me/documentation/oauth/overview/kyc). If you don't already have an ID.me developer account, you can sign up at [https://developers.id.me/registration/new](https://developers.id.me/registration/new).
+To enable sign-in for users with an ID.me account in Azure Active Directory B2C (Azure AD B2C), you need to create an application in [ID.me Developer Resources for API & SDK](https://developers.id.me/). For more information, see [OAuth Integration Guide](https://developers.id.me/documentation/). If you don't already have an ID.me developer account, you can sign up at [https://developers.id.me/registration/new](https://developers.id.me/registration/new).
 
 1. Sign in to the [ID.me Developer Resources for API & SDK](https://developers.id.me/) with your ID.me account credentials.
 1. Select **View My Applications**, and select **Continue**.
@@ -50,15 +55,15 @@ To enable sign-in for users with an ID.me account in Azure Active Directory B2C 
 You need to store the client secret that you previously recorded in your Azure AD B2C tenant.
 
 1. Sign in to the [Azure portal](https://portal.azure.com/).
-2. Make sure you're using the directory that contains your Azure AD B2C tenant. Select the **Directory + subscription** filter in the top menu and choose the directory that contains your tenant.
-3. Choose **All services** in the top-left corner of the Azure portal, and then search for and select **Azure AD B2C**.
-4. On the Overview page, select **Identity Experience Framework**.
-5. Select **Policy Keys** and then select **Add**.
-6. For **Options**, choose `Manual`.
-7. Enter a **Name** for the policy key. For example, `IdMeSecret`. The prefix `B2C_1A_` is added automatically to the name of your key.
-8. In **Secret**, enter your client secret that you previously recorded.
-9. For **Key usage**, select `Signature`.
-10. Click **Create**.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
+1. Choose **All services** in the top-left corner of the Azure portal, and then search for and select **Azure AD B2C**.
+1. On the Overview page, select **Identity Experience Framework**.
+1. Select **Policy Keys** and then select **Add**.
+1. For **Options**, choose `Manual`.
+1. Enter a **Name** for the policy key. For example, `IdMeSecret`. The prefix `B2C_1A_` is added automatically to the name of your key.
+1. In **Secret**, enter your client secret that you previously recorded.
+1. For **Key usage**, select `Signature`.
+1. Click **Create**.
 
 ## Configure ID.me as an identity provider
 

@@ -1,9 +1,8 @@
 ---
-author: jasonwhowell
-ms.service: hdinsight
+ms.service: azure-hdinsight
+ms.custom: linux-related-content
 ms.topic: include
 ms.date: 10/25/2018
-ms.author: jasonh
 ---
 > [!div class="op_single_selector"]
 > * [Overview](../hdinsight-hadoop-provision-linux-clusters.md)
@@ -15,4 +14,3 @@ ms.author: jasonh
 > * [Azure Resource Manager templates](../hdinsight-hadoop-create-linux-clusters-arm-templates.md)
 > 
 > 
-

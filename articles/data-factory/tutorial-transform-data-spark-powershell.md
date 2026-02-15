@@ -1,11 +1,14 @@
 ---
 title: 'Transform data using Spark in Azure Data Factory '
 description: 'This tutorial provides step-by-step instructions for transforming data by using Spark Activity in Azure Data Factory.'
-ms.service: data-factory
 ms.topic: tutorial
-ms.date: 01/22/2018
 author: nabhishek
 ms.author: abnarain
+ms.date: 10/03/2024
+ms.subservice: orchestration
+ms.custom:
+  - devx-track-azurepowershell
+  - sfi-ropc-nochange
 ---
 # Transform data in the cloud by using Spark activity in Azure Data Factory
 
@@ -20,18 +23,18 @@ In this tutorial, you use Azure PowerShell to create a Data Factory pipeline tha
 > * Start a pipeline run.
 > * Monitor the pipeline run.
 
-If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/free/) account before you begin.
+If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) account before you begin.
 
 ## Prerequisites
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
-* **Azure Storage account**. You create a python script and an input file, and upload them to the Azure storage. The output from the spark program is stored in this storage account. The on-demand Spark cluster uses the same storage account as its primary storage.  
-* **Azure PowerShell**. Follow the instructions in [How to install and configure Azure PowerShell](/powershell/azure/install-Az-ps).
+* **Azure Storage account**. You create a Python script and an input file, and upload them to the Azure storage. The output from the spark program is stored in this storage account. The on-demand Spark cluster uses the same storage account as its primary storage.  
+* **Azure PowerShell**. Follow the instructions in [How to install and configure Azure PowerShell](/powershell/azure/install-azure-powershell).
 
 
-### Upload python script to your Blob Storage account
-1. Create a python file named **WordCount_Spark.py** with the following content: 
+### Upload Python script to your Blob Storage account
+1. Create a Python file named **WordCount_Spark.py** with the following content: 
 
     ```python
     import sys
@@ -126,7 +129,7 @@ Update values for the following properties in the linked service definition:
 
 - **hostSubscriptionId**. Replace &lt;subscriptionID&gt; with the ID of your Azure subscription. The on-demand HDInsight cluster is created in this subscription. 
 - **tenant**. Replace &lt;tenantID&gt; with ID of your Azure tenant. 
-- **servicePrincipalId**, **servicePrincipalKey**. Replace &lt;servicePrincipalID&gt; and &lt;servicePrincipalKey&gt; with ID and key of your service principal in the Azure Active Directory. This service principal needs to be a member of the Contributor role of the subscription or the resource Group in which the cluster is created. See [create Azure Active Directory application and service principal](../active-directory/develop/howto-create-service-principal-portal.md) for details. The **Service principal id** is equivalent to the *Application ID* and a **Service principal key** is equivalent to the value for a *Client secret*.
+- **servicePrincipalId**, **servicePrincipalKey**. Replace &lt;servicePrincipalID&gt; and &lt;servicePrincipalKey&gt; with ID and key of your service principal in the Microsoft Entra ID. This service principal needs to be a member of the Contributor role of the subscription or the resource Group in which the cluster is created. See [create Microsoft Entra application and service principal](../active-directory/develop/howto-create-service-principal-portal.md) for details. The **Service principal id** is equivalent to the *Application ID* and a **Service principal key** is equivalent to the value for a *Client secret*.
 - **clusterResourceGroup**. Replace &lt;resourceGroupOfHDICluster&gt; with the name of the resource group in which the HDInsight cluster needs to be created. 
 
 > [!NOTE]
@@ -321,7 +324,7 @@ You have authored linked service and pipeline definitions in JSON files. Now, le
 4. Confirm that a folder named `outputfiles` is created in the `spark` folder of adftutorial container with the output from the spark program. 
 
 
-## Next steps
+## Related content
 The pipeline in this sample copies data from one location to another location in an Azure blob storage. You learned how to: 
 
 > [!div class="checklist"]
@@ -335,8 +338,3 @@ Advance to the next tutorial to learn how to transform data by running Hive scri
 
 > [!div class="nextstepaction"]
 > [Tutorial: transform data using Hive in Azure Virtual Network](tutorial-transform-data-hive-virtual-network.md).
-
-
-
-
-

@@ -3,17 +3,13 @@ title: Copy data from Azure Blob storage to SQL using Copy Data tool
 description: Create an Azure Data Factory and then use the Copy Data tool to copy data from Azure Blob storage to a SQL Database.
 author: jianleishen
 ms.author: jianleishen
-ms.service: data-factory
 ms.topic: tutorial
-ms.custom: seo-lt-2019
-ms.date: 06/04/2021
+ms.date: 10/03/2024
+ms.subservice: data-movement
+ms.custom: sfi-image-nochange
 ---
 
 # Copy data from Azure Blob storage to a SQL Database by using the Copy Data tool
-
-> [!div class="op_single_selector" title1="Select the version of the Data Factory service that you're using:"]
-> * [Version 1](v1/data-factory-copy-data-from-azure-blob-storage-to-sql-database.md)
-> * [Current version](tutorial-copy-data-tool.md)
 
 [!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
 
@@ -30,9 +26,18 @@ In this tutorial, you perform the following steps:
 
 ## Prerequisites
 
-* **Azure subscription**: If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/) before you begin.
+* **Azure subscription**: If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 * **Azure Storage account**: Use Blob storage as the _source_ data store. If you don't have an Azure Storage account, see the instructions in [Create a storage account](../storage/common/storage-account-create.md).
-* **Azure SQL Database**: Use a SQL Database as the _sink_ data store. If you don't have a SQL Database, see the instructions in [Create a SQL Database](../azure-sql/database/single-database-create-quickstart.md).
+* **Azure SQL Database**: Use a SQL Database as the _sink_ data store. If you don't have a SQL Database, see the instructions in [Create a SQL Database](/azure/azure-sql/database/single-database-create-quickstart).
+
+### Prepare the SQL database
+
+Allow Azure services to access the logical SQL Server of your Azure SQL Database.
+
+1. Verify that the setting **Allow Azure services and resources to access this server** is enabled for your server that's running SQL Database. This setting lets Data Factory write data to your database instance. To verify and turn on this setting, go to logical SQL server > Security > Firewalls and virtual networks > set the **Allow Azure services and resources to access this server** option to **ON**.
+
+   > [!NOTE]
+   > The option to **Allow Azure services and resources to access this server** enables network access to your SQL Server from any Azure resource, not just those in your subscription. It may not be appropriate for all environments, but is appropriate for this limited tutorial. For more information, see [Azure SQL Server Firewall rules](/azure/azure-sql/database/firewall-configure). Instead, you can use [Private endpoints](../private-link/private-endpoint-overview.md) to connect to Azure PaaS services without using public IPs.
 
 ### Create a blob and a SQL table
 
@@ -52,7 +57,7 @@ Prepare your Blob storage and your SQL Database for the tutorial by performing t
 
 #### Create a sink SQL table
 
-1. Use the following SQL script to create a table named **dbo.emp** in your SQL Database:
+1. Use the following SQL script to create a table named `dbo.emp` in your SQL Database:
 
    ```sql
    CREATE TABLE dbo.emp
@@ -65,22 +70,18 @@ Prepare your Blob storage and your SQL Database for the tutorial by performing t
    CREATE CLUSTERED INDEX IX_emp_ID ON dbo.emp (ID);
    ```
 
-2. Allow Azure services to access SQL Server. Verify that the setting **Allow Azure services and resources to access this server** is enabled for your server that's running SQL Database. This setting lets Data Factory write data to your database instance. To verify and turn on this setting, go to logical SQL server > Security > Firewalls and virtual networks > set the **Allow Azure services and resources to access this server** option to **ON**.
-
-   > [!NOTE]
-   > The option to **Allow Azure services and resources to access this server** enables network access to your SQL Server from any Azure resource, not just those in your subscription. For more information, see [Azure SQL Server Firewall rules](../azure-sql/database/firewall-configure.md). Instead, you can use [Private endpoints](../private-link/private-endpoint-overview.md) to connect to Azure PaaS services without using public IPs.
 
 ## Create a data factory
 
-1. On the left menu, select **Create a resource** > **Integration** > **Data Factory**:
+1. On the top menu, select **Create a resource** > **Analytics** > **Data Factory** :
 
-   ![New data factory creation](./media/doc-common-process/new-azure-data-factory-menu.png)
+   :::image type="content" source="./media/doc-common-process/new-azure-data-factory-menu.png" alt-text="Screenshot of the New data factory creation.":::
 
 1. On the **New data factory** page, under **Name**, enter **ADFTutorialDataFactory**.
 
    The name for your data factory must be _globally unique_. You might receive the following error message:
 
-   :::image type="content" source="./media/doc-common-process/name-not-available-error.png" alt-text="New data factory error message for duplicate name.":::
+   :::image type="content" source="./media/doc-common-process/name-not-available-error.png" alt-text="Screenshot of the New data factory error message for duplicate name.":::
 
    If you receive an error message about the name value, enter a different name for the data factory. For example, use the name _**yourname**_**ADFTutorialDataFactory**. For the naming rules for Data Factory artifacts, see [Data Factory naming rules](naming-rules.md).
 
@@ -102,83 +103,84 @@ Prepare your Blob storage and your SQL Database for the tutorial by performing t
 
 1. After creation is finished, the **Data Factory** home page is displayed.
 
-   :::image type="content" source="./media/doc-common-process/data-factory-home-page.png" alt-text="Home page for the Azure Data Factory, with the Author & Monitor tile.":::
+   :::image type="content" source="~/reusable-content/ce-skilling/azure/media/data-factory/data-factory-home-page.png" alt-text="Screenshot of the Home page for the Azure Data Factory, with the Open Azure Data Factory Studio tile.":::
 
-1. To launch the Azure Data Factory user interface (UI) in a separate tab, select the **Author & Monitor** tile.
+1. To launch the Azure Data Factory user interface (UI) in a separate tab, select **Open** on the **Open Azure Data Factory Studio** tile.
 
 ## Use the Copy Data tool to create a pipeline
 
 1. On the home page of Azure Data Factory, select the **Ingest** tile to launch the Copy Data tool.
 
-   ![Screenshot that shows the Azure Data Factory home page.](./media/doc-common-process/get-started-page.png)
+   :::image type="content" source="./media/doc-common-process/get-started-page.png" alt-text="Screenshot that shows the Azure Data Factory home page.":::
 
-1. On the **Properties** page, under **Task name**, enter **CopyFromBlobToSqlPipeline**. Then select **Next**. The Data Factory UI creates a pipeline with the specified task name.
+1. On the **Properties** page of the Copy Data tool, choose **Built-in copy task** under **Task type**, then select **Next**.
 
-   ![Create a pipeline](./media/tutorial-copy-data-tool/create-pipeline.png)
-
+     :::image type="content" source="./media/tutorial-copy-data-tool/copy-data-tool-properties-page.png" alt-text="Screenshot that shows the Properties page.":::
+    
 1. On the **Source data store** page, complete the following steps:
 
-   a. Select **+ Create new connection** to add a connection
+   a. Select **+ Create new connection** to add a connection.
 
    b. Select **Azure Blob Storage** from the gallery, and then select **Continue**.
 
-   c. On the **New Linked Service** page, select your Azure subscription, and select your storage account from the **Storage account name** list. Test connection and then select **Create**.
+   c. On the **New connection (Azure Blob Storage)** page, select your Azure subscription from the **Azure subscription** list, and select your storage account from the **Storage account name** list. Test connection and then select **Create**.
 
-   d. Select the newly created linked service as source, then select **Next**.
+   d. Select the newly created linked service as source in the **Connection** block.
 
-   ![Select source linked service](./media/tutorial-copy-data-tool/select-source-linked-service.png)
+   e. In the **File or folder** section, select **Browse** to navigate to the **adfv2tutorial** folder, select the **inputEmp.txt** file, then select **OK**.
 
-1. On the **Choose the input file or folder** page, complete the following steps:
+   f. Select **Next** to move to next step.
 
-   a. Select **Browse** to navigate to the **adfv2tutorial/input** folder, select the **inputEmp.txt** file, then select **Choose**.
+   :::image type="content" source="./media/tutorial-copy-data-tool/source-data-store.png" alt-text="Screenshot of the page to Configure the source.":::
 
-   b. Select **Next** to move to next step.
+1. On the **File format settings** page, enable the checkbox for *First row as header*. Notice that the tool automatically detects the column and row delimiters, and you can preview data and view the schema of the input data by selecting **Preview data** button on this page. Then select **Next**. 
 
-1. On the **File format settings** page, enable the checkbox for *First row as header*. Notice that the tool automatically detects the column and row delimiters. Select **Next**. You can also preview data and view the schema of the input data on this page.
-
-   ![File format settings](./media/tutorial-copy-data-tool/file-format-settings-page.png)
+   :::image type="content" source="./media/tutorial-copy-data-tool/file-format-settings-page.png" alt-text="Screenshot of the File format settings.":::
 
 1. On the **Destination data store** page, completes the following steps:
 
-   a. Select **+ Create new connection** to add a connection
+   a. Select **+ Create new connection** to add a connection.
 
    b. Select **Azure SQL Database** from the gallery, and then select **Continue**.
 
-   c. On the **New Linked Service** page, select your server name and DB name from the dropdown list, and specify the username and password, then select **Create**.
+   c. On the **New connection (Azure SQL Database)** page, select your Azure subscription, server name and database name from the dropdown list. Then select **SQL authentication** under **Authentication type**, specify the username and password. Test connection and select **Create**.
 
-      ![Configure Azure SQL DB](./media/tutorial-copy-data-tool/config-azure-sql-db.png)
+   :::image type="content" source="./media/tutorial-copy-data-tool/config-azure-sql-db.png" alt-text="Screenshot of the Configure Azure SQL Database page.":::
 
    d. Select the newly created linked service as sink, then select **Next**.
 
-1. On the **Table mapping** page, select the **[dbo].[emp]** table, and then select **Next**.
+1. On the **Destination data store** page, select **Use existing table** and select the `dbo.emp` table. Then select **Next**.
 
 1. On the **Column mapping** page, notice that the second and the third columns in the input file are mapped to the **FirstName** and **LastName** columns of the **emp** table. Adjust the mapping to make sure that there is no error, and then select **Next**.
 
-   ![Column mapping page](./media/tutorial-copy-data-tool/column-mapping.png)
+   :::image type="content" source="./media/tutorial-copy-data-tool/column-mapping.png" alt-text="Screenshot of the column mapping page.":::
 
-1. On the **Settings** page, select **Next**.
+1. On the **Settings** page, under **Task name**, enter **CopyFromBlobToSqlPipeline**, and then select **Next**.
+
+   :::image type="content" source="./media/tutorial-copy-data-tool/settings.png" alt-text="Screenshot of the settings.":::
 
 1. On the **Summary** page, review the settings, and then select **Next**.
 
-1. On the **Deployment page**, select **Monitor** to monitor the pipeline (task).
+1. On the **Deployment** page, select **Monitor** to monitor the pipeline (task).
 
-   ![Monitor pipeline](./media/tutorial-copy-data-tool/monitor-pipeline.png)
+   :::image type="content" source="./media/tutorial-copy-data-tool/monitor-pipeline.png" alt-text="Screenshot of Monitoring the pipeline.":::
 
-1. On the Pipeline runs page, select **Refresh** to refresh the list. Select the link under **PIPELINE NAME** to view activity run details or rerun the pipeline. 
+1. On the Pipeline runs page, select **Refresh** to refresh the list. Select the link under **Pipeline name** to view activity run details or rerun the pipeline. 
 
-   ![Pipeline run](./media/tutorial-copy-data-tool/pipeline-run.png)
+   :::image type="content" source="./media/tutorial-copy-data-tool/pipeline-run.png" alt-text="Screenshot of the Pipeline run.":::
 
-1. On the Activity runs page, select the **Details** link (eyeglasses icon) under the **ACTIVITY NAME** column for more details about copy operation. To go back to the Pipeline Runs view, select the **ALL pipeline runs** link in the breadcrumb menu. To refresh the view, select **Refresh**.
+1. On the "Activity runs" page, select the **Details** link (eyeglasses icon) under **Activity name** column for more details about copy operation. To go back to the "Pipeline runs" view, select the **All pipeline runs** link in the breadcrumb menu. To refresh the view, select **Refresh**.
 
-   ![Monitor activity runs](./media/tutorial-copy-data-tool/activity-monitoring.png)
+   :::image type="content" source="./media/tutorial-copy-data-tool/activity-monitoring.png" alt-text="Screenshot of monitoring activity runs.":::
 
 1. Verify that the data is inserted into the **dbo.emp** table in your SQL Database.
 
 1. Select the **Author** tab on the left to switch to the editor mode. You can update the linked services, datasets, and pipelines that were created via the tool by using the editor. For details on editing these entities in the Data Factory UI, see [the Azure portal version of this tutorial](tutorial-copy-data-portal.md).
 
-   ![Select Author tab](./media/tutorial-copy-data-tool/author-tab.png)
+   :::image type="content" source="./media/tutorial-copy-data-tool/author-tab.png" alt-text="Screenshot of the Select Author tab.":::
 
-## Next steps
+## Related content
+
 The pipeline in this sample copies data from Blob storage to a SQL Database. You learned how to:
 
 > [!div class="checklist"]

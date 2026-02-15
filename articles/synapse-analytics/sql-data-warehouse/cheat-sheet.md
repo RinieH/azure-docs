@@ -1,18 +1,15 @@
 ---
 title: Cheat sheet for dedicated SQL pool (formerly SQL DW)
 description: Find links and best practices to quickly build your dedicated SQL pool (formerly SQL DW) in Azure Synapse Analytics.
-services: synapse-analytics
-author: mlee3gsd
-manager: craigg
-ms.service: synapse-analytics
+author: ajagadish-24
+ms.author: ajagadish
+ms.date: 02/28/2025
+ms.service: azure-synapse-analytics
+ms.subservice: sql-dw
 ms.topic: overview
-ms.subservice: sql-dw 
-ms.date: 11/04/2019
-ms.author: martinle
-ms.reviewer: igorstan
 ---
 
-# Cheat sheet for dedicated SQL pool (formerly SQL DW) in Azure Synapse Analytic
+# Cheat sheet for dedicated SQL pool (formerly SQL DW) in Azure Synapse Analytics
 
 This cheat sheet provides helpful tips and best practices for building dedicated SQL pool (formerly SQL DW) solutions.
 
@@ -32,7 +29,7 @@ Knowing the types of operations in advance helps you optimize the design of your
 
 ## Data migration
 
-First, load your data into [Azure Data Lake Storage](../../data-factory/connector-azure-data-lake-store.md?toc=/azure/synapse-analytics/sql-data-warehouse/toc.json&bc=/azure/synapse-analytics/sql-data-warehouse/breadcrumb/toc.json) or Azure Blob Storage. Next, use the [COPY statement](/sql/t-sql/statements/copy-into-transact-sql?toc=/azure/synapse-analytics/sql-data-warehouse/toc.json&bc=/azure/synapse-analytics/sql-data-warehouse/breadcrumb/toc.json&view=azure-sqldw-latest&preserve-view=true) to load your data into staging tables. Use the following configuration:
+First, load your data into [Azure Data Lake Storage](../../data-factory/connector-azure-data-lake-store.md?toc=/azure/synapse-analytics/sql-data-warehouse/toc.json) or Azure Blob Storage. Next, use the [COPY statement](/sql/t-sql/statements/copy-into-transact-sql?toc=/azure/synapse-analytics/sql-data-warehouse/toc.json&view=azure-sqldw-latest&preserve-view=true) to load your data into staging tables. Use the following configuration:
 
 | Design | Recommendation |
 |:--- |:--- |
@@ -51,7 +48,7 @@ Use the following strategies, depending on the table properties:
 |:--- |:--- |:--- |
 | Replicated | * Small dimension tables in a star schema with less than 2 GB of storage after compression (~5x compression) |*    Many write transactions are on table (such as insert, upsert, delete, update)<br></br>*    You change Data Warehouse Units (DWU) provisioning frequently<br></br>*    You only use 2-3 columns but your table has many columns<br></br>*    You index a replicated table |
 | Round Robin (default) | *    Temporary/staging table<br></br> * No obvious joining key or good candidate column |*    Performance is slow due to data movement |
-| Hash | * Fact tables<br></br>*    Large dimension tables |* The distribution key cannot be updated |
+| Hash | * Fact tables<br></br>*    Large dimension tables |* The distribution key can't be updated |
 
 **Tips:**
 
@@ -72,7 +69,7 @@ Indexing is helpful for reading tables quickly. There is a unique set of technol
 |:--- |:--- |:--- |
 | Heap | * Staging/temporary table<br></br>* Small tables with small lookups |* Any lookup scans the full table |
 | Clustered index | * Tables with up to 100 million rows<br></br>* Large tables (more than 100 million rows) with only 1-2 columns heavily used |*    Used on a replicated table<br></br>*    You have complex queries involving multiple join and Group By operations<br></br>*    You make updates on the indexed columns: it takes memory |
-| Clustered columnstore index (CCI) (default) | *    Large tables (more than 100 million rows) | *    Used on a replicated table<br></br>*    You make massive update operations on your table<br></br>*    You overpartition your table: row groups do not span across different distribution nodes and partitions |
+| Clustered columnstore index (CCI) (default) | *    Large tables (more than 100 million rows) | *    Used on a replicated table<br></br>*    You make massive update operations on your table<br></br>*    You overpartition your table: row groups don't span across different distribution nodes and partitions |
 
 **Tips:**
 
@@ -87,16 +84,16 @@ Learn more about [indexes](sql-data-warehouse-tables-index.md).
 
 ## Partitioning
 
-You might partition your table when you have a large fact table (greater than 1 billion rows). In 99 percent of cases, the partition key should be based on date. Be careful to not overpartition, especially when you have a clustered columnstore index.
+You might partition your table when you have a large fact table (greater than 1 billion rows). In 99 percent of cases, the partition key should be based on date. 
 
 With staging tables that require ELT, you can benefit from partitioning. It facilitates data lifecycle management.
-Be careful not to overpartition your data, especially on a clustered columnstore index.
+Be careful not to overpartition your fact or staging table, especially on a clustered columnstore index.
 
 Learn more about [partitions](sql-data-warehouse-tables-partition.md).
 
 ## Incremental load
 
-If you're going to incrementally load your data, first make sure that you allocate larger resource classes to loading your data.  This is particularly important when loading into tables with clustered columnstore indexes.  See [resource classes](resource-classes-for-workload-management.md) for further details.  
+If you're going to incrementally load your data, first make sure that you allocate larger resource classes to loading your data. This is particularly important when loading into tables with clustered columnstore indexes.  See [resource classes](resource-classes-for-workload-management.md) for further details.  
 
 We recommend using PolyBase and ADF V2 for automating your ELT pipelines into your data warehouse.
 
@@ -114,7 +111,7 @@ Learn more about [statistics](sql-data-warehouse-tables-statistics.md).
 
 Resource groups are used as a way to allocate memory to queries. If you need more memory to improve query or loading speed, you should allocate higher resource classes. On the flip side, using larger resource classes impacts concurrency. You want to take that into consideration before moving all of your users to a large resource class.
 
-If you notice that queries take too long, check that your users do not run in large resource classes. Large resource classes consume many concurrency slots. They can cause other queries to queue up.
+If you notice that queries take too long, check that your users don't run in large resource classes. Large resource classes consume many concurrency slots. They can cause other queries to queue up.
 
 Finally, by using Gen2 of [dedicated SQL pool (formerly SQL DW)](sql-data-warehouse-overview-what-is.md), each resource class gets 2.5 times more memory than Gen1.
 
@@ -126,7 +123,7 @@ A key feature of Azure Synapse is the ability to [manage compute resources](sql-
 
 Autoscale now at the time you want with Azure Functions:
 
-[![Image showing a button labeled "Deploy to Azure".](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png)](https://ms.portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoft%2Fsql-data-warehouse-samples%2Fmaster%2Farm-templates%2FsqlDwTimerScaler%2Fazuredeploy.json)
+[![Image showing a button labeled "Deploy to Azure".](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoft%2Fsql-data-warehouse-samples%2Fmaster%2Farm-templates%2FsqlDwTimerScaler%2Fazuredeploy.json)
 
 ## Optimize your architecture for performance
 
@@ -134,6 +131,6 @@ We recommend considering SQL Database and Azure Analysis Services in a hub-and-s
 
 Learn more about [typical architectures that take advantage of dedicated SQL pool (formerly SQL DW) in Azure Synapse Analytics](/archive/blogs/sqlcat/common-isv-application-patterns-using-azure-sql-data-warehouse).
 
-Deploy in one click your spokes in SQL databases from dedicated SQL pool (formerly SQL DW):
+Deploy your spokes in SQL databases from dedicated SQL pool (formerly SQL DW):
 
-[![Image showing a button labeled "Deploy to Azure".](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png)](https://ms.portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoft%2Fsql-data-warehouse-samples%2Fmaster%2Farm-templates%2FsqlDwSpokeDbTemplate%2Fazuredeploy.json)
+[![Image showing a button labeled "Deploy to Azure".](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMicrosoft%2Fsql-data-warehouse-samples%2Fmaster%2Farm-templates%2FsqlDwSpokeDbTemplate%2Fazuredeploy.json)

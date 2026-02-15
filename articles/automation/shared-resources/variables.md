@@ -3,9 +3,12 @@ title: Manage variables in Azure Automation
 description: This article tells how to work with variables in runbooks and DSC configurations.
 services: automation
 ms.subservice: shared-capabilities
-ms.date: 03/28/2021
-ms.topic: conceptual 
-ms.custom: devx-track-azurepowershell
+ms.date: 11/17/2025
+ms.topic: overview
+ms.custom: devx-track-azurepowershell, devx-track-python
+ms.service: azure-automation
+ms.author: v-rochak2
+author: RochakSingh-blr
 ---
 # Manage variables in Azure Automation
 
@@ -21,7 +24,7 @@ Automation variables are useful for the following scenarios:
 
 Azure Automation persists variables and makes them available even if a runbook or DSC configuration fails. This behavior allows one runbook or DSC configuration to set a value that is then used by another runbook, or by the same runbook or DSC configuration the next time it runs.
 
-Azure Automation stores each encrypted variable securely. When you create a variable, you can specify its encryption and storage by Azure Automation as a secure asset. After you create the variable, you can't change its encryption status without re-creating the variable. If you have Automation account variables storing sensitive data that are not already encrypted, then you need to delete them and recreate them as encrypted variables. An Azure Security Center recommendation is to encrypt all Azure Automation variables as described in [Automation account variables should be encrypted](../../security-center/recommendations-reference.md#recs-compute). If you have unencrypted variables that you want excluded from this security recommendation, see [Exempt a resource from recommendations and secure score](../../security-center/exempt-resource.md) to create an exemption rule.
+Azure Automation stores each encrypted variable securely. When you create a variable, you can specify its encryption and storage by Azure Automation as a secure asset. After you create the variable, you can't change its encryption status without re-creating the variable. If you have Automation account variables storing sensitive data that are not already encrypted, then you need to delete them and recreate them as encrypted variables. A Microsoft Defender for Cloud recommendation is to encrypt all Azure Automation variables as described in [Automation account variables should be encrypted](../../security-center/recommendations-reference.md#recs-compute). If you have unencrypted variables that you want excluded from this security recommendation, see [Exempt a resource from recommendations and secure score](../../security-center/exempt-resource.md) to create an exemption rule.
 
 >[!NOTE]
 >Secure assets in Azure Automation include credentials, certificates, connections, and encrypted variables. These assets are encrypted and stored in Azure Automation using a unique key that is generated for each Automation account. Azure Automation stores the key in the system-managed Key Vault. Before storing a secure asset, Automation loads the key from Key Vault and then uses it to encrypt the asset.
@@ -47,7 +50,7 @@ You can store multiple values to a single variable by creating an array or hasht
 
 ## PowerShell cmdlets to access variables
 
-The cmdlets in the following table create and manage Automation variables with PowerShell. They ship as part of the [Az modules](modules.md#az-modules).
+The cmdlets in the following table create and manage Automation variables with PowerShell. They ship as part of the Az modules.
 
 | Cmdlet | Description |
 |:---|:---|
@@ -195,7 +198,7 @@ from automationassets import AutomationAssetNotFound
 
 # get a variable
 value = automationassets.get_automation_variable("test-variable")
-print value
+print(value)
 
 # set a variable (value can be int/bool/string)
 automationassets.set_automation_variable("test-variable", True)
@@ -206,7 +209,7 @@ automationassets.set_automation_variable("test-variable", "test-string")
 try:
     value = automationassets.get_automation_variable("nonexisting variable")
 except AutomationAssetNotFound:
-    print ("variable not found")
+    print("variable not found")
 ```
 
 ---

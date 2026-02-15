@@ -2,7 +2,8 @@
 title: Copy applications and data to pool nodes
 description: Learn how to copy applications and data to pool nodes.
 ms.topic: how-to
-ms.date: 02/18/2021
+ms.date: 01/05/2026
+# Customer intent: As a cloud engineer, I want to understand the methods for copying applications and data to compute nodes in Azure Batch, so that I can effectively manage data dependencies for different job types and optimize resource usage across the pool.
 ---
 
 # Copy applications and data to pool nodes
@@ -19,15 +20,19 @@ You need to determine the scope of a file - is the file required for a pool, a j
 
 For applications or data that need to be installed on every node in the pool, use pool start task resource files. Use this method along with either an [application package](batch-application-packages.md) or the start task's resource file collection in order to perform an install command.  
 
-For example, you can use the start task command line to move or install applications. You can also specify a list of files or containers in an Azure storage account. For more information, see [Add#ResourceFile in REST documentation](/rest/api/batchservice/pool/add#resourcefile).
+For example, you can use the start task command line to move or install applications. You can also specify a list of files or containers in an Azure storage account. For more information, see [ResourceFile in REST documentation](/rest/api/batchservice/pools/create-pool#resourcefile).
 
-If every job that runs on the pool runs an application (.exe) that must first be installed with a .msi file, you'll need to set the start task's **wait for success** property to **true**. For more information, see [Add#StartTask in REST documentation](/rest/api/batchservice/pool/add#starttask).
+If every job that runs on the pool runs an application (.exe) that must first be installed with a .msi file, you'll need to set the start task's **wait for success** property to **true**. For more information, see [StartTask in REST documentation](/rest/api/batchmanagement/pool/create#starttask).
 
 ## Application package references
 
 For applications or data that need to be installed on every node in the pool, consider using [application packages](batch-application-packages.md). There is no install command associated with an application package, but you can use a start task to run any install command. If your application doesn't require installation, or consists of a large number of files, you can use this method.
 
 Application packages are useful when you have a large number of files, because they can combine many file references into a small payload. If you try to include more than 100 separate resource files into one task, the Batch service might come up against internal system limitations for a single task. Application packages are also useful when you have many different versions of the same application and need to choose between them.
+
+## Extensions
+
+[Extensions](create-pool-extensions.md) are small applications that facilitate post-provisioning configuration and setup on Batch compute nodes. When you create a pool, you can select a supported extension to be installed on the compute nodes as they are provisioned. After that, the extension can perform its intended operation.
 
 ## Job preparation task resource files
 

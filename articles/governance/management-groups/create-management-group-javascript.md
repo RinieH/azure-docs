@@ -1,11 +1,9 @@
 ---
 title: 'Quickstart: Create a management group with JavaScript'
 description: In this quickstart, you use JavaScript to create a management group to organize your resources into a resource hierarchy.
-ms.date: 05/01/2021
+ms.date: 08/17/2021
 ms.topic: quickstart
-ms.custom:
-  - devx-track-js
-  - mode-api
+ms.custom: devx-track-js, mode-api
 ---
 # Quickstart: Create a management group with JavaScript
 
@@ -22,24 +20,22 @@ directory. You receive a notification when the process is complete. For more inf
 
 ## Prerequisites
 
-- If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/free/)
+- If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn)
   account before you begin.
 
 - Before you start, make sure that at least version 12 of [Node.js](https://nodejs.org/) is
   installed.
 
-- Any Azure AD user in the tenant can create a management group without the management group write
+- Any Microsoft Entra ID user in the tenant can create a management group without the management group write
   permission assigned to that user if
-  [hierarchy protection](./how-to/protect-resource-hierarchy.md#setting---require-authorization)
+  [hierarchy protection](./how-to/protect-resource-hierarchy.md#setting-require-authorization)
   isn't enabled. This new management group becomes a child of the Root Management Group or the
-  [default management group](./how-to/protect-resource-hierarchy.md#setting---default-management-group)
-  and the creator is given an "Owner" role assignment. Management group service allows this ability
-  so that role assignments aren't needed at the root level. No users have access to the Root
-  Management Group when it's created. To avoid the hurdle of finding the Azure AD Global Admins to
-  start using management groups, we allow the creation of the initial management groups at the root
-  level.
+  [default management group](./how-to/protect-resource-hierarchy.md#setting-define-the-default-management-group)
+  and the creator is given an Owner role assignment. Management group service allows this ability
+  so that role assignments aren't needed at the root level. When the Root
+    Management Group is created, users don't have access to it. To start using management groups, the service allows the creation of the initial management groups at the root level. For more information, see [Root management group for each directory](./overview.md#root-management-group-for-each-directory).
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
 ## Application setup
 
@@ -67,36 +63,36 @@ wherever JavaScript can be used, including [bash on Windows 10](/windows/wsl/ins
 1. Add a reference to the Azure authentication library.
 
    ```bash
-   npm install @azure/ms-rest-nodeauth
+   npm install @azure/identity
    ```
 
    > [!NOTE]
-   > Verify in _package.json_ `@azure/arm-managementgroups` is version **1.1.0** or higher and
-   > `@azure/ms-rest-nodeauth` is version **3.0.5** or higher.
+   > Verify in _package.json_ `@azure/arm-managementgroups` is version **2.0.1** or higher and
+   > `@azure/identity` is version **2.0.4** or higher.
 
 ## Create the management group
 
 1. Create a new file named _index.js_ and enter the following code.
 
    ```javascript
-   const argv = require("yargs").argv;
-   const authenticator = require("@azure/ms-rest-nodeauth");
-   const managementGroups = require("@azure/arm-managementgroups");
+      const argv = require("yargs").argv;
+      const { InteractiveBrowserCredential } = require("@azure/identity");
+      const { ManagementGroupsAPI } = require("@azure/arm-managementgroups");
 
-   if (argv.groupID && argv.displayName) {
-       const createMG = async () => {
-          const credentials = await authenticator.interactiveLogin();
-          const client = new managementGroups.ManagementGroupsAPI(credentials);
-          const result = await client.managementGroups.createOrUpdate(
-             groupId: argv.groupID,
-             {
-                 displayName: argv.displayName
-             }
-          );
-          console.log(result);
-       };
+      if (argv.groupID && argv.displayName) {
+         const createMG = async () => {
+            const credentials = new InteractiveBrowserCredential();
+            const client = new ManagementGroupsAPI(credentials);
+            const result = await client.managementGroups.beginCreateOrUpdateAndWait(
+               argv.groupID,
+               {
+                  displayName: argv.displayName
+               }
+            );
+            console.log(result);
+         };
 
-       createMG();
+      createMG();
    }
    ```
 
@@ -123,7 +119,7 @@ The result of creating the management group is output to the console.
 If you wish to remove the installed libraries from your application, run the following command.
 
 ```bash
-npm uninstall @azure/arm-managementgroups @azure/ms-rest-nodeauth yargs
+npm uninstall @azure/arm-managementgroups @azure/identity yargs
 ```
 
 ## Next steps

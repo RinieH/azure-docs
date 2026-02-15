@@ -1,21 +1,22 @@
 ---
 title: Language customization in Azure Active Directory B2C
-description: Learn about customizing the language experience in your user flows in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
-
-ms.service: active-directory
-ms.workload: identity
+description: Learn how to customize the language experience in your user flows in Azure Active Directory B2C.
+author: garrodonnell
+manager: CelesteDG
+ms.service: azure-active-directory
 ms.topic: how-to
-ms.date: 12/10/2020
-ms.custom: project-no-code
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 01/05/2025
+ms.author: godonnell
+ms.subservice: b2c
 zone_pivot_groups: b2c-policy-type
+
+#Customer Intent: As a developer integrating Azure Active Directory B2C into my application, I want to customize the language of a user flow, so that I can provide a localized experience for my customers in different locales.
+
 ---
 
 # Language customization in Azure Active Directory B2C
+
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-choose-user-flow-or-custom-policy](../../includes/active-directory-b2c-choose-user-flow-or-custom-policy.md)]
 
@@ -29,16 +30,20 @@ You might not need that level of control over what languages your customer sees.
 
 * **ui-locales specified language**: After you enable language customization, your user flow is translated to the language that's specified here.
 * **Browser-requested language**: If no `ui_locales` parameter was specified, your user flow is translated to the browser-requested language, *if the language is supported*.
-* **Policy default language**: If the browser doesn't specify a language, or it specifies one that is not supported, the user flow is translated to the user flow default language.
+* **Policy default language**: If the browser doesn't specify a language, or it specifies one that isn't supported, the user flow is translated to the user flow default language.
 
 > [!NOTE]
 > If you're using custom user attributes, you need to provide your own translations. For more information, see [Customize your strings](#customize-your-strings).
+
+Watch this video to learn how to localize or customize language using Azure AD B2C.
+
+>[!Video https://www.youtube.com/embed/yqrX5_tA7Ms]
 
 ::: zone pivot="b2c-custom-policy"
 
 Localization requires three steps: 
 
-1. Set-up the explicit list of supported languages
+1. Set up the explicit list of supported languages
 1. Provide language-specific strings and collections
 1. Edit the [content definition](contentdefinitions.md) for the page. 
 
@@ -121,7 +126,7 @@ Replace `<ExtensionAttributeValue>` with the new string to be displayed.
 
 ### Provide a list of values by using LocalizedCollections
 
-If you want to provide a set list of values for responses, you need to create a `LocalizedCollections` attribute. `LocalizedCollections` is an array of `Name` and `Value` pairs. The order for the items will be the order they are displayed. To add `LocalizedCollections`, use the following format:
+If you want to provide a set list of values for responses, you need to create a `LocalizedCollections` attribute. `LocalizedCollections` is an array of `Name` and `Value` pairs. The order for the items will be the order they're displayed. To add `LocalizedCollections`, use the following format:
 
 ```json
 {
@@ -180,7 +185,7 @@ https://wingtiptoysb2c.blob.core.windows.net/fr/wingtip/unified.html
 
 ## Add custom languages
 
-You can also add languages that Microsoft currently does not provide translations for. You'll need to provide the translations for all the strings in the user flow. Language and locale codes are limited to those in the ISO 639-1 standard. The locale code format should be "ISO_639-1_code"-"CountryCode", for example `en-GB`. For more information on locale ID formats, please refer to https://docs.microsoft.com/openspecs/office_standards/ms-oe376/6c085406-a698-4e12-9d4d-c3b0ee3dbc4a
+You can also add languages that Microsoft currently doesn't provide translations for. You'll need to provide the translations for all the strings in the user flow. Language and locale codes are limited to those in the ISO 639-1 standard. The locale code format should be "ISO_639-1_code"-"CountryCode", for example `en-GB`. For more information, please refer to [locale ID formats](/openspecs/office_standards/ms-oe376/6c085406-a698-4e12-9d4d-c3b0ee3dbc4a).
 
 1. In your Azure AD B2C tenant, select **User flows**.
 2. Click the user flow where you want to add custom languages, and then click **Languages**.
@@ -217,7 +222,7 @@ Open the extensions file of your policy. For example, <em>`SocialAndLocalAccount
 
 ## Provide language-specific labels
 
-The [LocalizedResources](localization.md#localizedresources) of the `Localization` element contains the list of localized strings. The localized resources element has an identifier that is used to uniquely identify localized resources. This identifer is used later in the [content definition](contentdefinitions.md) element.
+The [LocalizedResources](localization.md#localizedresources) of the `Localization` element contains the list of localized strings. The localized resources element has an identifier that is used to uniquely identify localized resources. This identifier is used later in the [content definition](contentdefinitions.md) element.
 
 You configure localized resources elements for the content definition and any language you want to support. To customize the unified sign-up or sign-in pages for English and Spanish, you add the following `LocalizedResources` elements after the close of the `</SupportedLanguages>` element.
 
@@ -228,36 +233,38 @@ You configure localized resources elements for the content definition and any la
 <!--Local account sign-up or sign-in page English-->
 <Localization Enabled="true">
   ...
-  <LocalizedResources Id="api.signuporsignin.en">
-    <LocalizedStrings>
-      <LocalizedString ElementType="UxElement" StringId="logonIdentifier_email">#Email Address</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="requiredField_email">#Please enter your email</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="logonIdentifier_username">#Username</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="password">#Password</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="createaccount_link">#Sign up now</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="requiredField_username">#Please enter your user name</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="createaccount_intro">#Don't have an account?</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="forgotpassword_link">#Forgot your password?</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="divider_title">#OR</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="cancel_message">#The user has forgotten their password</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="button_signin">#Sign in</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="social_intro">#Sign in with your social account</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="requiredField_password">#Please enter your password</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="invalid_password">#The password you entered is not in the expected format.</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="local_intro_username">#Sign in with your user name</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="local_intro_email">#Sign in with your existing account</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="invalid_email">#Please enter a valid email address</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="unknown_error">#We are having trouble signing you in. Please try again later.</LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="email_pattern">^[a-zA-Z0-9.!#$%&amp;'^_`{}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$</LocalizedString>
-      <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfInvalidPassword">#Your password is incorrect.</LocalizedString>
-      <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfClaimsPrincipalDoesNotExist">#We can't seem to find your account.</LocalizedString>
-      <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfOldPasswordUsed">#Looks like you used an old password.</LocalizedString>
-      <LocalizedString ElementType="ErrorMessage" StringId="DefaultMessage">#Invalid username or password.</LocalizedString>
-      <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfUserAccountDisabled">#Your account has been locked. Contact your support person to unlock it, then try again.</LocalizedString>
-      <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfUserAccountLocked">#Your account is temporarily locked to prevent unauthorized use. Try again later.</LocalizedString>
-      <LocalizedString ElementType="ErrorMessage" StringId="AADRequestsThrottled">#There are too many requests at this moment. Please wait for some time and try again.</LocalizedString>
-    </LocalizedStrings>
-  </LocalizedResources>
+ <LocalizedResources Id="api.signuporsignin.en">
+        <LocalizedStrings>
+          <LocalizedString ElementType="ClaimType" ElementId="signInName" StringId="DisplayName">Email Address</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="heading">Sign in</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="social_intro">Sign in with your social account</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="local_intro_generic">Sign in with your {0}</LocalizedString>
+          <LocalizedString ElementType="ClaimType" ElementId="password" StringId="DisplayName">Password</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="requiredField_password">Please enter your password</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="requiredField_generic">Please enter your {0}</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="invalid_generic">Please enter a valid {0}</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="createaccount_one_link">Sign up now</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="createaccount_two_links">Sign up with {0} or {1}</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="createaccount_three_links">Sign up with {0}, {1}, or {2}</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="forgotpassword_link">Forgot your password?</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="button_signin">Sign in</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="divider_title">OR</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="createaccount_intro">Don't have an account?</LocalizedString>
+          <LocalizedString ElementType="UxElement" StringId="unknown_error">We are having trouble signing you in. Please try again later.</LocalizedString>
+          <!-- Uncomment the remember_me only if the keep me signed in is activated. 
+          <LocalizedString ElementType="UxElement" StringId="remember_me">Keep me signed in</LocalizedString> -->
+          <LocalizedString ElementType="ClaimsProvider" StringId="FacebookExchange">Facebook</LocalizedString>
+          <LocalizedString ElementType="ErrorMessage" StringId="ResourceOwnerFlowInvalidCredentials">Your password is incorrect.</LocalizedString>
+          <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfInvalidPassword">Your password is incorrect.</LocalizedString>
+          <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfPasswordExpired">Your password has expired.</LocalizedString>
+          <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfClaimsPrincipalDoesNotExist">We can't seem to find your account.</LocalizedString>
+          <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfOldPasswordUsed">Looks like you used an old password.</LocalizedString>
+          <LocalizedString ElementType="ErrorMessage" StringId="DefaultMessage">Invalid username or password.</LocalizedString>
+          <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfUserAccountDisabled">Your account has been locked. Contact your support person to unlock it, then try again.</LocalizedString>
+          <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfUserAccountLocked">Your account is temporarily locked to prevent unauthorized use. Try again later.</LocalizedString>
+          <LocalizedString ElementType="ErrorMessage" StringId="AADRequestsThrottled">There are too many requests at this moment. Please wait for some time and try again.</LocalizedString>
+        </LocalizedStrings>
+      </LocalizedResources>
   <!--Local account sign-up or sign-in page Spanish-->
   <LocalizedResources Id="api.signuporsignin.es">
     <LocalizedStrings>
@@ -279,7 +286,7 @@ You configure localized resources elements for the content definition and any la
       <LocalizedString ElementType="UxElement" StringId="local_intro_email">#Iniciar sesión con su cuenta existente</LocalizedString>
       <LocalizedString ElementType="UxElement" StringId="invalid_email">#Escriba una dirección de correo electrónico válida</LocalizedString>
       <LocalizedString ElementType="UxElement" StringId="unknown_error">#Tenemos problemas para iniciar su sesión. Vuelva a intentarlo más tarde.  </LocalizedString>
-      <LocalizedString ElementType="UxElement" StringId="email_pattern">^[a-zA-Z0-9.!#$%&amp;'^_`{}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$</LocalizedString>
+      <LocalizedString ElementType="UxElement" StringId="email_pattern">^[a-zA-Z0-9.!#$%&amp;'^_`\{\}~\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*$</LocalizedString>
       <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfInvalidPassword">#Su contraseña es incorrecta.</LocalizedString>
       <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfClaimsPrincipalDoesNotExist">#Parece que no podemos encontrar su cuenta.</LocalizedString>
       <LocalizedString ElementType="ErrorMessage" StringId="UserMessageIfOldPasswordUsed">#Parece que ha usado una contraseña antigua.</LocalizedString>
@@ -412,12 +419,12 @@ In the following example, English (en) and Spanish (es) custom strings are added
 </ContentDefinitions>
 ```
 
-##  Upload and test your updated custom policy
+## Upload and test your updated custom policy
 
 ### Upload the custom policy
 
 1. Save the extensions file.
-1. Make sure you're using the directory that contains your Azure AD B2C tenant by selecting the **Directory + subscription** filter in the top menu and choosing the directory that contains your tenant.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
 1. Search for and select **Azure AD B2C**.
 1. Under **Policies**, select **Identity Experience Framework**.
 1. Select **Upload custom policy**.
@@ -431,7 +438,7 @@ In the following example, English (en) and Spanish (es) custom strings are added
 1. Switch your browser default language to Spanish. Or you can add the query string parameter, `ui_locales` to the authorization request. For example: 
 
 ```http
-https://<tenant-name>.b2clogin.com/<tenant-name>.onmicrosoft.com/B2C_1A_signup_signin/oauth2/v2.0/authorize&client_id=0239a9cc-309c-4d41-12f1-31299feb2e82&nonce=defaultNonce&redirect_uri=https%3A%2F%2Fjwt.ms&scope=openid&response_type=id_token&prompt=login&ui_locales=es
+https://<tenant-name>.b2clogin.com/<tenant-name>.onmicrosoft.com/B2C_1A_signup_signin/oauth2/v2.0/authorize&client_id=00001111-aaaa-2222-bbbb-3333cccc4444&nonce=defaultNonce&redirect_uri=https%3A%2F%2Fjwt.ms&scope=openid&response_type=id_token&prompt=login&ui_locales=es
 ```
 
 ::: zone-end
@@ -453,7 +460,7 @@ Microsoft is committed to providing the most up-to-date translations for your us
 
 ### Support for right-to-left languages
 
-Microsoft currently doesn't provide support for right-to-left languages. You can accomplish this by using custom locales and using CSS to change the way the strings are displayed. If you need this feature, please vote for it on [Azure Feedback](https://feedback.azure.com/forums/169401-azure-active-directory/suggestions/19393000-provide-language-support-for-right-to-left-languag).
+Microsoft currently doesn't provide support for right-to-left languages. You can accomplish this by using custom locales and using CSS to change the way the strings are displayed. If you need this feature, please vote for it on [Azure Feedback](https://feedback.azure.com/d365community/idea/10a7e89c-c325-ec11-b6e6-000d3a4f0789).
 
 ### Social identity provider translations
 
@@ -461,11 +468,11 @@ Microsoft provides the `ui_locales` OIDC parameter to social logins. But some so
 
 ### Browser behavior
 
-Chrome and Firefox both request for their set language. If it's a supported language, it's displayed before the default. Microsoft Edge currently does not request a language and goes straight to the default language.
+Microsoft Edge, Chrome and Firefox request for their set language. If it's a supported language, it's displayed before the default.
 
 ## Supported languages
 
-Azure AD B2C includes support for the following languages. User flow languages are provided by Azure AD B2C. The multi-factor authentication (MFA) notification languages are provided by [Azure AD MFA](../active-directory/authentication/concept-mfa-howitworks.md).
+Azure AD B2C includes support for the following languages by using ISO 639-1 codes. User flow languages are provided by Azure AD B2C. The multifactor authentication notification languages are provided by [Microsoft Entra multifactor authentication](../active-directory/authentication/concept-mfa-howitworks.md).
 
 | Language              | Language code | User flows         | MFA notifications  |
 |-----------------------| :-----------: | :----------------: | :----------------: |
@@ -520,6 +527,7 @@ Azure AD B2C includes support for the following languages. User flow languages a
 | Turkish               | tr            | ![Green check mark.](./media/user-flow-language-customization/yes.png) | ![Green check mark.](./media/user-flow-language-customization/yes.png) |
 | Ukrainian             | uk            | ![X indicating no.](./media/user-flow-language-customization/no.png) | ![Green check mark.](./media/user-flow-language-customization/yes.png) |
 | Vietnamese            | vi            | ![X indicating no.](./media/user-flow-language-customization/no.png) | ![Green check mark.](./media/user-flow-language-customization/yes.png) |
+| Welsh            | cy            | ![X indicating no.](./media/user-flow-language-customization/no.png) | ![X indicating no.](./media/user-flow-language-customization/no.png) |
 | Chinese - Simplified  | zh-hans       | ![Green check mark.](./media/user-flow-language-customization/yes.png) | ![Green check mark.](./media/user-flow-language-customization/yes.png) |
 | Chinese - Traditional | zh-hant       | ![Green check mark.](./media/user-flow-language-customization/yes.png) | ![Green check mark.](./media/user-flow-language-customization/yes.png) |
 

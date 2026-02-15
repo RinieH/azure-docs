@@ -2,24 +2,25 @@
 title: Add user attributes and customize user input 
 titleSuffix: Azure AD B2C
 description: Learn how to customize user input and add user attributes to the sign-up or sign-in journey in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
-
-ms.service: active-directory
-ms.workload: identity
+author: garrodonnell
+manager: CelesteDG
+ms.service: azure-active-directory
 ms.topic: how-to
-ms.date: 06/03/2021
-ms.custom: project-no-code
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 12/13/2024
+ms.author: godonnell
+ms.subservice: b2c
 zone_pivot_groups: b2c-policy-type
+ms.custom: sfi-image-nochange
+
+#Customer Intent: As a developer using Azure Active Directory B2C, I want to add a new attribute to the sign-up journey, customize the input type, and define whether it's required, so that I can collect specific user information during the sign-up process.
+
 ---
 #  Add user attributes and customize user input in Azure Active Directory B2C
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-choose-user-flow-or-custom-policy](../../includes/active-directory-b2c-choose-user-flow-or-custom-policy.md)]
 
-In this article, you collect a new attribute during your sign-up journey in Azure Active Directory B2C (Azure AD B2C). You'll obtain the users' city, configure it as a drop-down, and define whether it's required to be provided.
+In this article, you collect a new attribute, such as city, during your sign-up journey in Azure Active Directory B2C (Azure AD B2C). You obtain the users' city, configure it as a drop-down, and define whether it's required to be provided.
 
 > [!IMPORTANT]
 > This sample uses the built-in claim 'city'. Instead, you can choose one of the supported [Azure AD B2C built-in attributes](user-profile-attributes.md) or a custom attribute. To use a custom attribute, [enable custom attributes](user-flow-custom-attributes.md). To use a different built-in or custom attribute, replace 'city' with the attribute of your choice, for example the built-in attribute *jobTitle* or a custom attribute like *extension_loyaltyId*.  
@@ -32,6 +33,9 @@ In this article, you collect a new attribute during your sign-up journey in Azur
 
 ## Add user attributes your user flow
 
+1. Sign in to the [Azure portal](https://portal.azure.com).
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
+1. Under  **Azure services**, select  **Azure AD B2C**. Or use the search box to find and select  **Azure AD B2C**.
 1. In your Azure AD B2C tenant, select **User flows**.
 1. Select your policy (for example, "B2C_1_SignupSignin") to open it.
 1. Select **User attributes** and then select the user attribute (for example, "City"). 
@@ -39,11 +43,11 @@ In this article, you collect a new attribute during your sign-up journey in Azur
 
 ## Provide optional claims to your app
 
-The application claims are values that are returned to the application. Update your user flow to contain the desired claims.
+The application claims are values that are returned to the application. Update your user flow to contain the desired claims:
 
 1. Select your policy (for example, "B2C_1_SignupSignin") to open it.
 1. Select **Application claims**.
-1. Select attributes that you want send back to your application (for example, "City")..
+1. Select attributes that you want send back to your application (for example, "City").
 1. Select **Save**.
  
 ## Configure user attributes input type
@@ -52,9 +56,14 @@ The application claims are values that are returned to the application. Update y
 1. Select **Page layouts**.
 1. Select **Local account sign-up page**.
 1. Under **User attributes**, select **City**.
-    1. In the **User input type** drop-down, select **DropdownSingleSelect**. Optional: Use the "Move up/down" buttons to arrange the text order on the sign-up page.
     1. In the **Optional** drop-down, select **No**.
+    1. In the **User input type**, select the current user input type, such as **TextBox**, to open a **User input type editor** window pane.
+    1. In the **User input type** drop-down, select **DropdownSingleSelect**. 
+    1. In the **Text** and **Values**, enter the text and value pairs that make up your set of responses for the attribute. The **Text** displays in the web interface for your flow, and the **Values** is stored to Azure AD B2C for selected **Text**. Optional: Use the "Move up/down" buttons to reorder drop-down items.  
+1. Select **Ok**. Optional: Use the "Move up/down" buttons to reorder user attributes in the sign-up page.
 1. Select **Save**. 
+
+    :::image type="content" source="./media/configure-user-input/configure-user-attributes-input-type.png" alt-text="Web page call green API.":::
 
 ### Provide a list of values by using localized collections
 
@@ -63,11 +72,11 @@ To provide a set list of values for the city attribute:
 1. [Enable language customization on the user flow](language-customization.md#support-requested-languages-for-ui_locales)
 1. Select your policy (for example, "B2C_1_SignupSignin") to open it.
 1. On the **Languages** page for the user flow, select the language that you want to customize.
-1. Under **Page-level-resources files**, select **Local account sign up page**.
-1. Select **Download defaults** (or **Download overrides** if you have previously edited this language).
+1. Under **Page-level resources files**, select **Local account sign up page**.
+1. Select **Download defaults** (or **Download overrides** if you previously edited this language).
 1. Create a `LocalizedCollections` attribute.
 
-The `LocalizedCollections` is an array of `Name` and `Value` pairs. The order for the items will be the order they are displayed. 
+The `LocalizedCollections` is an array of `Name` and `Value` pairs. The order for the items is the order they are displayed. 
 
 * `ElementId` is the user attribute that this `LocalizedCollections` attribute is a response to.
 * `Name` is the value that's shown to the user.
@@ -107,7 +116,7 @@ The `LocalizedCollections` is an array of `Name` and `Value` pairs. The order fo
 1. Select **User flows** and select your policy (for example, "B2C_1_SignupSignin") to open it.
 1. Select **Languages**.
 1. Select the language that you want to translate to.
-1. Select the **Local account sign up page**.
+1. Under **Page-level-resources files**, select **Local account sign up page**.
 1. Select the folder icon, and select the JSON file to upload. The changes are saved to your user flow automatically.
 
 ## Test your user flow
@@ -115,7 +124,7 @@ The `LocalizedCollections` is an array of `Name` and `Value` pairs. The order fo
 1. Select your policy (for example, "B2C_1_SignupSignin") to open it.
 1. To test your policy, select **Run user flow**.
 1. For **Application**, select the web application named *testapp1* that you previously registered. The **Reply URL** should show `https://jwt.ms`.
-1. Click **Run user flow**
+1. Select **Run user flow**
 
 ::: zone-end
 
@@ -123,7 +132,7 @@ The `LocalizedCollections` is an array of `Name` and `Value` pairs. The order fo
 
 ## Overview
 
-You can gather initial data from your users by using the sign-up or sign-in user journey. Additional claims can be gathered later by using a profile edit user journey. Anytime Azure AD B2C gathers information directly from the user interactively, it uses the [self-asserted technical profile](self-asserted-technical-profile.md). In this sample, you:
+You can gather initial data from your users by using the sign-up or sign-in user journey. You can gather more claims later by using a profile edit user journey. Anytime Azure AD B2C gathers information directly from the user interactively, it uses the [self-asserted technical profile](self-asserted-technical-profile.md). In this sample, you:
 
 1. Define a "city" claim. 
 1. Ask the user for their city.
@@ -156,7 +165,7 @@ Open the extensions file of your policy. For example, <em>`SocialAndLocalAccount
       <UserInputType>DropdownSingleSelect</UserInputType>
       <Restriction>
         <Enumeration Text="Berlin" Value="berlin" />
-        <Enumeration Text="London" Value="bondon" />
+        <Enumeration Text="London" Value="london" />
         <Enumeration Text="Seattle" Value="seattle" />
       </Restriction>
     </ClaimType>
@@ -170,7 +179,7 @@ Include the [SelectByDefault](claimsschema.md#enumeration) attribute on an `Enum
 ```xml
 <Restriction>
   <Enumeration Text="Berlin" Value="berlin" />
-  <Enumeration Text="London" Value="bondon" SelectByDefault="true" />
+  <Enumeration Text="London" Value="london" SelectByDefault="true" />
   <Enumeration Text="Seattle" Value="seattle" />
 </Restriction>
 ```
@@ -241,7 +250,7 @@ To collect the city claim after initial sign-in with a federated account, it mus
 
 ## Read and write a claim
 
-The following technical profiles are [Active Directory technical profiles](active-directory-technical-profile.md), which read and write data to Azure Active Directory.  
+The following technical profiles are [Active Directory technical profiles](active-directory-technical-profile.md), which read and write data to Microsoft Entra ID.  
 Use `PersistedClaims` to write data to the user profile and `OutputClaims` to read data from the user profile within the respective Active Directory technical profiles.
 
 Override these technical profiles in the extension file. Find the **ClaimsProviders** element.  Add a new ClaimsProviders as follows:
@@ -317,7 +326,7 @@ To return the city claim back to the relying party application, add an output cl
 
 ## Upload and test your updated custom policy
 
-1. Make sure you're using the directory that contains your Azure AD B2C tenant by selecting the **Directory + subscription** filter in the top menu and choosing the directory that contains your tenant.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
 1. Search for and select **Azure AD B2C**.
 1. Under **Policies**, select **Identity Experience Framework**.
 1. Select **Upload custom policy**.
@@ -328,7 +337,7 @@ To return the city claim back to the relying party application, add an output cl
 1. Select your relying party policy, for example `B2C_1A_signup_signin`.
 1. For **Application**, select a web application that you [previously registered](tutorial-register-applications.md). The **Reply URL** should show `https://jwt.ms`.
 1. Select the **Run now** button.
-1. From the sign-up or sign-in page, select **Sign up now** to sign up. Finish entering the user information including the city name, and then click **Create**. You should see the contents of the token that was returned.
+1. From the sign-up or sign-in page, select **Sign up now** to sign up. Finish entering the user information including the city name, and then select **Create**. You should see the contents of the token that was returned.
 
 ::: zone-end
 
@@ -347,8 +356,8 @@ The token sent back to your application includes the `city` claim.
   "exp": 1583500140,
   "nbf": 1583496540,
   "ver": "1.0",
-  "iss": "https://contoso.b2clogin.com/f06c2fe8-709f-4030-85dc-38a4bfd9e82d/v2.0/",
-  "aud": "e1d2612f-c2bc-4599-8e7b-d874eaca1ee1",
+  "iss": "https://contoso.b2clogin.com/aaaabbbb-0000-cccc-1111-dddd2222eeee/v2.0/",
+  "aud": "00001111-aaaa-2222-bbbb-3333cccc4444",
   "acr": "b2c_1a_signup_signin",
   "nonce": "defaultNonce",
   "iat": 1583496540,
@@ -425,5 +434,13 @@ After you add the localization element, [edit the content definition with the lo
 
 - Learn more about the [ClaimsSchema](claimsschema.md) element in the IEF reference.
 - Learn how to [use custom attributes in Azure AD B2C](user-flow-custom-attributes.md).
+
+::: zone-end
+
+::: zone pivot="b2c-user-flow"
+## Next steps
+- [Customize user interface in Azure Active Directory B2C](customize-ui.md).
+- [Customize the user interface with HTML templates in Azure Active Directory B2C](customize-ui-with-html.md).
+- [Enable JavaScript](javascript-and-page-layout.md).
 
 ::: zone-end

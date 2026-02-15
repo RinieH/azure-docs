@@ -1,14 +1,13 @@
 ---
 title: Create and use views in serverless SQL pool
 description: In this section, you'll learn how to create and use views to wrap serverless SQL pool queries. Views will allow you to reuse those queries. Views are also needed if you want to use tools, such as Power BI, in conjunction with serverless SQL pool.
-services: synapse-analytics
 author: azaricstefan
-ms.service: synapse-analytics
-ms.topic: overview
+ms.service: azure-synapse-analytics
+ms.topic: how-to
 ms.subservice: sql
-ms.date: 05/20/2020
+ms.date: 12/06/2024
 ms.author: stefanazaric
-ms.reviewer: jrasnick 
+
 ---
 
 # Create and use views using serverless SQL pool in Azure Synapse Analytics
@@ -54,7 +53,7 @@ The view uses an `EXTERNAL DATA SOURCE` with a root URL of your storage, as a `D
 
 ### Delta Lake views
 
-If you are creating the views on top of Delta Lake folder, you need to specify the location to the root folder after the `BULK` option instead of specifying the file path.
+If you're creating the views on top of Delta Lake folder, you need to specify the location to the root folder after the `BULK` option instead of specifying the file path.
 
 > [!div class="mx-imgBorder"]
 >![ECDC COVID-19 Delta Lake folder](./media/shared/covid-delta-lake-studio.png)
@@ -76,7 +75,7 @@ from openrowset(
            ) as rows
 ```
 
-Delta Lake is in public preview and there are some known issues and limitations. Review the known issues on [Synapse serverless SQL pool self-help page](resources-self-help-sql-on-demand.md#delta-lake).
+For more information, review [Synapse serverless SQL pool self-help page](resources-self-help-sql-on-demand.md#delta-lake) and [Azure Synapse Analytics known issues](../known-issues.md).
 
 ## Partitioned views
 
@@ -93,11 +92,15 @@ FROM
     ) AS nyc
 ```
 
-The partitioned views will perform folder partition elimination if you query this view with the filters on the partitioning columns. This might improve performance of your queries.
+Partitioned views can improve the performance of your queries by performing partition elimination when you query them with filters on the partitioning columns. However, not all queries support partition elimination, so it's important to follow some best practices.
+
+To ensure partition elimination, avoid using subqueries in filters, since they can interfere with the ability to eliminate partitions. Instead, pass the result of the subquery as a variable to the filter.
+
+When using JOINs in SQL queries, declare the filter predicate as NVARCHAR to reduce the complexity of the query plan and increase the probability of correct partition elimination. Partition columns are typically inferred as NVARCHAR(1024), so using the same type for the predicate avoids the need for an implicit cast, which can increase query plan complexity.
 
 ### Delta Lake partitioned views
 
-If you are creating the partitioned views on top of Delta Lake storage, you can specify just a root Delta Lake folder and don't need to explicitly expose the partitioning columns using the `FILEPATH` function:
+If you're creating the partitioned views on top of Delta Lake storage, you can specify just a root Delta Lake folder and don't need to explicitly expose the partitioning columns using the `FILEPATH` function:
 
 ```sql
 CREATE OR ALTER VIEW YellowTaxiView
@@ -117,9 +120,59 @@ The folder name in the `OPENROWSET` function (`yellow` in this example) that is 
 > [!div class="mx-imgBorder"]
 >![Yellow Taxi Delta Lake folder](./media/shared/yellow-taxi-delta-lake.png)
 
-Do not use the `WITH` clause in the `OPENROWSET` function when you query partitioned Delta Lake data. Due to the known issue in the preview, the `WITH` clause will [not properly return the values from the underlying partitioning columns](resources-self-help-sql-on-demand.md#partitioning-column-returns-null-values). Partition elimination works fine if you are directly using the `OPENROWSET` function with the `WITH` clause (without views).  
+For more information, review [Synapse serverless SQL pool self-help page](resources-self-help-sql-on-demand.md#delta-lake) and [Azure Synapse Analytics known issues](../known-issues.md).
 
-Delta Lake is in public preview and there are some known issues and limitations. Review the known issues on [Synapse serverless SQL pool self-help page](resources-self-help-sql-on-demand.md#delta-lake).
+## JSON views
+
+The views are the good choice if you need to do some extra processing on top of the result set that is fetched from the files. One example might be parsing JSON files where we need to apply the JSON functions to extract the values from the JSON documents:
+
+```sql
+CREATE OR ALTER VIEW CovidCases
+AS 
+select
+    *
+from openrowset(
+        bulk 'latest/ecdc_cases.jsonl',
+        data_source = 'covid',
+        format = 'csv',
+        fieldterminator ='0x0b',
+        fieldquote = '0x0b'
+    ) with (doc nvarchar(max)) as rows
+    cross apply openjson (doc)
+        with (  date_rep datetime2,
+                cases int,
+                fatal int '$.deaths',
+                country varchar(100) '$.countries_and_territories')
+```
+
+The `OPENJSON` function parses each line from the JSONL file containing one JSON document per line in textual format.
+
+## <a id="cosmosdb-view"></a> Azure Cosmos DB views on containers
+
+The views can be created on top of the Azure Cosmos DB containers if the Azure Cosmos DB analytical storage is enabled on the container. The Azure Cosmos DB account name, database name, and container name should be added as a part of the view, and the read-only access key should be placed in the database scoped credential that the view references.
+
+This example script uses a database and container you can set up by [following these instructions](query-cosmos-db-analytical-store.md#sample-dataset).
+
+>[!IMPORTANT]
+>In the script, replace these values with your own values:
+>- **your-cosmosdb** - the name of your Cosmos DB account
+>- **access-key** - your Cosmos DB account key
+
+```sql
+CREATE DATABASE SCOPED CREDENTIAL MyCosmosDbAccountCredential
+WITH IDENTITY = 'SHARED ACCESS SIGNATURE', SECRET = 'access-key';
+GO
+CREATE OR ALTER VIEW Ecdc
+AS SELECT *
+FROM OPENROWSET(
+      PROVIDER = 'CosmosDB',
+      CONNECTION = 'Account=your-cosmosdb;Database=covid',
+      OBJECT = 'Ecdc',
+      CREDENTIAL = 'MyCosmosDbAccountCredential'
+    ) with ( date_rep varchar(20), cases bigint, geo_id varchar(6) ) as rows
+```
+
+For more information, see [Query Azure Cosmos DB data with a serverless SQL pool in Azure Synapse Link](query-cosmos-db-analytical-store.md).
 
 ## Use a view
 
@@ -143,6 +196,8 @@ ORDER BY
     [population] DESC;
 ```
 
-## Next steps
+When you query the view, you may encounter errors or unexpected results. This probably means that the view references columns or objects that were modified or no longer exist. You need to manually adjust the view definition to align with the underlying schema changes.
+
+## Related content
 
 For information on how to query different file types, refer to the [Query single CSV file](query-single-csv-file.md), [Query Parquet files](query-parquet-files.md), and [Query JSON files](query-json-files.md) articles.

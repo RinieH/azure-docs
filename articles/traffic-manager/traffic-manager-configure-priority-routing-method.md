@@ -2,15 +2,15 @@
 title: 'Tutorial: Configure priority traffic routing with Azure Traffic Manager'
 description: This tutorial explains how to configure the priority traffic routing method in Traffic Manager
 services: traffic-manager
-documentationcenter: ''
-author: duongau
-ms.service: traffic-manager
-ms.devlang: na
+author: asudbring
+ms.service: azure-traffic-manager
 ms.topic: tutorial
-ms.tgt_pltfrm: na
-ms.workload: infrastructure-services
-ms.date: 10/16/2020
-ms.author: duau
+ms.date: 04/26/2023
+ms.author: allensu
+ms.custom:
+  - template-tutorial
+  - sfi-image-nochange
+# Customer intent: "As a network administrator, I want to configure priority traffic routing in a traffic management system, so that I can ensure reliable service failover and optimal traffic distribution to my endpoints."
 ---
 
 # Tutorial: Configure priority traffic routing method in Traffic Manager
@@ -28,7 +28,9 @@ In this tutorial, you learn how to:
 
 ## Prerequisites
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?WT.mc_id=A261C142F) before you begin.
+* If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
+
+* For the *Add an endpoint* section we will connect to an app service. To learn more, see [Create an App Service app](../app-service/overview.md)
 
 ## To configure the priority traffic routing method
 1. From a browser, sign in to the [Azure portal](https://portal.azure.com).
@@ -37,7 +39,7 @@ If you don't have an Azure subscription, create a [free account](https://azure.m
 
     :::image type="content" source="./media/traffic-manager-priority-routing-method/create-traffic-manager-priority-profile.png" alt-text="Create a Traffic Manager priority profile":::
 
-1. In the *Create Traffic Manager profile* page define the following settings:
+1. In the Create Traffic Manager profile page, define the following settings:
 
     | Setting         | Value                                              |
     | ---             | ---                                                |
@@ -75,7 +77,7 @@ If you don't have an Azure subscription, create a [free account](https://azure.m
 
     :::image type="content" source="./media/traffic-manager-priority-routing-method/add-endpoint.png" alt-text="Add priority 1 endpoint":::
 
-1. On the **Endpoints** page, review the priority order for your endpoints. When you select the **Priority** traffic routing method, the order of the selected endpoints matters. Verify the priority order of endpoints.  The primary endpoint is on top. Double-check on the order it's displayed. All requests will be routed to the first endpoint and if Traffic Manager detects it be unhealthy, the traffic automatically fails over to the next endpoint. 
+1. On the **Endpoints** page, review the priority order for your endpoints. When you select the **Priority** traffic routing method, the order of the selected endpoints matters. Verify the priority order of endpoints.  The primary endpoint is on top. Double-check on the order it's displayed. All requests will be routed to the first endpoint and if Traffic Manager detects it 's unhealthy, the traffic automatically fails over to the next endpoint. 
 
     :::image type="content" source="./media/traffic-manager-priority-routing-method/endpoints-list.png" alt-text="List of priority endpoints":::
 
@@ -87,7 +89,7 @@ If you don't have an Azure subscription, create a [free account](https://azure.m
 
     :::image type="content" source="./media/traffic-manager-priority-routing-method/search-traffic-manager-profile.png" alt-text="Search Traffic Manager profile":::
 
-1. 	The **Traffic Manager profile** overview page displays the DNS name of your newly created Traffic Manager profile. This can be used by any clients (for example, by navigating to it using a web browser) to get routed to the right endpoint as determined by the routing type. In this case, all requests get routed to the first endpoint and if Traffic Manager detects it be unhealthy, the traffic automatically fails over to the next endpoint.
+1. 	The **Traffic Manager profile** overview page displays the DNS name of your newly created Traffic Manager profile. This can be used by any clients (for example, by navigating to it using a web browser) to get routed to the right endpoint as determined by the routing type. In this case, all requests get routed to the first endpoint and if Traffic Manager detects it 's unhealthy, the traffic automatically fails over to the next endpoint.
 
     :::image type="content" source="./media/traffic-manager-priority-routing-method/traffic-manager-profile-dns-name.png" alt-text="Traffic Manager DNS name":::
 

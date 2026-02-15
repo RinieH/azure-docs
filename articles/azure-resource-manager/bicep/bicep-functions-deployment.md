@@ -1,76 +1,73 @@
 ---
 title: Bicep functions - deployment
 description: Describes the functions to use in a Bicep file to retrieve deployment information.
-author: mumian
-ms.author: jgao
-ms.topic: conceptual
-ms.date: 06/01/2021
+ms.topic: reference
+ms.custom: devx-track-bicep
+ms.date: 01/06/2026
 ---
 
 # Deployment functions for Bicep
 
-Resource Manager provides the following functions for getting values related to the current deployment of your Bicep file:
+This article describes the Bicep functions for getting values related to the current deployment.
 
-* [deployment](#deployment)
-* [environment](#environment)
+## deployer
 
-To get values from resources, resource groups, or subscriptions, see [Resource functions](./bicep-functions-resource.md).
+`deployer()`
+
+Returns information about the principal (identity) that initiated the current deployment. The principal can be a user, service principal, or managed identity, depending on how the deployment was started.
+
+Namespace: [az](bicep-functions.md#namespaces-for-functions).
+
+### Return value
+
+This function returns an object with details about the deployment principal, including:
+
+- `objectId`: The Microsoft Entra ID object ID of the principal.
+- `tenantId`: The Microsoft Entra ID tenant ID.
+- `userPrincipalName`: The user principal name (UPN) if available. For service principals or managed identities, this property may be empty.
+
+> [!NOTE]
+> The returned values depend on the deployment context. For example, `userPrincipalName` may be empty for service principals or managed identities.
+
+```json
+{
+  "objectId": "<principal-object-id>",
+  "tenantId": "<tenant-id>",
+  "userPrincipalName": "<user@domain.com or empty>"
+}
+```
+
+### Example
+
+The following example Bicep file returns the deployer object.
+
+```bicep
+output deployer object = deployer()
+```
+
+Sample output (values differ based on your deployment):
+
+```json
+{
+  "objectId":"aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb",
+  "tenantId":"aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e",
+  "userPrincipalName":"john.doe@contoso.com"
+}
+```
+
+For more information about Azure identities, see [What is an Azure Active Directory identity?](/azure/active-directory/fundamentals/active-directory-whatis)
 
 ## deployment
 
 `deployment()`
 
-Returns information about the current deployment operation.
+Returns information about the current deployment operation. 
+
+Namespace: [az](bicep-functions.md#namespaces-for-functions).
 
 ### Return value
 
-This function returns the object that is passed during deployment. The properties in the returned object differ based on whether you are:
-
-* deploying a local Bicep file.
-* deploying to a resource group or deploying to one of the other scopes ([Azure subscription](deploy-to-subscription.md), [management group](deploy-to-management-group.md), or [tenant](deploy-to-tenant.md)).
-
-When deploying a local Bicep file to a resource group: the function returns the following format:
-
-```json
-{
-  "name": "",
-  "properties": {
-    "template": {
-      "$schema": "",
-      "contentVersion": "",
-      "parameters": {},
-      "variables": {},
-      "resources": [],
-      "outputs": {}
-    },
-    "templateHash": "",
-    "parameters": {},
-    "mode": "",
-    "provisioningState": ""
-  }
-}
-```
-
-When you deploy to an Azure subscription, management group, or tenant, the return object includes a `location` property. The location property is included when deploying a local Bicep file. The format is:
-
-```json
-{
-  "name": "",
-  "location": "",
-  "properties": {
-    "template": {
-      "$schema": "",
-      "contentVersion": "",
-      "resources": [],
-      "outputs": {}
-    },
-    "templateHash": "",
-    "parameters": {},
-    "mode": "",
-    "provisioningState": ""
-  }
-}
-```
+Bicep files are sometimes compiled to [languageVersion 2.0](../templates/syntax.md#languageversion-20) ARM templates. Therefore, Bicep type checking considers the `deployment()` function to return only the subset of properties as would be returned in a languageVersion 2.0 ARM template. For more information, see [deployment() function for languageVersion 2.0](../templates/template-functions-deployment.md#deployment ).
 
 ### Example
 
@@ -84,23 +81,23 @@ The preceding example returns the following object:
 
 ```json
 {
-  "name": "deployment",
+  "name": "deploymentOutput",
+  "location": "",
   "properties": {
     "template": {
-      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
       "contentVersion": "1.0.0.0",
-      "resources": [],
-      "outputs": {
-        "deploymentOutput": {
-          "type": "Object",
-          "value": "[deployment()]"
+      "metadata": {
+        "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+        "_EXPERIMENTAL_FEATURES_ENABLED": [
+          "Asserts"
+        ],
+        "_generator": {
+          "name": "bicep",
+          "version": "0.39.26.7824",
+          "templateHash": "10348958332696598785"
         }
       }
-    },
-    "templateHash": "13135986259522608210",
-    "parameters": {},
-    "mode": "Incremental",
-    "provisioningState": "Accepted"
+    }
   }
 }
 ```
@@ -109,7 +106,13 @@ The preceding example returns the following object:
 
 `environment()`
 
-Returns information about the Azure environment used for deployment.
+Returns information about the Azure environment used for deployment. The `environment()` function isn't aware of resource configurations. It can only return a single default DNS suffix for each resource type.
+
+Namespace: [az](bicep-functions.md#namespaces-for-functions).
+
+### Remarks
+
+To see a list of registered environments for your account, use [az cloud list](/cli/azure/cloud#az-cloud-list) or [Get-AzEnvironment](/powershell/module/az.accounts/get-azenvironment).
 
 ### Return value
 
@@ -173,11 +176,8 @@ The preceding example returns the following object when deployed to global Azure
   "vmImageAliasDoc": "https://raw.githubusercontent.com/Azure/azure-rest-api-specs/master/arm-compute/quickstart-templates/aliases.json",
   "resourceManager": "https://management.azure.com/",
   "authentication": {
-    "loginEndpoint": "https://login.windows.net/",
-    "audiences": [
-      "https://management.core.windows.net/",
-      "https://management.azure.com/"
-    ],
+    "loginEndpoint": "https://login.microsoftonline.com/",
+    "audiences": [ "https://management.core.windows.net/", "https://management.azure.com/" ],
     "tenant": "common",
     "identityProvider": "AAD"
   },
@@ -195,4 +195,4 @@ The preceding example returns the following object when deployed to global Azure
 
 ## Next steps
 
-* For a description of the sections in a Bicep file, see [Understand the structure and syntax of Bicep files](./file.md).
+* To get values from resources, resource groups, or subscriptions, see [Resource functions](./bicep-functions-resource.md).

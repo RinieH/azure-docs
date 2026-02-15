@@ -1,86 +1,132 @@
 ---
-title: Virtual Network service endpoints - Azure Event Hubs | Microsoft Docs
-description: This article provides information on how to add a Microsoft.EventHub service endpoint to a virtual network. 
-ms.topic: article
-ms.date: 05/10/2021
+title: Secure Azure Event Hubs Using Virtual Network Integration
+description: Discover how to bind Azure Event Hubs to virtual networks for enhanced security. Isolate messaging services from public internet access with this guide.
+#customer intent: As an IT admin, I want to bind Event Hubs namespaces to virtual networks so that I can isolate messaging services from public internet access.
+ms.topic: how-to
+ms.date: 01/30/2026
+ms.custom:
+  - devx-track-azurepowershell, devx-track-azurecli
+  - ai-gen-docs-bap
+  - ai-gen-title
+  - ai-seo-date:07/28/2025
+  - ai-gen-description
+  - sfi-image-nochange
 ---
 
 # Allow access to Azure Event Hubs namespaces from specific virtual networks 
 
-The integration of Event Hubs with [Virtual Network (VNet) Service Endpoints][vnet-sep] enables secure access to messaging capabilities from workloads such as virtual machines that are bound to virtual networks, with the network traffic path being secured on both ends. 
+Integrate Event Hubs with Azure Virtual Network service endpoints to restrict access to your Event Hubs namespace from specific virtual network subnets. This article explains how virtual network integration works and provides step-by-step instructions to configure it.
 
-Once configured to bound to at least one virtual network subnet service endpoint, the respective Event Hubs namespace no longer accepts traffic from anywhere but authorized subnets in virtual networks. From the virtual network perspective, binding an Event Hubs namespace to a service endpoint configures an isolated networking tunnel from the virtual network subnet to the messaging service. 
+## Overview
 
-The result is a private and isolated relationship between the workloads bound to the subnet and the respective Event Hubs namespace, in spite of the observable network address of the messaging service endpoint being in a public IP range. There's an exception to this behavior. Enabling a service endpoint, by default, enables the `denyall` rule in the [IP firewall](event-hubs-ip-filtering.md) associated with the virtual network. You can add specific IP addresses in the IP firewall to enable access to the Event Hub public endpoint. 
+By using [Virtual Network service endpoints][vnet-sep], workloads running in a virtual network, such as virtual machines, can securely access your Event Hubs namespace. The network traffic path is secured on both ends.
+
+When you configure an Event Hubs namespace with at least one virtual network service endpoint, the namespace only accepts traffic from authorized subnets. From the virtual network perspective, the service endpoint creates an isolated networking tunnel from the subnet to the Event Hubs namespace.
+
+This configuration establishes a private and isolated connection between workloads in the subnet and your Event Hubs namespace, even though the Event Hubs service endpoint uses a public IP address.
 
 ## Important points
+
 - This feature isn't supported in the **basic** tier.
-- Enabling virtual networks for your Event Hubs namespace blocks incoming requests by default, unless requests originate from a service operating from allowed virtual networks. Requests that are blocked include those from other Azure services, from the Azure portal, from logging and metrics services, and so on. As an exception, you can allow access to Event Hubs resources from certain **trusted services** even when virtual networks are enabled. For a list of trusted services, see [Trusted services](#trusted-microsoft-services).
-- Specify **at least one IP rule or virtual network rule** for the namespace to allow traffic only from the specified IP addresses or subnet of a virtual network. If there are no IP and virtual network rules, the namespace can be accessed over the public internet (using the access key).  
+- When you enable virtual networks for your Event Hubs namespace, incoming requests are blocked by default unless they originate from a service operating from allowed virtual networks. Blocked requests include the requests from other Azure services, the Azure portal, logging and metrics services, and so on. As an exception, you can allow access to Event Hubs resources from certain **trusted services** even when virtual networks are enabled. For a list of trusted services, see [Trusted services](#trusted-microsoft-services).
+- Specify **at least one IP rule or virtual network rule** for the namespace to allow traffic only from the specified IP addresses or subnet of a virtual network. If you don't specify any IP and virtual network rules, the namespace is accessible over the public internet (using the access key).  
 
-## Advanced security scenarios enabled by VNet integration 
+## Advanced security scenarios enabled by virtual network integration 
 
-Solutions that require tight and compartmentalized security, and where virtual network subnets provide the segmentation between the compartmentalized services, still need communication paths between services residing in those compartments.
+Virtual network integration supports scenarios that require strict security isolation while still allowing communication between compartmentalized services.
 
-Any immediate IP route between the compartments, including those carrying HTTPS over TCP/IP, carries the risk of exploitation of vulnerabilities from the network layer on up. Messaging services provide insulated communication paths, where messages are even written to disk as they transition between parties. Workloads in two distinct virtual networks that are both bound to the same Event Hubs instance can communicate efficiently and reliably via messages, while the respective network isolation boundary integrity is preserved.
- 
-That means your security sensitive cloud solutions not only gain access to Azure industry-leading reliable and scalable asynchronous messaging capabilities, but they can now use messaging to create communication paths between secure solution compartments that are inherently more secure than what is achievable with any peer-to-peer communication mode, including HTTPS and other TLS-secured socket protocols.
+Direct IP routes between network compartments, even those using HTTPS over TCP/IP, are vulnerable to network-layer exploits. Event Hubs provides a more secure alternative by acting as an intermediary. Workloads in separate virtual networks that connect to the same Event Hubs instance can exchange messages reliably while maintaining network isolation.
 
-## Bind event hubs to virtual networks
+This approach gives security-sensitive solutions access to Azure's scalable messaging capabilities while creating communication paths that are more secure than direct peer-to-peer connections.
 
-**Virtual network rules** are the firewall security feature that controls whether your Azure Event Hubs namespace accepts connections from a particular virtual network subnet.
+## Bind Event Hubs to virtual networks
 
-Binding an Event Hubs namespace to a virtual network is a two-step process. You first need to create a **virtual Network service endpoint** on a virtual network's subnet and enable it for **Microsoft.EventHub** as explained in the [service endpoint overview][vnet-sep] article. Once you've added the service endpoint, you bind the Event Hubs namespace to it with a **virtual network rule**.
+**Virtual network rules** control whether your Event Hubs namespace accepts connections from a specific virtual network subnet.
 
-The virtual network rule is an association of the Event Hubs namespace with a virtual network subnet. While the rule exists, all workloads bound to the subnet are granted access to the Event Hubs namespace. Event Hubs itself never establishes outbound connections, doesn't need to gain access, and is therefore never granted access to your subnet by enabling this rule.
+To bind an Event Hubs namespace to a virtual network:
+
+1. Create a **service endpoint** on a virtual network subnet and enable it for **Microsoft.EventHub**. For more information, see [Virtual network service endpoints][vnet-sep].  
+1. Add a **virtual network rule** to bind the Event Hubs namespace to the service endpoint.
+
+The virtual network rule creates an association between the Event Hubs namespace and the virtual network subnet. All workloads in the subnet can access the Event Hubs namespace while the rule exists.
+
+> [!NOTE]
+> Event Hubs doesn't establish outbound connections to your subnet. The rule only grants inbound access from the subnet to Event Hubs.
 
 ## Use Azure portal
-This section shows you how to use Azure portal to add a virtual network service endpoint. To limit access, you need to integrate the virtual network service endpoint for this Event Hubs namespace.
 
-1. Navigate to your **Event Hubs namespace** in the [Azure portal](https://portal.azure.com).
-4. Select **Networking** under **Settings** on the left menu. 
+When creating a namespace, you can choose between:  
 
-    > [!WARNING]
-    > If you select the **Selected networks** option and don't add at least one IP firewall rule or a virtual network on this page, the namespace can be accessed via **public internet** (using the access key). 
+- **Public access**: Allows access from all networks.  
+- **Private access**: Restricts access to private endpoints only.  
 
-    :::image type="content" source="./media/event-hubs-firewall/selected-networks.png" alt-text="Networks tab - selected networks option" lightbox="./media/event-hubs-firewall/selected-networks.png":::    
+After creating the namespace, you can further refine access by specifying IP addresses or virtual networks or network security perimeters.
 
-    If you select the **All networks** option, the event hub accepts connections from any IP address (using the access key). This setting is equivalent to a rule that accepts the 0.0.0.0/0 IP address range. 
+### Configure public access when creating a namespace
 
-    ![Firewall - All networks option selected](./media/event-hubs-firewall/firewall-all-networks-selected.png)
-1. To restrict access to specific networks, select the **Selected Networks** option at the top of the page if it isn't already selected.
-2. In the **Virtual Network** section of the page, select **+Add existing virtual network***. Select **+ Create new virtual network** if you want to create a new VNet. 
+To enable public access, select **Public access** on the **Networking** page of the namespace creation wizard. 
 
-    ![add existing virtual network](./media/event-hubs-tutorial-vnet-and-firewalls/add-vnet-menu.png)
+:::image type="content" source="./media/event-hubs-firewall/create-namespace-public-access.png" alt-text="Screenshot showing the Networking page of the Create namespace wizard with Public access option selected." lightbox="./media/event-hubs-firewall/create-namespace-public-access.png":::
 
-    >[!WARNING]
-    > If you select the **Selected networks** option and don't add at least one IP firewall rule or a virtual network on this page, the namespace can be accessed over public internet (using the access key).
-3. Select the virtual network from the list of virtual networks, and then pick the **subnet**. You have to enable the service endpoint before adding the virtual network to the list. If the service endpoint isn't enabled, the portal will prompt you to enable it.
+After you create the namespace, select **Networking** in the left menu of the **Event Hubs Namespace** page. 
+
+By default, **Public network access** is enabled for the namespace for **all networks**.
+
+:::image type="content" source="./media/event-hubs-firewall/public-network-access.png" alt-text="Screenshot showing the Networking page of the Event Hubs namespace with Public network access enabled." lightbox="./media/event-hubs-firewall/public-network-access.png":::
+
+This option enables public access from all networks by using an **access key**. The namespace accepts connections from any IP address (using the access key). 
+
+The next section provides you details on configuring virtual network service endpoints to specify the virtual networks from which the access is allowed. 
+
+### Configure selected networks for an existing namespace
+
+This section shows you how to use Azure portal to add a virtual network service endpoint. To limit access, integrate the virtual network service endpoint for this Event Hubs namespace.
+
+1. Go to your **Event Hubs namespace** in the [Azure portal](https://portal.azure.com).
+1. Select **Networking** under **Settings** in the left menu. 
+1. On the **Networking** page, select **Manage** under **Public network access**.
+
+    :::image type="content" source="./media/event-hubs-firewall/manage-public-network-access.png" alt-text="Screenshot showing the Public access page with Manage button highlighted." lightbox="./media/event-hubs-firewall/enable-selected-networks.png":::     
+1. On the **Public network access** page, in the **Default action** section, select **Enable from selected networks** to allow access from only specified IP addresses.
+
+    :::image type="content" source="./media/event-hubs-firewall/enable-selected-networks.png" alt-text="Screenshot showing the Public network access page with Enable from selected networks option selected." lightbox="./media/event-hubs-firewall/enable-selected-networks.png"::: 
+
+    > [!IMPORTANT]
+    > If you choose **Selected networks**, add at least one IP firewall rule or a virtual network that has access to the namespace. Choose **Disabled** if you want to restrict all traffic to this namespace over [private endpoints](private-link-service.md) only.
+1. In the **Virtual networks** section of the page, select **+Add a virtual network** -> **Add existing virtual network***. Select **Add new virtual network** if you want to create a new virtual network. 
+
+    :::image type="content" source="./media/event-hubs-tutorial-vnet-and-firewalls/add-vnet-menu.png" lightbox="./media/event-hubs-tutorial-vnet-and-firewalls/add-vnet-menu.png" alt-text="Selection of Add existing virtual network menu item.":::
+
+    > [!IMPORTANT]
+    > If you choose **Selected networks**, add at least one IP firewall rule or a virtual network that can access your namespace. Choose **Disabled** if you want to restrict all traffic to this namespace over [private endpoints](private-link-service.md) only.
+1. Select the **virtual network** from the list of virtual networks, select the **subnet**, and then select **Enable**. You must enable the service endpoint before adding the virtual network to the list. If the service endpoint isn't enabled, the portal prompts you to enable it.
    
-   ![select subnet](./media/event-hubs-tutorial-vnet-and-firewalls/select-subnet.png)
+    :::image type="content" source="./media/event-hubs-tutorial-vnet-and-firewalls/select-subnet.png" lightbox="./media/event-hubs-tutorial-vnet-and-firewalls/select-subnet.png" alt-text="Image showing the selection of a subnet.":::
+1. You see a success message after enabling the service endpoint for the subnet for **Microsoft.EventHub**. Select **Add** at the bottom of the page to add the network. 
 
-4. You should see the following successful message after the service endpoint for the subnet is enabled for **Microsoft.EventHub**. Select **Add** at the bottom of the page to add the network. 
-
-    ![select subnet and enable endpoint](./media/event-hubs-tutorial-vnet-and-firewalls/subnet-service-endpoint-enabled.png)
+    :::image type="content" source="./media/event-hubs-tutorial-vnet-and-firewalls/subnet-service-endpoint-enabled.png" lightbox="./media/event-hubs-tutorial-vnet-and-firewalls/subnet-service-endpoint-enabled.png" alt-text="Image showing the selection of a subnet and enabling an endpoint.":::
 
     > [!NOTE]
-    > If you are unable to enable the service endpoint, you may ignore the missing virtual network service endpoint using the Resource Manager template. This functionality is not available on the portal.
-5. Specify whether you want to **allow trusted Microsoft services to bypass this firewall**. See [Trusted Microsoft services](#trusted-microsoft-services) for details. 
-6. Select **Save** on the toolbar to save the settings. Wait for a few minutes for the confirmation to show up on the portal notifications.
+    > If you're unable to enable the service endpoint, you can ignore the missing virtual network service endpoint by using the Resource Manager template. This functionality isn't available on the portal.
+1. In the **Exception** section, specify whether you want to **allow trusted Microsoft services to access this resource**. See [Trusted Microsoft services](#trusted-microsoft-services) for details.
+1. Select **Save** on the toolbar to save the settings. Wait a few minutes for the confirmation to appear in the portal notifications.
 
-    ![Save network](./media/event-hubs-tutorial-vnet-and-firewalls/save-vnet.png)
+    :::image type="content" source="./media/event-hubs-tutorial-vnet-and-firewalls/save-vnet.png" lightbox="./media/event-hubs-tutorial-vnet-and-firewalls/save-vnet.png" alt-text="Image showing the saving of virtual network.":::
 
     > [!NOTE]
     > To restrict access to specific IP addresses or ranges, see [Allow access from specific IP addresses or ranges](event-hubs-ip-filtering.md).
 
+    > [!NOTE]
+    > To delete a Virtual Network rule, first remove any Azure Resource Manager delete lock on the Virtual Network.
+
 [!INCLUDE [event-hubs-trusted-services](./includes/event-hubs-trusted-services.md)]
 
 ## Use Resource Manager template
-The following sample Resource Manager template adds a virtual network rule to an existing Event Hubs namespace. For the network rule, it specifies the ID of a subnet in a virtual network. 
+This sample Resource Manager template adds a virtual network rule to an existing Event Hubs namespace. It specifies the ID of a subnet in a virtual network for the network rule. 
 
-The ID is a fully qualified Resource Manager path for the virtual network subnet. For example, `/subscriptions/{id}/resourceGroups/{rg}/providers/Microsoft.Network/virtualNetworks/{vnet}/subnets/default` for the default subnet of a virtual network.
+The ID is a fully qualified Resource Manager path for the virtual network subnet. For example: `/subscriptions/{id}/resourceGroups/{rg}/providers/Microsoft.Network/virtualNetworks/{vnet}/subnets/default`.
 
-When adding virtual network or firewalls rules, set the value of `defaultAction` to `Deny`.
+When adding virtual network or firewall rules, set the value of `defaultAction` to `Deny`.
 
 
 ```json
@@ -163,6 +209,8 @@ When adding virtual network or firewalls rules, set the value of `defaultAction`
           "[concat('Microsoft.EventHub/namespaces/', parameters('eventhubNamespaceName'))]"
         ],
         "properties": {
+          "publicNetworkAccess": "Enabled",
+          "defaultAction": "Deny",
           "virtualNetworkRules": 
           [
             {
@@ -172,9 +220,8 @@ When adding virtual network or firewalls rules, set the value of `defaultAction`
               "ignoreMissingVnetServiceEndpoint": false
             }
           ],
-          "ipRules":[<YOUR EXISTING IP RULES>],
-          "trustedServiceAccessEnabled": false,
-          "defaultAction": "Deny"
+          "ipRules":[],
+          "trustedServiceAccessEnabled": false
         }
       }
     ],
@@ -185,14 +232,64 @@ When adding virtual network or firewalls rules, set the value of `defaultAction`
 To deploy the template, follow the instructions for [Azure Resource Manager][lnk-deploy].
 
 > [!IMPORTANT]
-> If there are no IP and virtual network rules, all the traffic flows into the namespace even if you set the `defaultAction` to `deny`.  The namespace can be accessed over the public internet (using the access key). Specify at least one IP rule or virtual network rule for the namespace to allow traffic only from the specified IP addresses or subnet of a virtual network.  
+> If you don't specify any IP or virtual network rules, all traffic flows into the namespace even if you set the `defaultAction` to `Deny`. The namespace is accessible over the public internet (using the access key). To allow traffic only from the specified IP addresses or subnet of a virtual network, specify at least one IP rule or virtual network rule for the namespace.  
 
-## Next steps
+## Use Azure CLI
 
-For more information about virtual networks, see the following links:
+Use the [`az eventhubs namespace network-rule-set`](/cli/azure/eventhubs/namespace/network-rule-set) commands to manage virtual network rules for an Event Hubs namespace:
 
-- [Azure virtual network service endpoints][vnet-sep]
-- [Azure Event Hubs IP filtering][ip-filtering]
+- `add` - Add a virtual network rule
+- `list` - List all network rules
+- `update` - Update network rules
+- `remove` - Remove a virtual network rule
+
+## Use Azure PowerShell
+
+Use the following Azure PowerShell commands to manage virtual network rules for an Event Hubs namespace:
+
+| Command | Description |
+|---------|-------------|
+| [`Add-AzEventHubVirtualNetworkRule`](/powershell/module/az.eventhub/add-azeventhubvirtualnetworkrule) | Add a virtual network rule |
+| [`New-AzEventHubVirtualNetworkRuleConfig`](/powershell/module/az.eventhub/new-azeventhubipruleconfig) | Create a virtual network rule configuration (use with `Set-AzEventHubNetworkRuleSet`) |
+| [`Set-AzEventHubNetworkRuleSet`](/powershell/module/az.eventhub/set-azeventhubnetworkruleset) | Apply network rule configuration to a namespace |
+| [`Remove-AzEventHubVirtualNetworkRule`](/powershell/module/az.eventhub/remove-azeventhubvirtualnetworkrule) | Remove a virtual network rule |
+
+
+## Default action and public network access 
+
+### REST API
+
+The behavior of the `defaultAction` property varies by API version:
+
+| API version | Default value | Behavior |
+|-------------|---------------|----------|
+| **2021-01-01-preview and earlier** | `Deny` | The deny rule isn't enforced unless you configure IP filters or virtual network rules. Without rules, traffic is allowed. |
+| **2021-06-01-preview and later** | `Allow` | The service enforces the configured action. Set to `Deny` to block traffic not matching your rules. |
+
+API version **2021-06-01-preview** also introduces the `publicNetworkAccess` property:
+
+- `Enabled` - Allow operations over the public internet
+- `Disabled` - Restrict operations to private links only
+
+The service remembers your rules when you disable and re-enable them.
+
+For more information, see [Create or Update Network Rule Set](/rest/api/eventhub/namespaces/create-or-update-network-rule-set) and [Create or Update Private Endpoint Connections](/rest/api/eventhub/private-endpoint-connections/create-or-update).
+
+> [!NOTE]
+> Network settings don't bypass authentication. The service always validates SAS or Microsoft Entra authentication claims after checking the network rules configured by `defaultAction`, `publicNetworkAccess`, and `privateEndpointConnections`.
+
+### Azure portal
+
+The Azure portal always uses the latest API version to get and set properties. If you previously configured your namespace by using **2021-01-01-preview and earlier** versions with `defaultAction` set to `Deny`, and you specified zero IP filters and virtual network rules, the portal previously checked **Selected Networks** on the **Networking** page of your namespace. Now, it checks the **All networks** option. 
+
+:::image type="content" source="./media/event-hubs-firewall/firewall-all-networks-selected.png" lightbox="./media/event-hubs-firewall/firewall-all-networks-selected.png" alt-text="Screenshot of the Public access page with the All networks option selected.":::
+
+
+## Related content
+
+- [Azure virtual network service endpoints][vnet-sep]  
+- [Allow access from specific IP addresses or ranges][ip-filtering]  
+- [Use private endpoints for Azure Event Hubs](private-link-service.md)
 
 [vnet-sep]: ../virtual-network/virtual-network-service-endpoints-overview.md
 [lnk-deploy]: ../azure-resource-manager/templates/deploy-powershell.md

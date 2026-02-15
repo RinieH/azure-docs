@@ -3,10 +3,12 @@ title: Incrementally copy data using Change Tracking using PowerShell
 description: In this tutorial, you create an Azure Data Factory pipeline that copies delta data incrementally from multiple tables in a SQL Server database to Azure SQL Database.
 ms.author: yexu
 author: dearandyxu
-ms.service: data-factory
 ms.topic: tutorial
-ms.custom: seo-lt-2019; seo-dt-2019, devx-track-azurepowershell
-ms.date: 02/18/2021
+ms.date: 10/03/2024
+ms.subservice: data-movement
+ms.custom:
+  - devx-track-azurepowershell
+  - sfi-image-nochange
 ---
 
 # Incrementally load data from Azure SQL Database to Azure Blob Storage using change tracking information using PowerShell
@@ -26,7 +28,7 @@ You perform the following steps in this tutorial:
 > * Add or update data in the source table
 > * Create, run, and monitor the incremental copy pipeline
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 ## Overview
 In a data integration solution, incrementally loading data after initial data loads is a widely used scenario. In some cases, the changed data within a period in your source data store can be easily to sliced up (for example, LastModifyTime, CreationTime). In some cases, there is no explicit way to identify the delta data from last time you processed the data. The Change Tracking technology supported by data stores such as Azure SQL Database and SQL Server can be used to identify the delta data.  This tutorial describes how to use Azure Data Factory with SQL Change Tracking technology to incrementally load delta data from Azure SQL Database into Azure Blob Storage.  For more concrete information about SQL Change Tracking technology, see [Change tracking in SQL Server](/sql/relational-databases/track-changes/about-change-tracking-sql-server).
@@ -51,21 +53,21 @@ In this tutorial, you create two pipelines that perform the following two operat
 
 1. **Initial load:** you create a pipeline with a copy activity that copies the entire data from the source data store (Azure SQL Database) to the destination data store (Azure Blob Storage).
 
-    ![Full loading of data](media/tutorial-incremental-copy-change-tracking-feature-powershell/full-load-flow-diagram.png)
+    :::image type="content" source="media/tutorial-incremental-copy-change-tracking-feature-powershell/full-load-flow-diagram.png" alt-text="Full loading of data":::
 1.  **Incremental load:** you create a pipeline with the following activities, and run it periodically.
     1. Create **two lookup activities** to get the old and new SYS_CHANGE_VERSION from Azure SQL Database and pass it to copy activity.
     2. Create **one copy activity** to copy the inserted/updated/deleted data between the two SYS_CHANGE_VERSION values from Azure SQL Database to Azure Blob Storage.
     3. Create **one stored procedure activity** to update the value of SYS_CHANGE_VERSION for the next pipeline run.
 
-    ![Increment load flow diagram](media/tutorial-incremental-copy-change-tracking-feature-powershell/incremental-load-flow-diagram.png)
+    :::image type="content" source="media/tutorial-incremental-copy-change-tracking-feature-powershell/incremental-load-flow-diagram.png" alt-text="Increment load flow diagram":::
 
 
-If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/free/) account before you begin.
+If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) account before you begin.
 
 ## Prerequisites
 
-* Azure PowerShell. Install the latest Azure PowerShell modules by following instructions in [How to install and configure Azure PowerShell](/powershell/azure/install-Az-ps).
-* **Azure SQL Database**. You use the database as the **source** data store. If you don't have a database in Azure SQL Database, see the [Create a database in Azure SQL Database](../azure-sql/database/single-database-create-quickstart.md) article for steps to create one.
+* Azure PowerShell. Install the latest Azure PowerShell modules by following instructions in [How to install and configure Azure PowerShell](/powershell/azure/install-azure-powershell).
+* **Azure SQL Database**. You use the database as the **source** data store. If you don't have a database in Azure SQL Database, see the [Create a database in Azure SQL Database](/azure/azure-sql/database/single-database-create-quickstart) article for steps to create one.
 * **Azure Storage account**. You use the blob storage as the **sink** data store. If you don't have an Azure storage account, see the [Create a storage account](../storage/common/storage-account-create.md) article for steps to create one. Create a container named **adftutorial**. 
 
 ### Create a data source table in your database
@@ -142,16 +144,18 @@ If you don't have an Azure subscription, create a [free](https://azure.microsoft
     ```
 
 ### Azure PowerShell
-Install the latest Azure PowerShell modules by following  instructions in [How to install and configure Azure PowerShell](/powershell/azure/install-Az-ps).
+Install the latest Azure PowerShell modules by following  instructions in [How to install and configure Azure PowerShell](/powershell/azure/install-azure-powershell).
 
 ## Create a data factory
+
 1. Define a variable for the resource group name that you use in PowerShell commands later. Copy the following command text to PowerShell, specify a name for the [Azure resource group](../azure-resource-manager/management/overview.md) in double quotes, and then run the command. For example: `"adfrg"`. 
    
-     ```powershell
+    ```powershell
     $resourceGroupName = "ADFTutorialResourceGroup";
     ```
 
     If the resource group already exists, you may not want to overwrite it. Assign a different value to the `$resourceGroupName` variable and run the command again
+
 2. Define a variable for the location of the data factory:
 
     ```powershell
@@ -226,19 +230,22 @@ In this step, you link your Azure Storage Account to the data factory.
 ### Create Azure SQL Database linked service.
 In this step, you link your database to the data factory.
 
-1. Create a JSON file named **AzureSQLDatabaseLinkedService.json** in **C:\ADFTutorials\IncCopyChangeTrackingTutorial** folder with the following content: Replace **&lt;server&gt; &lt;database name&gt;, &lt;user id&gt;, and &lt;password&gt;** with name of your server, name of your database, user ID, and password before saving the file.
+1. Create a JSON file named **AzureSQLDatabaseLinkedService.json** in **C:\ADFTutorials\IncCopyChangeTrackingTutorial** folder with the following content: Replace &lt;your-server-name&gt; and &lt;your-database-name&gt; with the name of your server and database before you save the file. You must also configure your Azure SQL Server to [grant access to your data factory's managed identity](connector-azure-sql-database.md#user-assigned-managed-identity-authentication).
 
     ```json
     {
-        "name": "AzureSQLDatabaseLinkedService",
-        "properties": {
+    "name": "AzureSqlDatabaseLinkedService",
+    "properties": {
             "type": "AzureSqlDatabase",
             "typeProperties": {
-                "connectionString": "Server = tcp:<server>.database.windows.net,1433;Initial Catalog=<database name>; Persist Security Info=False; User ID=<user name>; Password=<password>; MultipleActiveResultSets = False; Encrypt = True; TrustServerCertificate = False; Connection Timeout = 30;"
-            }
+                "connectionString": "Server=tcp:<your-server-name>.database.windows.net,1433;Database=<your-database-name>;"
+            },
+            "authenticationType": "ManagedIdentity",
+            "annotations": []
         }
     }
     ```
+    
 2. In **Azure PowerShell**, run the **Set-AzDataFactoryV2LinkedService** cmdlet to create the linked service: **AzureSQLDatabaseLinkedService**.
 
     ```powershell
@@ -435,26 +442,26 @@ Invoke-AzDataFactoryV2Pipeline -PipelineName "FullCopyPipeline" -ResourceGroup $
 1. Log in to [Azure portal](https://portal.azure.com).
 2. Click **All services**, search with the keyword `data factories`, and select **Data factories**.
 
-    ![Data factories menu](media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-data-factories-menu-1.png)
+    :::image type="content" source="media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-data-factories-menu-1.png" alt-text="Data factories menu":::
 3. Search for **your data factory** in the list of data factories, and select it to launch the Data factory page.
 
-    ![Search for your data factory](media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-search-data-factory-2.png)
+    :::image type="content" source="media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-search-data-factory-2.png" alt-text="Search for your data factory":::
 4. In the Data factory page, click **Monitor & Manage** tile.
 
-    ![Monitor & Manage tile](media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-monitor-manage-tile-3.png)    
+    :::image type="content" source="media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-monitor-manage-tile-3.png" alt-text="Monitor & Manage tile":::    
 5. The **Data Integration Application** launches in a separate tab. You can see all the **pipeline runs** and their statuses. Notice that in the following example, the status of the pipeline run is **Succeeded**. You can check parameters passed to the pipeline by clicking link in the **Parameters** column. If there was an error, you see a link in the **Error** column. Click the link in the **Actions** column.
 
-    ![Screenshot shows pipeline runs for a data factory.](media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-pipeline-runs-4.png)    
+    :::image type="content" source="media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-pipeline-runs-4.png" alt-text="Screenshot shows pipeline runs for a data factory.":::    
 6. When you click the link in the **Actions** column, you see the following page that shows all the **activity runs** for the pipeline.
 
-    ![Screenshot shows activity runs for a data factory with the Pipelines link called out.](media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-activity-runs-5.png)
+    :::image type="content" source="media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-activity-runs-5.png" alt-text="Screenshot shows activity runs for a data factory with the Pipelines link called out.":::
 7. To switch back to the **Pipeline runs** view, click **Pipelines** as shown in the image.
 
 
 ### Review the results
 You see a file named `incremental-<GUID>.txt` in the `incchgtracking` folder of the `adftutorial` container.
 
-![Output file from full copy](media/tutorial-incremental-copy-change-tracking-feature-powershell/full-copy-output-file.png)
+:::image type="content" source="media/tutorial-incremental-copy-change-tracking-feature-powershell/full-copy-output-file.png" alt-text="Output file from full copy":::
 
 The file should have the data from your database:
 
@@ -620,16 +627,16 @@ Invoke-AzDataFactoryV2Pipeline -PipelineName "IncrementalCopyPipeline" -Resource
 ### Monitor the incremental copy pipeline
 1. In the **Data Integration Application**, refresh the **pipeline runs** view. Confirm that you see the IncrementalCopyPipeline in the list. Click the link in the **Actions** column.  
 
-    ![Screenshot shows pipeline runs for a data factory including your pipeline.](media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-pipeline-runs-6.png)    
+    :::image type="content" source="media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-pipeline-runs-6.png" alt-text="Screenshot shows pipeline runs for a data factory including your pipeline.":::    
 2. When you click the link in the **Actions** column, you see the following page that shows all the **activity runs** for the pipeline.
 
-    ![Screenshot shows pipeline runs for a data factory with several marked as succeeded.](media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-activity-runs-7.png)
+    :::image type="content" source="media/tutorial-incremental-copy-change-tracking-feature-powershell/monitor-activity-runs-7.png" alt-text="Screenshot shows pipeline runs for a data factory with several marked as succeeded.":::
 3. To switch back to the **Pipeline runs** view, click **Pipelines** as shown in the image.
 
 ### Review the results
 You see the second file in the `incchgtracking` folder of the `adftutorial` container.
 
-![Output file from incremental copy](media/tutorial-incremental-copy-change-tracking-feature-powershell/incremental-copy-output-file.png)
+:::image type="content" source="media/tutorial-incremental-copy-change-tracking-feature-powershell/incremental-copy-output-file.png" alt-text="Output file from incremental copy":::
 
 The file should have only the delta data from your database. The record with `U` is the updated row in the database and `I` is the one added row.
 
@@ -648,7 +655,7 @@ PersonID Name    Age    SYS_CHANGE_VERSION    SYS_CHANGE_OPERATION
 ```
 
 
-## Next steps
+## Related content
 Advance to the following tutorial to learn about copying new and changed files only based on their LastModifiedDate:
 
 > [!div class="nextstepaction"]

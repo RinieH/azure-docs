@@ -4,20 +4,22 @@ description: Describes how to configure and run a module on GPU on an Azure Stac
 services: databox
 author: alkohli
 
-ms.service: databox
-ms.subservice: edge
+ms.service: azure-stack-edge
 ms.topic: how-to
-ms.date: 03/12/2021
+ms.date: 10/19/2022
 ms.author: alkohli
+ms.custom: sfi-image-nochange
 ---
 # Configure and run a module on GPU on Azure Stack Edge Pro device
 
 [!INCLUDE [applies-to-GPU-and-pro-r-skus](../../includes/azure-stack-edge-applies-to-gpu-pro-r-sku.md)]
 
+> [!NOTE]
+> We strongly recommend that you deploy the latest IoT Edge version in a Linux VM. The managed IoT Edge on Azure Stack Edge uses an older version of IoT Edge runtime that doesn’t have the latest features and patches. For instructions, see how to [Deploy an Ubuntu VM](azure-stack-edge-gpu-deploy-iot-edge-linux-vm.md). For more information on other supported Linux distributions that can run IoT Edge, see [Azure IoT Edge supported systems – Container engines](../iot-edge/support.md#linux-containers).
+
 Your Azure Stack Edge Pro device contains one or more Graphics Processing Unit (GPU). GPUs are a popular choice for AI computations as they offer parallel processing capabilities and are faster at image rendering than Central Processing Units (CPUs). For more information on the GPU contained in your Azure Stack Edge Pro device, go to [Azure Stack Edge Pro device technical specifications](azure-stack-edge-gpu-technical-specifications-compliance.md).
 
-This article describes how to configure and run a module on the GPU on your Azure Stack Edge Pro device. In this article, you will use a publicly available container module **Digits** written for Nvidia T4 GPUs. This procedure can be used to configure any other modules published by Nvidia for these GPUs.
-
+This article describes how to configure and run a module on the GPU on your Azure Stack Edge Pro device. In this article, you will use a publicly available container module **Digits** written for NVIDIA T4 GPUs. This procedure can be used to configure any other modules published by NVIDIA for these GPUs.
 
 ## Prerequisites
 
@@ -80,7 +82,7 @@ To configure a module to use the GPU on your Azure Stack Edge Pro device to run 
 
 10. In the **Add IoT Edge Module** tab:
 
-    1. Provide the **Image URI**. You will use the publicly available Nvidia module **Digits** here. 
+    1. Provide the **Image URI**. You will use the publicly available NVIDIA module **Digits** here. 
     
     2. Set **Restart policy** to **always**.
     
@@ -96,7 +98,7 @@ To configure a module to use the GPU on your Azure Stack Edge Pro device to run 
 
        ![Configure module to use GPU 11](media/azure-stack-edge-gpu-configure-gpu-modules/configure-gpu-7.png)
 
-       For more information on environment variables that you can use with the Nvidia GPU, go to [nVidia container runtime](https://github.com/NVIDIA/nvidia-container-runtime#environment-variables-oci-spec).
+       For more information on environment variables that you can use with the NVIDIA GPU, go to [NVIDIA container runtime](https://github.com/NVIDIA/nvidia-container-runtime#environment-variables-oci-spec).
 
     > [!NOTE]
     > A module can use one, both or no GPUs.
@@ -124,4 +126,4 @@ To configure a module to use the GPU on your Azure Stack Edge Pro device to run 
 
 ## Next steps
 
-- Learn more about [Environment variables that you can use with the Nvidia GPU](https://github.com/NVIDIA/nvidia-container-runtime#environment-variables-oci-spec).
+- Learn more about [Environment variables that you can use with the NVIDIA GPU](https://github.com/NVIDIA/nvidia-container-runtime#environment-variables-oci-spec).

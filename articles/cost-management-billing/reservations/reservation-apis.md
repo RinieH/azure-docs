@@ -1,14 +1,13 @@
 ---
-title: APIs for Azure reservation automation | Microsoft Docs
+title: APIs for Azure reservation automation
 description: Learn about the Azure APIs that you can use to programmatically get reservation information.
-author: yashesvi
-ms.reviewer: yashesvi
-tags: billing
+author: pri-mittal
+ms.reviewer: primittal
 ms.service: cost-management-billing
 ms.subservice: reservations
 ms.topic: conceptual
-ms.date: 02/13/2020
-ms.author: banders
+ms.date: 01/15/2026
+ms.author: primittal
 ---
 
 # APIs for Azure reservation automation
@@ -17,7 +16,7 @@ Use Azure APIs to programmatically get information for your organization about A
 
 ## Find reservation plans to buy
 
-Use the Reservation recommendation API to get recommendations on which reservations plan to buy based on your organization's usage. For more information, see [Get reservation recommendations](/rest/api/billing/enterprise/billing-enterprise-api-reserved-instance-recommendation).
+Use the Reservation recommendation API to get recommendations on which reservations plan to buy based on your organization's usage. For more information, see [Reservation Recommendations](/rest/api/consumption/reservation-recommendations).
 
 You can also analyze your resource usage by using the Consumption API Usage Detail. For more information, see [Usage Details - List For Billing Period By Billing Account](/rest/api/consumption/usagedetails/list#billingaccountusagedetailslistforbillingperiod-legacy). The Azure resources that you use consistently are usually the best candidate for a reservation.
 
@@ -27,13 +26,13 @@ You can purchase Azure reservations and software plans programmatically by using
 
 Here's a sample request to purchase by using the REST API:
 
-```
+```http
 PUT https://management.azure.com/providers/Microsoft.Capacity/reservationOrders/<GUID>?api-version=2019-04-01
 ```
 
 Request body:
 
-```
+```json
 {
  "sku": {
     "name": "standard_D1"
@@ -41,7 +40,7 @@ Request body:
  "location": "westus",
  "properties": {
     "reservedResourceType": "VirtualMachines",
-    "billingScopeId": "/subscriptions/ed3a1871-612d-abcd-a849-c2542a68be83",
+    "billingScopeId": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e",
     "term": "P1Y",
     "quantity": "1",
     "displayName": "TestReservationOrder",
@@ -57,21 +56,21 @@ Request body:
 You can also buy a reservation in the Azure portal. For more information, see the following articles:
 
 Service plans:
-- [Virtual machine](../../virtual-machines/prepay-reserved-vm-instances.md?toc=%2fazure%2fbilling%2fTOC.json)
--  [Cosmos DB](../../cosmos-db/cosmos-db-reserved-capacity.md?toc=/azure/billing/TOC.json)
-- [SQL Database](../../azure-sql/database/reserved-capacity-overview.md?toc=/azure/billing/TOC.json)
+- [Virtual machine](/azure/virtual-machines/prepay-reserved-vm-instances?toc=/azure/cost-management-billing/reservations/toc.json)
+- [Azure Cosmos DB](/azure/cosmos-db/cosmos-db-reserved-capacity?toc=/azure/cost-management-billing/reservations/toc.json)
+- [SQL Database](/azure/azure-sql/database/reserved-capacity-overview?toc=/azure/cost-management-billing/reservations/toc.json)
 
 Software plans:
-- [SUSE Linux software](../../virtual-machines/linux/prepay-suse-software-charges.md?toc=/azure/billing/TOC.json)
+- [SUSE Linux software](/azure/virtual-machines/linux/prepay-suse-software-charges?toc=/azure/cost-management-billing/reservations/toc.json)
 
 ## Get reservations
 
-If you're an Azure customer with an Enterprise Agreement (EA customer), you can get the reservations your organization bought by using the [Get Reserved Instance transaction charges API](/rest/api/billing/enterprise/billing-enterprise-api-reserved-instance-charges). For other subscriptions, get the list of reservations you bought and have permissions to view by using the API [Reservation Order - List](/rest/api/reserved-vm-instances/reservationorder/list). By default, the account owner or person that bought the reservation has permissions to view the reservation.
+If you're an Azure customer with an Enterprise Agreement (EA customer), you can get the reservations your organization bought by using the [Reservation Transactions - List](/rest/api/consumption/reservation-transactions/list). For other subscriptions, get the list of reservations you bought and have permissions to view by using the API [Reservation Order - List](/rest/api/reserved-vm-instances/reservationorder/list). By default, the account owner or person that bought the reservation has permissions to view the reservation.
 
 ## See reservation usage
 
 If you're an EA customer, you can programmatically view how the reservations in your organization are being used. For more information, see
-[Get Reserved Instance usage for enterprise customers](/rest/api/billing/enterprise/billing-enterprise-api-reserved-instance-usage). For other subscriptions, use the API [Reservations Summaries - List By Reservation Order And Reservation](/rest/api/consumption/reservationssummaries/listbyreservationorderandreservation).
+[Reservation Transactions - List](/rest/api/consumption/reservation-transactions/list). For other subscriptions, use the API [Reservations Summaries - List By Reservation Order And Reservation](/rest/api/consumption/reservationssummaries/listbyreservationorderandreservation).
 
 If you find that your organization's reservations are being under-used:
 
@@ -102,7 +101,7 @@ The scope of a reservation can be single subscription, single resource group or 
 
 To change the scope programmatically, use the API [Reservation - Update](/rest/api/reserved-vm-instances/reservation/update).
 
-## Learn more
+## Related content
 
 - [What are reservations for Azure](save-compute-costs-reservations.md)
 - [Understand how the VM reservation discount is applied](../manage/understand-vm-reservation-charges.md)

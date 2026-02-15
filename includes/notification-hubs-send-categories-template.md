@@ -3,11 +3,13 @@
  description: include file
  services: notification-hubs
  author: sethmanheim
- ms.service: notification-hubs
+ ms.service: azure-notification-hubs
  ms.topic: include
  ms.date: 11/07/2019
  ms.author: sethm
- ms.custom: include file
+ ms.custom:
+   - include file
+   - sfi-ropc-nochange
 ---
 
 In this section, you send breaking news as tagged template notifications from a .NET console app.
@@ -81,4 +83,4 @@ In this section, you send breaking news as tagged template notifications from a 
 [Notification Hubs REST interface]: /previous-versions/azure/reference/dn223264(v=azure.100)
 [Add push notifications for Mobile Apps]: /previous-versions/azure/app-service-mobile/app-service-mobile-windows-store-dotnet-get-started-push
 [How to use Notification Hubs from Java or PHP]: ../articles/notification-hubs/notification-hubs-java-push-notification-tutorial.md
-[Microsoft.Azure.NotificationHubs]: http://www.nuget.org/packages/Microsoft.Azure.NotificationHubs/
+[Microsoft.Azure.NotificationHubs]: https://www.nuget.org/packages/Microsoft.Azure.NotificationHubs/

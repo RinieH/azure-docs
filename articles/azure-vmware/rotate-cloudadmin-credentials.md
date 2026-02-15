@@ -1,64 +1,76 @@
 ---
 title: Rotate the cloudadmin credentials for Azure VMware Solution
-description: Learn how to rotate the vCenter Server and NSX-T Manager credentials for your Azure VMware Solution private cloud. 
+description: Learn how to rotate the vCenter Server credentials for your Azure VMware Solution private cloud. 
 ms.topic: how-to
-ms.date: 06/01/2021
-
-#Customer intent: As an Azure service administrator, I want to rotate my cloudadmin credentials so that the HCX Connector has the latest vCenter CloudAdmin and NSX-T admin credentials.
-
+ms.service: azure-vmware
+ms.custom: devx-track-azurecli, engagement-fy23
+ms.date: 3/22/2024
+# Customer intent: As an Azure service administrator, I want to rotate my cloudadmin credentials so that the HCX Connector has the latest vCenter Server CloudAdmin credentials.
 ---
 
 # Rotate the cloudadmin credentials for Azure VMware Solution
 
-In this article, you'll rotate the cloudadmin credentials (vCenter and NSX-T credentials) for your Azure VMware Solution private cloud.  Although the passwords for these accounts don't expire, you can generate new ones. After generating new passwords, you must update VMware HCX Connector with the latest credentials applied.
+In this article, you learn how to rotate the cloudadmin credentials (vCenter Server and VMware NSX cloudadmin credentials) for your Azure VMware Solution private cloud. Although the password for this account doesn't expire, you can generate a new one at any time.
 
-You can also watch a video on how to [reset the vCenter CloudAdmin & NSX-T admin password](https://youtu.be/cK1qY3knj88). 
+>[!CAUTION]
+>If you use your cloudadmin credentials to connect services to vCenter Server or NSX in your private cloud, those connections stop working after you rotate your password. Those connections also lock out the cloudadmin account unless you stop those services before you rotate the password.
 
 ## Prerequisites
 
-If you use your cloudadmin credentials for connected services like HCX, vRealize Orchestrator, vRealize Operations Manager, or VMware Horizon, your connections stop working once you update your password.  Stop these services before initiating the password rotation. Otherwise, you'll experience temporary locks on your vCenter CloudAdmin and NSX-T admin accounts, as these services continuously call using your old credentials.  For more information about setting up separate accounts for connected services, see [Access and Identity Concepts](./concepts-identity.md).
+Consider and determine which services connect to vCenter Server as `cloudadmin@vsphere.local` or NSX as cloudadmin before you rotate the password. Services can include VMware services like HCX, vRealize Orchestrator, vRealize Operations Manager, VMware Horizon, or other non-Microsoft tools that are used for monitoring or provisioning.
 
-## Reset your Azure VMware Solution cloudadmin credentials
+One way to determine which services authenticate to vCenter Server with the cloudadmin user is to inspect vSphere events by using the vSphere Client for your private cloud. After you identify such services, and before you rotate the password, you must stop these services. Otherwise, the services won't work after you rotate the password. You can also experience temporary locks on your vCenter Server cloudadmin account. Locks occur because these services continuously attempt to authenticate by using a cached version of the old credentials.
 
-In this step, you'll rotate the cloudadmin credentials for your Azure VMware Solution components. 
+Instead of using the cloudadmin user to connect services to vCenter Server or NSX, we recommend that you use individual accounts for each service. For more information about setting up separate accounts for connected services, see [Access and identity architecture](./architecture-identity.md).
 
->[!NOTE]
->Remember to replace **{SubscriptionID}**, **{ResourceGroup}**, and **{PrivateCloudName}** with you private cloud information.
+## Reset your vCenter Server credentials
 
-1. From the Azure portal, open an Azure Cloud Shell session.
+### [Portal](#tab/azure-portal)
 
-2. Update your vCenter CloudAdmin password.  
+1. In your Azure VMware Solution private cloud, select **VMware credentials**.
+1. Select **Generate new password** under vCenter Server credentials.
+1. Select the confirmation checkbox and then select **Generate password**.
+
+### [Azure CLI](#tab/azure-cli)
+
+To begin using the Azure CLI:
+
+[!INCLUDE [azure-cli-prepare-your-environment-no-header](~/reusable-content/azure-cli/azure-cli-prepare-your-environment-no-header.md)]
+
+1. In your Azure VMware Solution private cloud, open an Azure Cloud Shell session.
+
+1. Update your vCenter Server cloudadmin credentials. Remember to replace `{SubscriptionID}`, `{ResourceGroup}`, and `{PrivateCloudName}` with your private cloud information.
 
    ```azurecli-interactive
    az resource invoke-action --action rotateVcenterPassword --ids "/subscriptions/{SubscriptionID}/resourceGroups/{ResourceGroup}/providers/Microsoft.AVS/privateClouds/{PrivateCloudName}" --api-version "2020-07-17-preview"
    ```
-          
-3. Update your NSX-T admin password. 
 
-   ```azurecli-interactive
-   az resource invoke-action --action rotateNSXTPassword --ids "/subscriptions/{SubscriptionID}/resourceGroups/{ResourceGroup}/providers/Microsoft.AVS/privateClouds/{PrivateCloudName}" --api-version "2020-07-17-preview"
-   ```
+---
 
-## Update HCX Connector with the latest cloudadmin credentials
+### Update HCX Connector
 
-In this step, you'll update HCX Connector with the updated credentials.
+1. Go to the on-premises HCX Connector and sign in by using the new credentials.
 
-1. Go to the on-premises HCX Connector at https://{ip of the HCX connector appliance}:443 and sign in using the new credentials.
+   Be sure to use port **443**.
 
-   Be sure to use port 443. 
+1. On the VMware HCX dashboard, select **Site Pairing**.
 
-2. On the VMware HCX Dashboard, select **Site Pairing**.
-    
-   :::image type="content" source="media/rotate-cloudadmin-credentials/hcx-site-pairing.png" alt-text="Screenshot of VMware HCX Dashboard with Site Pairing highlighted.":::
- 
-3. Select the correct connection to Azure VMware Solution and select **Edit Connection**.
- 
-4. Provide the new vCenter Server CloudAdmin user credentials and select **Edit**, which saves the credentials. Save should show successful.
+   :::image type="content" source="media/tutorial-vmware-hcx/site-pairing-complete.png" alt-text="Screenshot that shows the VMware HCX dashboard with Site Pairing highlighted.":::
+
+1. Select the correct connection to Azure VMware Solution and select **Edit Connection**.
+
+1. Provide the new vCenter Server user credentials. Select **Edit** to save the credentials. Save should show as successful.
+
+## Reset your NSX Manager credentials
+
+1. In your Azure VMware Solution private cloud, select **VMware credentials**.
+1. Under NSX Manager credentials, select **Generate new password**.
+1. Select the confirmation checkbox and then select **Generate password**.
 
 ## Next steps
 
-Now that you've covered resetting vCenter Server and NSX-T Manager credentials for Azure VMware Solution, you may want to learn about:
+Now that you've learned how to reset your vCenter Server and NSX Manager credentials for Azure VMware Solution, consider learning more about:
 
-- [Configuring NSX network components in Azure VMware Solution](configure-nsx-network-components-azure-portal.md)
 - [Integrating Azure native services in Azure VMware Solution](integrate-azure-native-services.md)
 - [Deploying disaster recovery for Azure VMware Solution workloads using VMware HCX](deploy-disaster-recovery-using-vmware-hcx.md)
+

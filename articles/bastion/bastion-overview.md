@@ -1,58 +1,98 @@
 ---
-title: 'Azure Bastion | Microsoft Docs'
-description: Learn about Azure Bastion, which provides secure and seamless RDP/SSH connectivity to your virtual machines without exposing RDP/SSH ports externally.
+title: What is Azure Bastion?
+description: Azure Bastion is a fully managed service that provides secure and seamless RDP/SSH connectivity to virtual machines without exposing RDP/SSH ports externally.
+author: abell
+ms.author: abell
+ms.service: azure-bastion
 services: bastion
-author: cherylmc
-# Customer intent: As someone with a basic network background, but is new to Azure, I want to understand the capabilities of Azure Bastion so that I can securely connect to my Azure virtual machines.
-
-ms.service: bastion
 ms.topic: overview
-ms.date: 06/22/2021
-ms.author: cherylmc
-
+ms.custom: mvc, references_regions, ignite-2024
+ms.date: 02/04/2026
+# Customer intent: As an administrator, I want to evaluate Azure Bastion so I can determine if I want to use it.
 ---
+
 # What is Azure Bastion?
 
-Azure Bastion is a service you deploy that lets you connect to a virtual machine using your browser and the Azure portal. The Azure Bastion service is a fully platform-managed PaaS service that you provision inside your virtual network. It provides secure and seamless RDP/SSH connectivity to your virtual machines directly from the Azure portal over TLS. When you connect via Azure Bastion, your virtual machines do not need a public IP address, agent, or special client software.
+Azure Bastion is a fully managed PaaS service that provides secure and seamless RDP/SSH connectivity to your virtual machines directly over TLS from the Azure portal, or via the native SSH or RDP client already installed on your local computer. Azure Bastion is deployed directly in your virtual network and supports all VMs in the virtual network using private IP addresses. When you connect via Azure Bastion, your virtual machines don't need a public IP address, agent, or special client software.
 
-Bastion provides secure RDP and SSH connectivity to all of the VMs in the virtual network in which it is provisioned. Using Azure Bastion protects your virtual machines from exposing RDP/SSH ports to the outside world, while still providing secure access using RDP/SSH.
+Azure Bastion is available in four SKUs: Developer, Basic, Standard, and Premium.
 
-## Architecture
+> [!NOTE]
+> Azure Bastion is one of the services that make up the Network Security category in Azure. Other services in this category include [Azure DDoS Protection](../ddos-protection/ddos-protection-overview.md), [Azure Firewall](../firewall/overview.md), and [Azure Web Application Firewall](../web-application-firewall/overview.md). Each service has its own unique features and use cases. For more information on this service category, see [Network Security](../networking/security/network-security.md).
 
-Azure Bastion deployment is per virtual network, not per subscription/account or virtual machine. Once you provision an Azure Bastion service in your virtual network, the RDP/SSH experience is available to all your VMs in the same virtual network.
+## Key benefits
 
-RDP and SSH are some of the fundamental means through which you can connect to your workloads running in Azure. Exposing RDP/SSH ports over the Internet isn't desired and is seen as a significant threat surface. This is often due to protocol vulnerabilities. To contain this threat surface, you can deploy bastion hosts (also known as jump-servers) at the public side of your perimeter network. Bastion host servers are designed and configured to withstand attacks. Bastion servers also provide RDP and SSH connectivity to the workloads sitting behind the bastion, as well as further inside the network.
+Azure Bastion provides the following benefits:
 
-![Azure Bastion Architecture](./media/bastion-overview/architecture.png)
+* **Secure connectivity over TLS**: Connect to VMs using RDP/SSH over TLS on port 443. Learn more about [connection methods](vm-about.md) and [Kerberos authentication](kerberos-authentication-portal.md).
+* **Protection from external threats**: Your VMs are protected from port scanning. Deploy with [availability zones](configuration-settings.md#az) for additional resilience.
+* **Scalability and flexibility**: Configure [host scaling](configuration-settings.md#instance), use [shareable links](shareable-link.md), and connect via [IP address](connect-ip-address.md).
+* **Reduced management overhead**: Deploy once and use [virtual network peering](vnet-peering.md) to serve multiple networks.
+* **Compliance and audit**: Use [session recording](session-recording.md) for compliance requirements (Premium SKU).
 
-This figure shows the architecture of an Azure Bastion deployment. In this diagram:
+## <a name="sku"></a>SKUs
 
-* The Bastion host is deployed in the virtual network that contains the AzureBastionSubnet subnet that has a minimum /27 prefix.
-* The user connects to the Azure portal using any HTML5 browser.
-* The user selects the virtual machine to connect to.
-* With a single click, the RDP/SSH session opens in the browser.
-* No public IP is required on the Azure VM.
+Azure Bastion offers four SKU tiers:
 
-## Key features
+* **Premium**: Includes all Standard features plus session recording for compliance and private-only deployment.
+* **Standard**: Includes all Basic features plus scalability and advanced features (native client, shareable links, IP-based connections, custom ports, file transfer).
+* **Basic**: Dedicated deployment with fixed capacity for production environments with moderate connection requirements.
+* **Developer**: Free tier using shared infrastructure recommended for development and testing. Supports one VM at a time. Available in select regions.
 
-The following features are available:
+For a complete feature comparison and capacity details, see [Choose the right Azure Bastion SKU](bastion-sku-comparison.md).
 
-* **RDP and SSH directly in Azure portal:** You can directly get to the RDP and SSH session directly in the Azure portal using a single click seamless experience.
-* **Remote Session over TLS and firewall traversal for RDP/SSH:** Azure Bastion uses an HTML5 based web client that is automatically streamed to your local device, so that you get your RDP/SSH session over TLS on port 443 enabling you to traverse corporate firewalls securely.
-* **No Public IP required on the Azure VM:** Azure Bastion opens the RDP/SSH connection to your Azure virtual machine using private IP on your VM. You don't need a public IP on your virtual machine.
-* **No hassle of managing NSGs:** Azure Bastion is a fully managed platform PaaS service from Azure that is hardened internally to provide you secure RDP/SSH connectivity. You don't need to apply any NSGs on Azure Bastion subnet. Because Azure Bastion connects to your virtual machines over private IP, you can configure your NSGs to allow RDP/SSH from Azure Bastion only. This removes the hassle of managing NSGs each time you need to securely connect to your virtual machines.
-* **Protection against port scanning:** Because you do not need to expose your virtual machines to public Internet, your VMs are protected against port scanning by rogue and malicious users located outside your virtual network.
-* **Protect against zero-day exploits. Hardening in one place only:** Azure Bastion is a fully platform-managed PaaS service. Because it sits at the perimeter of your virtual network, you don’t need to worry about hardening each of the virtual machines in your virtual network. The Azure platform protects against zero-day exploits by keeping the Azure Bastion hardened and always up to date for you.
+## <a name="architecture"></a>Architecture
 
-## <a name="new"></a>What's new?
+Azure Bastion offers three deployment architectures:
 
-Subscribe to the RSS feed and view the latest Azure Bastion feature updates on the [Azure Updates](https://azure.microsoft.com/updates/?category=networking&query=Azure%20Bastion) page.
+**Private-only deployment**: Premium SKU without public IP address for enhanced security.
 
-## FAQ
+:::image type="content" source="media/private-only-deployment/private-only-architecture.png" alt-text="Diagram showing Azure Bastion private-only architecture." lightbox="media/private-only-deployment/private-only-architecture.png":::
 
-For frequently asked questions, see the Bastion [FAQ](bastion-faq.md).
+For detailed information about each architecture, deployment requirements, and network topology options, see [Bastion design and architecture](design-architecture.md).
+
+**Dedicated deployment**: Basic, Standard, and Premium SKUs deployed to your virtual network.
+
+:::image type="content" source="media/bastion-overview/architecture.png" alt-text="Diagram showing Azure Bastion architecture." lightbox="media/bastion-overview/architecture.png":::
+
+**Developer**: Shared infrastructure for development and testing environments.
+
+:::image type="content" source="media/quickstart-developer/bastion-shared-pool.png" alt-text="Architecture diagram illustrating Azure Bastion Developer deployment using shared infrastructure.":::
+
+## Requirements
+
+Deployment requirements vary by SKU. Developer uses shared infrastructure with no virtual network required. Basic, Standard, and Premium require a dedicated subnet (AzureBastionSubnet) and public IP address. Premium supports private-only deployment without a public IP.
+
+For complete requirements including subnet sizing and NSG rules, see [About Bastion configuration settings](configuration-settings.md).
+
+## Connection methods
+
+Azure Bastion supports multiple connection methods:
+
+* **Browser-based connections**: Connect through the Azure portal using an HTML5 web client. Available for all SKU tiers. No additional client software required.
+* **Native client connections**: Connect using the SSH or RDP client already installed on your local computer. Available for Standard and Premium SKUs. Supports Microsoft Entra ID authentication and file transfer.
+* **Shareable links**: Create shareable links that allow users to connect to VMs without accessing the Azure portal. Available for Standard and Premium SKUs.
+
+For more information about connection methods and authentication options, see [About VM connections and features](vm-about.md).
+
+## Pricing and SLA
+
+Azure Bastion pricing combines hourly SKU charges with outbound data transfer costs. Billing starts from the moment Bastion is deployed, regardless of usage.
+
+For pricing details, see [Azure Bastion pricing](https://azure.microsoft.com/pricing/details/azure-bastion/). For SLA and reliability information, see [Reliability in Azure Bastion](/azure/reliability/reliability-bastion).
+## What's new
+
+Azure Bastion is continuously updated with new features and improvements. To learn about the latest updates and announcements, see [What's new in Azure Bastion?](whats-new.md)
+
+## Troubleshooting and FAQ
+
+For information about troubleshooting and frequently asked questions, see the [troubleshooting guide](troubleshoot.md) and [Azure Bastion FAQ](bastion-faq.md).
 
 ## Next steps
 
-* [Tutorial: Create an Azure Bastion host and connect to a Windows VM](tutorial-create-host-portal.md).
-* Learn about some of the other key [networking capabilities](../networking/fundamentals/networking-overview.md) of Azure.
+* [Quickstart: Deploy Bastion automatically with default settings and Standard SKU](quickstart-host-portal.md)
+* [Quickstart: Deploy Azure Bastion from the Azure portal](quickstart-host-portal.md)
+* [Choose the right Azure Bastion SKU](bastion-sku-comparison.md)
+* [About Bastion configuration settings](configuration-settings.md)
+* [Azure Bastion FAQ](bastion-faq.md)
+* [Learn module: Introduction to Azure Bastion](/training/modules/intro-to-azure-bastion/)

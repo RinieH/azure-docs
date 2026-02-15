@@ -4,11 +4,11 @@ description: Describes how to connect to and then manage Azure Stack Edge Pro GP
 services: databox
 author: alkohli
 
-ms.service: databox
-ms.subservice: edge
+ms.service: azure-stack-edge
 ms.topic: how-to
-ms.date: 04/15/2021
+ms.date: 11/05/2025
 ms.author: alkohli
+ms.custom: sfi-ropc-nochange
 ---
 # Manage an Azure Stack Edge Pro GPU device via Windows PowerShell
 
@@ -63,68 +63,12 @@ If the compute role is configured on your device, you can also get the GPU drive
 
 ## Enable Multi-Process Service (MPS)
 
-A Multi-Process Service (MPS) on Nvidia GPUs provides a mechanism where GPUs can be shared by multiple jobs, where each job is allocated some percentage of the GPU's resources. MPS is a preview feature on your Azure Stack Edge Pro GPU device. To enable MPS on your device, follow these steps:
+A Multi-Process Service (MPS) on NVIDIA GPUs provides a mechanism where GPUs can be shared by multiple jobs, where each job is allocated some percentage of the GPU's resources. MPS is a preview feature on your Azure Stack Edge Pro GPU device. To enable MPS on your device, follow these steps:
 
 [!INCLUDE [Enable MPS](../../includes/azure-stack-edge-gateway-enable-mps.md)]
 
 > [!NOTE]
 > When the device software and the Kubernetes cluster are updated, the MPS setting is not retained for the workloads. You'll need to enable MPS again.
-
-<!--## Enable compute on private network
-
-Use the `Add-HcsNetRoute` cmdlet to enable compute on a private network. This cmdlet lets you add custom routes on Kubernetes master and worker VMs. 
-#### Add new route configuration
-
-IP routing is the process of forwarding a packet based on the destination IP address. For the Kubernetes VMs on your device, you can route the traffic by adding a new route configuration.  
-
-A route configuration is a routing table entry that includes the following fields:
-
-| Parameter | Description  |
-|---------|---------|
-|Destination     | Either an IP address or an IP address prefix.         |
-|Prefix length     | The prefix length corresponding to the address or range of addresses in the destination.        |
-|Next hop     | The IP address to which the packet is forwarded.        |
-|Interface     | The network interface that forwards the IP packet.        |
-|Metric     |Routing metric determines the preferred network interface used to reach the destination.          |
-
-
-Consider the following information before you add these routes:
-
-- The Kubernetes network where you are adding this route is in a private network and not connected to the internet.
-- The device port on which the compute is enabled does not have a gateway configured.
-- If you have a flat subnet, then you don't need to add these routes to the private network. You can (optionally) add these routes when there are multiple subnets on your private network.
-- You can add these routes only to the Kubernetes master and worker VMs and not to the device (Windows host). 
-- The Kubernetes compute need not be configured before you add this route. You can also add or update routes after the Kubernetes compute is configured. You can only add a new route configuration via the PowerShell interface of the device and not through the local UI.
-- Make sure that the network interface that you'll use has a static configuration. 
-
-Consider an example where Port 1 and Port 2 on your device are connected to the internet. Ports 3 to Port 6 are on a private network and is the same network that has the Kubernetes master and worker VMs. None of the ports 3 to 6 have a default gateway configured. There are cameras that are connected to the private network. And the camera feed creates a traffic that flows between the camera and the network interfaces on the Kubernetes VMs. 
-
-To add a new custom route, use the cmdlet as follows:
-
-```powershell
-Add-HcsNetRoute -InterfaceAlias "Port3" -DestinationPrefix "192.168.21.0/24" -NextHop "192.168.20.1" -RouteMetric 100 
-```
-
-Here the compute is enabled on the Port 3 network interface on your device and a virtual switch is created. The above route defines a destination subnet 192.168.21.0/24 and specifies the next hop as 192.168.20.1. This routing configuration has a routing metric of 100. Lower the routing metric, higher the priority assigned to the route.
- 
-
-#### Check route configuration for an interface 
-
-Use this cmdlet to check for all the custom route configurations that you added on your device. These routes do not include all the system routes or default routes that already exist on the device. 
-
-```powershell
-Get-HcsNetRoute -InterfaceAlias Port3
-```
-
-
-#### Remove a route configuration
-
-Use this cmdlet to remove a route configuration that you added on your device.
-
-```powershell
-Remove-HcsNetRoute -InterfaceAlias "Port3" -DestinationPrefix "192.168.21.0/24"
-```
--->
 
 ## Reset your device
 
@@ -148,10 +92,44 @@ If the compute role is configured on your device, you can also get the compute l
     - `Credential`: Provide the username for the network share. When you run this cmdlet, you will need to provide the share password.
     - `FullLogCollection`: This parameter ensures that the log package will contain all the compute logs. By default, the log package contains only a subset of logs.
 
+<!-- ## Change Kubernetes workload profiles
+
+After you have formed and configured a cluster and you have created new virtual switches, you can add or delete virtual networks associated with your virtual switches. For detailed steps, see [Configure virtual switches](azure-stack-edge-gpu-deploy-configure-network-compute-web-proxy.md?pivots=two-node#configure-virtual-switches-1).
+
+After virtual switches are created, you can enable the switches for Kubernetes compute traffic to specify a Kubernetes workload profile. To do so using the local UI, use the steps in [Configure compute IPS](azure-stack-edge-gpu-deploy-configure-network-compute-web-proxy.md?pivots=two-node#configure-compute-ips-1). To do so using PowerShell, use the following steps:
+
+1. [Connect to the PowerShell interface](#connect-to-the-powershell-interface).
+2. Use the `Get-HcsApplianceInfo` cmdlet to get current `KubernetesPlatform` and `KubernetesWorkloadProfile` settings for your device.
+3. Use the `Get-HcsKubernetesWorkloadProfiles` cmdlet to identify the profiles available on your Azure Stack Edge device.
+
+   ```powershell
+   [Device-IP]: PS>Get-HcsKubernetesWorkloadProfiles 
+   Type  Description    
+   ----  -----------   
+   AP5GC an Azure Private MEC solution   
+   SAP   a SAP Digital Manufacturing for Edge Computing or another Microsoft partner solution   
+   NONE  other workloads
+   [Device-IP]: PS>
+   ```
+    
+4. Use the `Set-HcsKubernetesWorkloadProfile` cmdlet to set the workload profile for AP5GC, an Azure Private MEC solution.
+
+    The following example shows the usage of this cmdlet:
+
+    ```powershell
+    Set-HcsKubernetesWorkloadProfile -Type "AP5GC"
+    ```
+    Here is sample output for this cmdlet:
+
+    ```powershell
+    [10.100.10.10]: PS>KubernetesPlatform : AKS
+    [10.100.10.10]: PS>KubernetesWorkloadProfile : AP5GC
+    [10.100.10.10]: PS>
+    ``` -->
 
 ## Change Kubernetes pod and service subnets
 
-By default, Kubernetes on your Azure Stack Edge device uses subnets 172.27.0.0/16 and 172.28.0.0/16 for pod and service respectively. If these subnets are already in use in your network, then you can run the `Set-HcsKubeClusterNetworkInfo` cmdlet to change these subnets.
+If you're running the **other workloads** option in your environment, by default, Kubernetes on your Azure Stack Edge device uses subnets 172.27.0.0/16 and 172.28.0.0/16 for pod and service respectively. If these subnets are already in use in your network, then you can run the `Set-HcsKubeClusterNetworkInfo` cmdlet to change these subnets.
 
 You want to perform this configuration before you configure compute from the Azure portal as the Kubernetes cluster is created in this step.
 
@@ -160,7 +138,7 @@ You want to perform this configuration before you configure compute from the Azu
 
     `Set-HcsKubeClusterNetworkInfo -PodSubnet <subnet details> -ServiceSubnet <subnet details>`
 
-    Replace the <subnet details> with the subnet range that you want to use. 
+    Replace the \<subnet details\> with the subnet range that you want to use. 
 
 1. Once you have run this command, you can use the `Get-HcsKubeClusterNetworkInfo` command to verify that the pod and service subnets have changed.
 
@@ -292,7 +270,10 @@ Here is a sample output.
 <6> 2021-02-25 00:53:05.412 +00:00 [INF] - Plan execution ended for deployment 11
 [10.100.10.10]: PS>
 ```
-
+> [!NOTE]
+> The direct methods such as GetModuleLogs or UploadModuleLogs are not supported on IoT Edge on Kubernetes on your Azure Stack Edge.
+ 
+ 
 ### Use kubectl commands
 
 On an Azure Stack Edge Pro GPU device that has the compute role configured, all the `kubectl` commands are available to monitor or troubleshoot modules. To see a list of available commands, run `kubectl --help` from the command window.
@@ -533,9 +514,11 @@ To change the memory or processor limits for Kubernetes worker node, do the foll
     
 1. To change the values of memory and processors for the worker node, run the following command:
 
-    Set-AzureDataBoxEdgeRoleCompute -Name <Name value from the output of Get-AzureDataBoxEdgeRole> -Memory <Value in Bytes> -ProcessorCount <No. of cores>
+   ```powershell
+   Set-AzureDataBoxEdgeRoleCompute -Name <Name value from the output of Get-AzureDataBoxEdgeRole> -Memory <Value in Bytes> -ProcessorCount <No. of cores>
+   ```
 
-    Here is a sample output. 
+   Here is a sample output. 
     
     ```powershell
     [10.100.10.10]: PS>Set-AzureDataBoxEdgeRoleCompute -Name IotRole -MemoryInBytes 32GB -ProcessorCount 16
@@ -591,7 +574,10 @@ While changing the memory and processor usage, follow these guidelines.
 
 ## Connect to BMC
 
-Baseboard management controller (BMC) is used to remotely monitor and manage your device. This section describes the cmdlets that can be used to manage BMC configuration. Prior to running any of these cmdlets, [Connect to the PowerShell interface of the device](#connect-to-the-powershell-interface).
+> [!NOTE]
+> Baseboard management controller (BMC) is not available on Azure Stack Edge Pro 2 and Azure Stack Edge Mini R. The cmdlets described in this section only apply to Azure Stack Edge Pro GPU and Azure Stack Edge Pro R.
+
+BMC is used to remotely monitor and manage your device. This section describes the cmdlets that can be used to manage BMC configuration. Prior to running any of these cmdlets, [Connect to the PowerShell interface of the device](#connect-to-the-powershell-interface).
 
 - `Get-HcsNetBmcInterface`: Use this cmdlet to get the network configuration properties of the BMC, for example, `IPv4Address`, `IPv4Gateway`, `IPv4SubnetMask`, `DhcpEnabled`. 
     

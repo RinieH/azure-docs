@@ -1,51 +1,46 @@
 ---
 title: Diagnose a VM network routing problem - Azure CLI
 titleSuffix: Azure Network Watcher
-description: In this article, you learn how use Azure CLI to diagnose a virtual machine network routing problem using the next hop capability of Azure Network Watcher.
-services: network-watcher
-documentationcenter: network-watcher
-author: damendo
-editor: ''
-tags: azure-resource-manager
-# Customer intent: I need to diagnose virtual machine (VM) network routing problem that prevents communication to different destinations.
-ms.assetid: 
-ms.service: network-watcher
-ms.devlang: na
+description: In this article, you learn how to use Azure CLI to diagnose a virtual machine network routing problem using the next hop capability of Azure Network Watcher.
+author: halkazwini
+ms.service: azure-network-watcher
 ms.topic: how-to
-ms.tgt_pltfrm: network-watcher
-ms.workload: infrastructure
-ms.date: 01/07/2021
-ms.author: damendo
-ms.custom:
+ms.date: 10/29/2024
+ms.author: halkazwini
+ms.custom: devx-track-azurecli
+
+# Customer intent: I need to diagnose virtual machine (VM) network routing problem that prevents communication to different destinations.
 ---
 
-# Diagnose a virtual machine network routing problem - Azure CLI
+# Diagnose a virtual machine network routing problem using the Azure CLI
 
-In this article, you deploy a virtual machine (VM), and then check communications to an IP address and URL. You determine the cause of a communication failure and how you can resolve it.
+In this article, you learn how to use Azure Network Watcher [next hop](network-watcher-next-hop-overview.md) tool to troubleshoot and diagnose a VM routing problem that's preventing it from correctly communicating with other resources. 
 
-[!INCLUDE [quickstarts-free-trial-note](../../includes/quickstarts-free-trial-note.md)]
+## Prerequisites
 
-[!INCLUDE [azure-cli-prepare-your-environment.md](../../includes/azure-cli-prepare-your-environment.md)]
+- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 
-- This article requires version 2.0 or later of the Azure CLI. If using Azure Cloud Shell, the latest version is already installed. 
+- Azure Cloud Shell or Azure CLI.
 
-- The Azure CLI commands in this article are formatted to run in a Bash shell.
+    The steps in this article run the Azure CLI commands interactively in [Azure Cloud Shell](/azure/cloud-shell/overview). To run the commands in the Cloud Shell, select **Open Cloud Shell** at the upper-right corner of a code block. Select **Copy** to copy the code, and paste it into Cloud Shell to run it. You can also run the Cloud Shell from within the Azure portal.
 
-## Create a VM
+    You can also [install Azure CLI locally](/cli/azure/install-azure-cli) to run the commands. This article requires the Azure CLI version 2.0 or later. Run [az --version](/cli/azure/reference-index#az-version) command to find the installed version. If you run Azure CLI locally, sign in to Azure using the [az login](/cli/azure/reference-index#az-login) command.
 
-Before you can create a VM, you must create a resource group to contain the VM. Create a resource group with [az group create](/cli/azure/group#az_group_create). The following example creates a resource group named *myResourceGroup* in the *eastus* location:
+## Create a virtual machine
+
+Before you can create a VM, you must create a resource group to contain the VM. Create a resource group with [az group create](/cli/azure/group#az-group-create). The following example creates a resource group named *myResourceGroup* in the *eastus* location:
 
 ```azurecli-interactive
 az group create --name myResourceGroup --location eastus
 ```
 
-Create a VM with [az vm create](/cli/azure/vm#az_vm_create). If SSH keys do not already exist in a default key location, the command creates them. To use a specific set of keys, use the `--ssh-key-value` option. The following example creates a VM named *myVm*:
+Create a VM with [az vm create](/cli/azure/vm#az-vm-create). If SSH keys do not already exist in a default key location, the command creates them. To use a specific set of keys, use the `--ssh-key-value` option. The following example creates a VM named *myVm*:
 
 ```azurecli-interactive
 az vm create \
   --resource-group myResourceGroup \
   --name myVm \
-  --image UbuntuLTS \
+  --image Ubuntu2204 \
   --generate-ssh-keys
 ```
 
@@ -57,7 +52,7 @@ To test network communication with Network Watcher, you must first enable a netw
 
 ### Enable network watcher
 
-If you already have a network watcher enabled in the East US region, skip to [Use next hop](#use-next-hop). Use the [az network watcher configure](/cli/azure/network/watcher#az_network_watcher_configure) command to create a network watcher in the East US region:
+If you already have a network watcher enabled in the East US region, skip to [Use next hop](#use-next-hop). Use the [az network watcher configure](/cli/azure/network/watcher#az-network-watcher-configure) command to create a network watcher in the East US region:
 
 ```azurecli-interactive
 az network watcher configure \
@@ -68,7 +63,7 @@ az network watcher configure \
 
 ### Use next hop
 
-Azure automatically creates routes to default destinations. You may create custom routes that override the default routes. Sometimes, custom routes can cause communication to fail. To test routing from a VM, use [az network watcher show-next-hop](/cli/azure/network/watcher#az_network_watcher_show_next_hop) to determine the next routing hop when traffic is destined for a specific address.
+Azure automatically creates routes to default destinations. You may create custom routes that override the default routes. Sometimes, custom routes can cause communication to fail. To test routing from a VM, use [az network watcher show-next-hop](/cli/azure/network/watcher#az-network-watcher-show-next-hop) to determine the next routing hop when traffic is destined for a specific address.
 
 Test outbound communication from the VM to one of the IP addresses for www.bing.com:
 
@@ -100,7 +95,7 @@ The output returned informs you that **None** is the **nextHopType**, and that t
 
 ## View details of a route
 
-To analyze routing further, review the effective routes for the network interface with the [az network nic show-effective-route-table](/cli/azure/network/nic#az_network_nic_show_effective_route_table) command:
+To analyze routing further, review the effective routes for the network interface with the [az network nic show-effective-route-table](/cli/azure/network/nic#az-network-nic-show-effective-route-table) command:
 
 ```azurecli-interactive
 az network nic show-effective-route-table \
@@ -150,7 +145,7 @@ As you can see in the output from the `az network watcher nic show-effective-rou
 
 ## Clean up resources
 
-When no longer needed, you can use [az group delete](/cli/azure/group#az_group_delete) to remove the resource group and all of the resources it contains:
+When no longer needed, you can use [az group delete](/cli/azure/group#az-group-delete) to remove the resource group and all of the resources it contains:
 
 ```azurecli-interactive
 az group delete --name myResourceGroup --yes
@@ -158,6 +153,6 @@ az group delete --name myResourceGroup --yes
 
 ## Next steps
 
-In this article, you created a VM and diagnosed network routing from the VM. You learned that Azure creates several default routes and tested routing to two different destinations. Learn more about [routing in Azure](../virtual-network/virtual-networks-udr-overview.md?toc=%2fazure%2fnetwork-watcher%2ftoc.json) and how to [create custom routes](../virtual-network/manage-route-table.md?toc=%2fazure%2fnetwork-watcher%2ftoc.json#create-a-route).
+In this article, you created a VM and diagnosed network routing from the VM. You learned that Azure creates several default routes and tested routing to two different destinations. Learn more about [routing in Azure](../virtual-network/virtual-networks-udr-overview.md?toc=%2fazure%2fnetwork-watcher%2ftoc.json) and how to [create custom routes](../virtual-network/manage-route-table.yml?toc=%2fazure%2fnetwork-watcher%2ftoc.json#create-a-route).
 
-For outbound VM connections, you can also determine the latency and allowed and denied network traffic between the VM and an endpoint using Network Watcher's [connection troubleshoot](network-watcher-connectivity-cli.md) capability. You can monitor communication between a VM and an endpoint, such as an IP address or URL, over time using the Network Watcher connection monitor capability. To learn how, see [Monitor a network connection](connection-monitor.md).
+For outbound VM connections, you can also determine the latency and allowed and denied network traffic between the VM and an endpoint using Network Watcher's [connection troubleshoot](connection-troubleshoot-cli.md) capability. You can monitor communication between a VM and an endpoint, such as an IP address or URL over time using the Network Watcher connection monitor capability. For more information, see [Monitor a network connection](monitor-vm-communication.md).

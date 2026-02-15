@@ -1,10 +1,12 @@
 ---
 title: Deploy ISO 27001 ASE/SQL workload blueprint sample
 description: Deploy steps of the ISO 27001 App Service Environment/SQL Database workload blueprint sample including blueprint artifact parameter details.
-ms.date: 04/30/2021
+ms.date: 09/07/2023
 ms.topic: sample
 ---
 # Deploy the ISO 27001 App Service Environment/SQL Database workload blueprint sample
+
+[!INCLUDE [Blueprints deprecation note](../../../../../includes/blueprints-deprecation-note.md)]
 
 To deploy the Azure Blueprints ISO 27001 App Service Environment/SQL Database workload blueprint
 sample, the following steps must be taken:
@@ -15,7 +17,7 @@ sample, the following steps must be taken:
 > - Mark your copy of the sample as **Published**
 > - Assign your copy of the blueprint to an existing subscription
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free)
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn)
 before you begin.
 
 ## Deploy the ISO 27001 Shared Services blueprint sample
@@ -95,7 +97,7 @@ provided to make each deployment of the copy of the blueprint sample unique.
        assignment will be created for each using the parameters entered.
      - **Assignment name**: The name is pre-populated for you based on the name of the blueprint.
        Change as needed or leave as is.
-     - **Location**: Select a region for the managed identity to be created in. Azure Blueprint uses
+     - **Location**: Select a region for the managed identity to be created in. Azure Blueprints uses
        this managed identity to deploy all artifacts in the assigned blueprint. To learn more, see
        [managed identities for Azure resources](../../../../active-directory/managed-identities-azure-resources/overview.md).
      - **Blueprint definition version**: Pick a **Published** version of your copy of the blueprint

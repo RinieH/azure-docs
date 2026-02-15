@@ -2,23 +2,25 @@
 title: include file
 description: include file
 services: azure-communication-services
-author: peiliu
+author: minnieliu
 manager: vravikumar
 
 ms.service: azure-communication-services
 ms.subservice: azure-communication-services
 ms.date: 06/30/2021
 ms.topic: include
-ms.custom: include file
 ms.author: peiliu
+ms.custom:
+  - include file
+  - sfi-ropc-nochange
 ---
 
 ## Prerequisites
 
-- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
+- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 - The latest version [.NET Core SDK](https://dotnet.microsoft.com/download/dotnet-core) for your operating system.
 - An active Communication Services resource and connection string. [Create a Communication Services resource](../create-communication-resource.md).
-- Create an [Application Insights Resources](https://docs.microsoft.com/azure/azure-monitor/app/create-new-resource) in Azure portal.
+- Create an [Application Insights Resources](/previous-versions/azure/azure-monitor/app/create-new-resource) in Azure portal.
 
 ## Setting Up
 
@@ -48,7 +50,7 @@ dotnet add package Azure.Communication.Identity --version 1.0.0
 You will also need to install the Azure Monitor Exporter for OpenTelemetry library.
 
 ```console
-dotnet add package Azure.Monitor.OpenTelemetry.Exporter
+dotnet add package Azure.Monitor.OpenTelemetry.Exporter -v 1.0.0-beta.3
 ```
 
 ### Set up the app framework
@@ -65,9 +67,12 @@ Use the following code to begin:
 
 ```csharp
 using System;
+using System.Diagnostics;
 using Azure.Communication;
 using Azure.Communication.Identity;
 using Azure.Monitor.OpenTelemetry.Exporter;
+using OpenTelemetry;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 namespace TelemetryAppInsightsQuickstart
@@ -131,7 +136,7 @@ After the SDK calls have been wrapped with Activities, you can add the OpenTelem
 
 You have the option of defining a dictionary with some resource attributes that will show up in Application Insights.
 Then, call `AddSource` and use the same Activity Source name that was defined in `TracedSample`.
-You will also need to grab the connection string from your Application Insights resource and pass it to `AddAzureMonitorTraceExporter()`. This will funnel the telemetry data to your Application Insights resource.
+You will also need to grab the [connection string](/azure/azure-monitor/app/sdk-connection-string) from your Application Insights resource and pass it to `AddAzureMonitorTraceExporter()`. This will funnel the telemetry data to your Application Insights resource.
 
 Lastly, call and await the `TracedSample()` function where we have our SDK calls.
 

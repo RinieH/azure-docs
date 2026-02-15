@@ -1,17 +1,9 @@
 ---
 title: Use template deployment scripts | Microsoft Docs
 description: Learn how to use deployment scripts in Azure Resource Manager templates (ARM templates).
-services: azure-resource-manager
-documentationcenter: ''
-author: mumian
-
-ms.service: azure-resource-manager
-ms.workload: multiple
-ms.tgt_pltfrm: na
-ms.devlang: na
-ms.date: 07/02/2021
+ms.custom: devx-track-azurepowershell, devx-track-arm-template
 ms.topic: tutorial
-ms.author: jgao
+ms.date: 10/29/2025
 ---
 
 # Tutorial: Use deployment scripts to create a self-signed certificate
@@ -30,14 +22,13 @@ This tutorial covers the following tasks:
 > * Debug the failed script
 > * Clean up resources
 
-For a Microsoft Learn module that covers deployment scripts, see [Extend ARM templates by using deployment scripts](/learn/modules/extend-resource-manager-template-deployment-scripts/).
+For a Learn module that covers deployment scripts, see [Extend ARM templates by using deployment scripts](/training/modules/extend-resource-manager-template-deployment-scripts/).
 
 ## Prerequisites
 
 To complete this article, you need:
 
-* **[Visual Studio Code](https://code.visualstudio.com/) with the Resource Manager Tools extension**. See [Quickstart: Create ARM templates with Visual Studio Code](./quickstart-create-templates-use-visual-studio-code.md).
-
+* **[Visual Studio Code](https://code.visualstudio.com/)**.
 * **A user-assigned managed identity**. This identity is used to perform Azure-specific actions in the script. To create one, see [User-assigned managed identity](../../active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal.md). You need the identity ID when you deploy the template. The format of the identity is:
 
   ```json
@@ -46,11 +37,24 @@ To complete this article, you need:
 
   Use the following CLI script to get the ID by providing the resource group name and the identity name.
 
-  ```azurecli-interactive
-  echo "Enter the Resource Group name:" &&
-  read resourceGroupName &&
-  az identity list -g $resourceGroupName
-  ```
+    # [CLI](#tab/CLI)
+
+    ```azurecli-interactive
+    echo "Enter the Resource Group name:" &&
+    read resourceGroupName &&
+    az identity list -g $resourceGroupName
+    ```
+
+    # [PowerShell](#tab/PowerShell)
+
+    ```powershell-interactive
+    $resourceGroupName = Read-Host -Prompt "Enter the Resource Group name"
+    (Get-AzUserAssignedIdentity -ResourceGroupName $resourceGroupname).id
+
+    Write-Host "Press [ENTER] to continue ..."
+    ```
+
+    ---
 
 ## Open a Quickstart template
 
@@ -100,9 +104,6 @@ The deployment script adds a certificate to the key vault. Configure the key vau
     },
     ```
 
-    > [!NOTE]
-    > The Resource Manager template extension of Visual Studio Code isn't capable to format deployment scripts yet. Don't use Shift+Alt+F to format the `deploymentScripts` resources, like the following one.
-
 1. Add a parameter for configuring the key vault access policies so that the managed identity can add certificates to the key vault:
 
     ```json
@@ -120,7 +121,7 @@ The deployment script adds a certificate to the key vault. Configure the key vau
     }
     ```
 
-1. Update the existing key vault access policies to:
+1. Update the existing key vault access policies of the `Microsoft.KeyVault/vaults` resource to:
 
     ```json
     "accessPolicies": [
@@ -174,7 +175,7 @@ The deployment script adds a certificate to the key vault. Configure the key vau
     ```json
     {
       "type": "Microsoft.Resources/deploymentScripts",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2023-08-01",
       "name": "createAddCertificate",
       "location": "[resourceGroup().location]",
       "dependsOn": [
@@ -257,13 +258,13 @@ The deployment script adds a certificate to the key vault. Configure the key vau
     * `timeout`: Specify the maximum allowed script execution time specified in the [ISO 8601 format](https://en.wikipedia.org/wiki/ISO_8601). Default value is **P1D**.
     * `arguments`: Specify the parameter values. The values are separated by spaces.
     * `scriptContent`: Specify the script content. To run an external script, use `primaryScriptURI` instead. For more information, see [Use external script](./deployment-script-template.md#use-external-scripts).
-        Declaring `$DeploymentScriptOutputs` is only required when testing the script on a local machine. Declaring the variable allows the script to be run on a local machine and in a `deploymentScript` resource without having to make changes. The value assigned to `$DeploymentScriptOutputs` is available as outputs in the deployments. For more information, see [Work with outputs from PowerShell deployment scripts](./deployment-script-template.md#work-with-outputs-from-powershell-script) or [Work with outputs from CLI deployment scripts](./deployment-script-template.md#work-with-outputs-from-cli-script).
+        Declaring `$DeploymentScriptOutputs` is only required when testing the script on a local machine. Declaring the variable allows the script to be run on a local machine and in a `deploymentScript` resource without having to make changes. The value assigned to `$DeploymentScriptOutputs` is available as outputs in the deployments. For more information, see [Work with outputs from PowerShell deployment scripts](./deployment-script-template.md#work-with-outputs-from-powershell-scripts) or [Work with outputs from CLI deployment scripts](./deployment-script-template.md#work-with-outputs-from-cli-scripts).
     * `cleanupPreference`: Specify the preference on when to delete the deployment script resources. The default value is **Always**, which means the deployment script resources are deleted despite the terminal state (Succeeded, Failed, Canceled). In this tutorial, **OnSuccess** is used so that you get a chance to view the script execution results.
     * `retentionInterval`: Specify the interval for which the service retains the script resources after it reaches a terminal state. Resources will be deleted when this duration expires. Duration is based on ISO 8601 pattern. This tutorial uses **P1D**, which means one day. This property is used when `cleanupPreference` is set to **OnExpiration**. This property isn't enabled currently.
 
     The deployment script takes three parameters: `keyVaultName`, `certificateName`, and `subjectName`. It creates a certificate, and then adds the certificate to the key vault.
 
-    `$DeploymentScriptOutputs` is used to store output value. To learn more, see [Work with outputs from PowerShell deployment scripts](./deployment-script-template.md#work-with-outputs-from-powershell-script) or [Work with outputs from CLI deployment scripts](./deployment-script-template.md#work-with-outputs-from-cli-script).
+    `$DeploymentScriptOutputs` is used to store output value. To learn more, see [Work with outputs from PowerShell deployment scripts](./deployment-script-template.md#work-with-outputs-from-powershell-scripts) or [Work with outputs from CLI deployment scripts](./deployment-script-template.md#work-with-outputs-from-cli-scripts).
 
     The completed template can be found [here](https://raw.githubusercontent.com/Azure/azure-docs-json-samples/master/deployment-script/deploymentscript-keyvault.json).
 
@@ -287,7 +288,27 @@ The deployment script adds a certificate to the key vault. Configure the key vau
 
 1. Select **Upload/download files**, and then select **Upload**. See the previous screenshot.  Select the file you saved in the previous section. After uploading the file, you can use the `ls` command and the `cat` command to verify the file was uploaded successfully.
 
-1. Run the following PowerShell script to deploy the template.
+1. Run the following Azure CLI or Azure PowerShell script to deploy the template.
+
+    # [CLI](#tab/CLI)
+
+    ```azurecli-interactive
+    echo "Enter a project name that is used to generate resource names:" &&
+    read projectName &&
+    echo "Enter the location (i.e. centralus):" &&
+    read location &&
+    echo "Enter your email address used to sign in to Azure:" &&
+    read upn &&
+    echo "Enter the user-assigned managed identity ID:" &&
+    read identityId &&
+    adUserId=$((az ad user show --id ${upn}) | jq -r '.id') &&
+    resourceGroupName="${projectName}rg" &&
+    keyVaultName="${projectName}kv" &&
+    az group create --name $resourceGroupName --location $location &&
+    az deployment group create --resource-group $resourceGroupName --template-file "$HOME/azuredeploy.json" --parameters identityId=$identityId keyVaultName=$keyVaultName objectId=$adUserId
+    ```
+
+    # [PowerShell](#tab/PowerShell)
 
     ```azurepowershell-interactive
     $projectName = Read-Host -Prompt "Enter a project name that is used to generate resource names"
@@ -305,6 +326,8 @@ The deployment script adds a certificate to the key vault. Configure the key vau
 
     Write-Host "Press [ENTER] to continue ..."
     ```
+
+    ---
 
     The deployment script service needs to create additional deployment script resources for script execution. The preparation and the cleanup process can take up to one minute to complete in addition to the actual script execution time.
 
@@ -342,7 +365,7 @@ When the Azure resources are no longer needed, clean up the resources you deploy
 
 1. From the Azure portal, select **Resource group** from the left menu.
 2. Enter the resource group name in the **Filter by name** field.
-3. Select the resource group name.  You will see a total of six resources in the resource group.
+3. Select the resource group name.
 4. Select **Delete resource group** from the top menu.
 
 ## Next steps

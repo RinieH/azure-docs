@@ -1,16 +1,15 @@
 ---
-title: 'Tutorial: Manage compute with Azure Functions'
+title: "Tutorial: Manage compute with Azure Functions"
 description: How to use Azure Functions to manage the compute of your dedicated SQL pool (formerly SQL DW) in Azure Synapse Analytics.
-services: synapse-analytics
-author: julieMSFT
-manager: craigg
-ms.service: synapse-analytics
-ms.topic: conceptual
-ms.subservice: sql-dw 
+author: ajagadish-24
+ms.author: ajagadish
 ms.date: 04/27/2018
-ms.author: jrasnick
-ms.reviewer: igorstan
-ms.custom: seo-lt-2019, azure-synapse
+ms.service: azure-synapse-analytics
+ms.subservice: sql-dw
+ms.topic: conceptual
+ms.custom:
+  - azure-synapse
+  - devx-track-arm-template
 ---
 
 # Use Azure Functions to manage compute resources for your dedicated SQL pool (formerly SQL DW) in Azure Synapse Analytics
@@ -26,7 +25,7 @@ To deploy the template, you need the following information:
 - Name of the resource group your dedicated SQL pool (formerly SQL DW) instance is in
 - Name of the server your dedicated SQL pool (formerly SQL DW) instance is in
 - Name of your dedicated SQL pool (formerly SQL DW) instance
-- Tenant ID (Directory ID) of your Azure Active Directory
+- Tenant ID (Directory ID) of your Microsoft Entra ID
 - Subscription ID
 - Service Principal Application ID
 - Service Principal Secret Key

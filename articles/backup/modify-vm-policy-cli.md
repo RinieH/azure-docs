@@ -1,18 +1,22 @@
 ---
 title: Update the existing VM backup policy using CLI
 description: Learn how to update the existing VM backup policy using Azure CLI.
-ms.topic: conceptual
-ms.date: 12/31/2020
+ms.topic: how-to
+ms.custom: devx-track-azurecli
+ms.date: 07/16/2025
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+# Customer intent: As a system administrator, I want to update the VM backup policy using CLI commands, so that I can modify retention settings and ensure my virtual machines are backed up according to the latest requirements.
 ---
 # Update the existing VM backup policy using CLI
 
-You can use Azure CLI to update an existing VM backup policy. This article will explain how to export the existing policy to a JSON file, modify the file, and then use Azure CLI to update the policy with the modified policy.
+This article describes how to update an existing VM backup policy using Azure CLI. To modify the policy, export the policy to a JSON file, make the required updates in the file, and then use Azure CLI to apply the changes. You can also [modify the policy using the Azure portal](backup-azure-manage-vms.md#modify-backup-policy).
 
 ## Modify an existing policy
 
 To modify an existing VM backup policy, follow these steps:
 
-1. Execute the [az backup policy show](/cli/azure/backup/policy#az_backup_policy_show) command to retrieve the details of policy you want to update.
+1. Execute the [az backup policy show](/cli/azure/backup/policy#az-backup-policy-show) command to retrieve the details of policy you want to update.
 
     Example:
 
@@ -96,14 +100,14 @@ To modify an existing VM backup policy, follow these steps:
     ```
 
 1. Save the changes.
-1. Execute the [az backup policy set](/cli/azure/backup/policy#az_backup_policy_set) command and pass the complete path of the updated JSON file as the value for the **- - policy** parameter.
+1. Execute the [az backup policy set](/cli/azure/backup/policy#az-backup-policy-set) command and pass the complete path of the updated JSON file as the value for the **- - policy** parameter.
 
     ```azurecli
     az backup policy set --resource-group rg1234 --vault-name testvault --policy C:\temp2\Policy.json --name testing123
     ```
 
 >[!NOTE]
->You can also retrieve the sample JSON policy by executing the [az backup policy get-default-for-vm](/cli/azure/backup/policy#az_backup_policy_get_default_for_vm) command.
+>You can also retrieve the sample JSON policy by executing the [az backup policy get-default-for-vm](/cli/azure/backup/policy#az-backup-policy-get-default-for-vm) command.
 
 ## Next steps
 

@@ -1,58 +1,81 @@
 ---
-title: Create a Power BI report from Azure Sentinel data
-description: Learn how to create a Power BI report using an exported query from Azure Sentinel Log Analytics. Share your report with others in the Power BI service and a Teams channel.
-author: batamig
-ms.author: bagol
-ms.service: azure-sentinel
-ms.topic: conceptual
-ms.date: 06/08/2021
+title: Create a Power BI report from Microsoft Sentinel data
+description: Learn how to create a Power BI report using an exported query from Microsoft Sentinel. Share your report with others in the Power BI service and a Teams channel.
+author: guywi-ms
+ms.author: guywild
+ms.topic: how-to
+ms.date: 10/16/2024
+
+
+#Customer intent: As a security analyst, I want to create and share Power BI reports from Microsoft Sentinel data so that I can provide insights to stakeholders without granting them direct access to Microsoft Sentinel.
+
 ---
 
-# Tutorial: Create a Power BI report from Azure Sentinel data
+# Create a Power BI report from Microsoft Sentinel data
 
 [Power BI](https://powerbi.microsoft.com/) is a reporting and analytics platform that turns data into coherent, immersive, interactive visualizations. Power BI lets you easily connect to data sources, visualize and discover relationships, and share insights with whoever you want.
 
-You can base Power BI reports on data from Azure Sentinel Log Analytics workspaces, and share those reports with people who don't have access to Azure Sentinel. For example, you might want to share information about failed sign-in attempts with app owners, without granting them Azure Sentinel access. Power BI visualizations can provide the data at a glance.
+You can base Power BI reports on data from Microsoft Sentinel and share those reports with people who don't have access to Microsoft Sentinel. For example, you might want to share information about failed sign-in attempts with app owners, without granting them Microsoft Sentinel access. Power BI visualizations can provide the data at a glance.
 
-In this tutorial, you:
+Microsoft Sentinel runs on Log Analytics workspaces, and you can use Kusto Query Language (KQL) to query the data.
+
+
+This article provides a scenario-based procedure to view analysis reports in Power BI for your Microsoft Sentinel data. For more information, see [Connect data sources](connect-data-sources.md) and [Visualize collected data](get-visibility.md).
+
+In this article, you:
 
 > [!div class="checklist"]
-> * Export a Log Analytics Kusto query to a Power BI M language query.
+> * Export a KQL query to a Power BI M language query.
 > * Use the M query in Power BI Desktop to create visualizations and a report.
 > * Publish the report to the Power BI service, and share it with others.
 > * Add the report to a Teams channel.
 
-People you granted access in the Power BI service, and members of the Teams channel, can see the report without needing Azure Sentinel permissions.
+People you granted access in the Power BI service, and members of the Teams channel, can see the report without needing Microsoft Sentinel permissions.
+
+[!INCLUDE [unified-soc-preview](includes/unified-soc-preview.md)]
 
 ## Prerequisites
 
-To complete this tutorial, you need:
+To complete the steps in this article, you need:
 
-- At least read access to an Azure Sentinel Log Analytics workspace that monitors sign-in attempts.
-- A Power BI account that has read access to the Log Analytics workspace.
+- At least read access to a Microsoft Sentinel workspace that monitors sign-in attempts.
+- A Power BI account that has read access to your Microsoft Sentinel workspace.
 - [Power BI Desktop installed from the Microsoft Store](https://aka.ms/pbidesktopstore).
 
-## Export a query from Log Analytics
+## Export a query from Microsoft Sentinel
 
-Create, run, and export a Kusto query in your Azure Sentinel Log Analytics workspace. 
+Create, run, and export a KQL query from Microsoft Sentinel.
 
-1. To create a simple query, in your Azure Sentinel Log Analytics workspace, select **Logs**. In the query editor under **New Query 1**, enter the following Kusto query:
+1. To create a simple query, in Microsoft Sentinel, select **Logs**. If your workspace is onboarded to the Microsoft Defender portal, select **General > Logs**. 
+
+1. In the query editor, under **New Query 1**, enter the following query, or any other Microsoft Sentinel query for your data:
    
    ```kusto
    SigninLogs
-   |  where TimeGenerated >ago(7d)
+   | where TimeGenerated >ago(7d)
    | summarize Attempts = count(), Failed=countif(ResultType !=0), Succeeded = countif(ResultType ==0) by AppDisplayName
-   |  top 10 by Failed
+   | top 10 by Failed
    | sort by Failed
    ```
-   
-   Or, use your favorite Azure Sentinel Log Analytics Kusto query.
-   
+
+   See more information on the following items used in the preceding example, in the Kusto documentation:
+   - [***where*** operator](/kusto/query/where-operator?view=microsoft-sentinel&preserve-view=true)
+   - [***summarize*** operator](/kusto/query/summarize-operator?view=microsoft-sentinel&preserve-view=true)
+   - [***top*** operator](/kusto/query/top-operator?view=microsoft-sentinel&preserve-view=true)
+   - [***sort*** operator](/kusto/query/sort-operator?view=microsoft-sentinel&preserve-view=true)
+   - [***ago()*** function](/kusto/query/ago-function?view=microsoft-sentinel&preserve-view=true)
+   - [***count()*** aggregation function](/kusto/query/count-aggregation-function?view=microsoft-sentinel&preserve-view=true)
+   - [***countif()*** aggregation function](/kusto/query/countif-aggregation-function?view=microsoft-sentinel&preserve-view=true)
+
+    [!INCLUDE [kusto-reference-general-no-alert](includes/kusto-reference-general-no-alert.md)]
+
+
+
 1. Select **Run** to run the query and generate results.
    
-   :::image type="content" source="media/powerbi/query.png" alt-text="Screenshot showing the Log Analytics Kusto query and results.":::
+    :::image type="content" source="media/powerbi/query.png" alt-text="Screenshot showing the KQL query and results.":::
    
-1. To export the query to Power BI M query format, select **Export**, and then select **Export to Power BI (M query)**. Log Analytics exports the query to a text file called *PowerBIQuery.txt*.
+1. To export the query to Power BI M query format, select **Export**, and then select **Export to Power BI (M query)**. The query is exported to a text file called *PowerBIQuery.txt*.
    
    :::image type="content" source="media/powerbi/export.png" alt-text="Screenshot showing query Export to Power BI M format.":::
    
@@ -62,7 +85,7 @@ Create, run, and export a Kusto query in your Azure Sentinel Log Analytics works
 
 Run the exported M query in Power BI Desktop to get data.
 
-1. Open Power BI Desktop, and sign in to your Power BI account that has read access to the Log Analytics workspace.
+1. Open Power BI Desktop, and sign in to your Power BI account that has read access to your Microsoft Sentinel workspace.
    
    :::image type="content" source="media/powerbi/sign-in.png" alt-text="Screenshot showing sign-in to Power BI Desktop.":::
    
@@ -134,7 +157,7 @@ You also want to show what percentage of sign-in attempts failed for each applic
    
 ### Refresh the data and save the report
 
-1. Select **Refresh** to get the latest data from Azure Sentinel.
+1. Select **Refresh** to get the latest data from Microsoft Sentinel.
    
    :::image type="content" source="media/powerbi/refresh.png" alt-text="Screenshot showing the Refresh button in the ribbon.":::
    
@@ -144,7 +167,7 @@ You also want to show what percentage of sign-in attempts failed for each applic
 
 To create a Power BI workspace for sharing the report:
 
-1. Sign in to [powerbi.com](https://powerbi.com) with the same account you used for Power BI Desktop and Azure Sentinel read access.
+1. Sign in to [powerbi.com](https://powerbi.com) with the same account you used for Power BI Desktop and Microsoft Sentinel read access.
    
 1. Under **Workspaces**, select **Create a workspace**. Name the workspace *Management Reports*, and select **Save**.
    
@@ -196,7 +219,10 @@ Refresh your Power BI report on a schedule, so updated data always appears in th
    
    :::image type="content" source="media/powerbi/schedule.png" alt-text="Screenshot showing Scheduled refresh settings for the Power BI report dataset.":::
 
-## Next steps
+## Related content
 
-- [Import Azure Monitor log data into Power BI](/azure/azure-monitor/visualize/powerbi)
+For more information, see:
+
+- [Azure Monitor service limits](/azure/azure-monitor/service-limits)
+- [Import Azure Monitor log data into Power BI](/azure/azure-monitor/logs/log-powerbi)
 - [Power Query M formula language](/powerquery-m/)

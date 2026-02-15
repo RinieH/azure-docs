@@ -1,8 +1,9 @@
----
+﻿---
 title: Child resources in templates
 description: Describes how to set the name and type for child resources in an Azure Resource Manager template (ARM template).
-ms.topic: conceptual
-ms.date: 05/07/2021
+ms.topic: article
+ms.custom: devx-track-arm-template
+ms.date: 07/23/2025
 ---
 
 # Set name and type for child resources
@@ -12,6 +13,9 @@ Child resources are resources that exist only within the context of another reso
 Each parent resource accepts only certain resource types as child resources. The resource type for the child resource includes the resource type for the parent resource. For example, `Microsoft.Web/sites/config` and `Microsoft.Web/sites/extensions` are both child resources of the `Microsoft.Web/sites`. The accepted resource types are specified in the [template schema](https://github.com/Azure/azure-resource-manager-schemas) of the parent resource.
 
 In an Azure Resource Manager template (ARM template), you can specify the child resource either within the parent resource or outside of the parent resource. The values you provide for the resource name and resource type vary based on whether the child resource is defined inside or outside of the parent resource.
+
+> [!TIP]
+> We recommend [Bicep](../bicep/overview.md) because it offers the same capabilities as ARM templates and the syntax is easier to use. To learn more, see [child resources](../bicep/child-resource-name-type.md).
 
 ## Within parent resource
 
@@ -43,7 +47,7 @@ The following example shows a virtual network and with a subnet. Notice that the
 "resources": [
   {
     "type": "Microsoft.Network/virtualNetworks",
-    "apiVersion": "2018-10-01",
+    "apiVersion": "2025-01-01",
     "name": "VNet1",
     "location": "[parameters('location')]",
     "properties": {
@@ -56,7 +60,7 @@ The following example shows a virtual network and with a subnet. Notice that the
     "resources": [
       {
         "type": "subnets",
-        "apiVersion": "2018-10-01",
+        "apiVersion": "2024-07-01",
         "name": "Subnet1",
         "dependsOn": [
           "VNet1"
@@ -89,7 +93,7 @@ The following example shows the child resource outside of the parent resource. Y
 ]
 ```
 
-When defined outside of the parent resource, you format the type and with slashes to include the parent type and name.
+When defined outside of the parent resource, you format the type and name values with slashes to include the parent type and name.
 
 ```json
 "type": "{resource-provider-namespace}/{parent-resource-type}/{child-resource-type}",
@@ -102,7 +106,7 @@ The following example shows a virtual network and subnet that are both defined a
 "resources": [
   {
     "type": "Microsoft.Network/virtualNetworks",
-    "apiVersion": "2018-10-01",
+    "apiVersion": "2025-01-01",
     "name": "VNet1",
     "location": "[parameters('location')]",
     "properties": {
@@ -115,7 +119,7 @@ The following example shows a virtual network and subnet that are both defined a
   },
   {
     "type": "Microsoft.Network/virtualNetworks/subnets",
-    "apiVersion": "2018-10-01",
+    "apiVersion": "2025-01-01",
     "name": "VNet1/Subnet1",
     "dependsOn": [
       "VNet1"
@@ -131,3 +135,4 @@ The following example shows a virtual network and subnet that are both defined a
 
 * To learn about creating ARM templates, see [Understand the structure and syntax of ARM templates](./syntax.md).
 * To learn about the format of the resource name when referencing the resource, see the [reference function](template-functions-resource.md#reference).
+

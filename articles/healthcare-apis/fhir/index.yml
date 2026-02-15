@@ -1,61 +1,97 @@
 ### YamlMime:Landing
 
-title: Azure API for FHIR Documentation
-summary: Azure API for FHIR is a managed, standards-based, compliant API for clinical health data that enables solutions for actionable analytics and machine learning. 
+title: FHIR service documentation
+summary: FHIR service is a managed, standards-based, compliant API for clinical health data that enables solutions for actionable analytics and machine learning. 
 
 metadata:
-  title: Azure API for FHIR Documentation - tutorials, how-to guides
-  description: Azure API for FHIR is a managed, standards-based, compliant API for clinical health data that enables solutions for actionable analytics and machine learning. 
-  services: healthcare-apis
-  ms.service: healthcare-apis
+  title: Azure Health Data Services FHIR service
+  description: FHIR service is a managed, standards-based, compliant API for clinical health data that enables solutions for actionable analytics and machine learning. 
+  ms.service: azure-health-data-services
   ms.subservice: fhir
   ms.topic: landing-page 
-  ms.collection: collection
-  author: matjazl
-  ms.author: matjazl
-  ms.date: 08/13/2020
+
+  author: EXPEkesheth
+  ms.author: kesheth
+  ms.date: 09/01/2023
 
 # linkListType: architecture | concept | deploy | download | get-started | how-to-guide | learn | overview | quickstart | reference | tutorial | video | whats-new
 
 landingContent:
 
-  - title: Start with Azure API for FHIR
+  - title: Get started
     linkLists:
       - linkListType: overview
         links:
-          - text: What is Azure API for FHIR?
+          - text: What is FHIR service?
             url: overview.md
-          - text: What is Azure IoT Connector for FHIR (preview)?
-            url: overview.md#azure-iot-connector-for-fhir-preview
       - linkListType: quickstart
         links:
-          - text: Deploy API Server for FHIR
-            url: fhir-paas-portal-quickstart.md
-          - text: Deploy Azure IoT Connector for FHIR (preview)
-            url: iot-fhir-portal-quickstart.md 
-
-  - title: Set-up tutorials
+          - text: Deploy FHIR service using portal
+            url: fhir-portal-quickstart.md
+          - text: Deploy FHIR service using ARM template
+            url: fhir-service-resource-manager-template.md
+  - title: Access the FHIR service
     linkLists:
+      - linkListType: concept
+        links:
+          - text: Microsoft Entra ID for FHIR service
+            url: azure-active-directory-identity-configuration.md
+          - text: Access token validation
+            url: fhir-service-access-token-validation.md
       - linkListType: tutorial
         links:
-          - text: Deploy javascript app to read data from FHIR service
-            url: tutorial-web-app-fhir-server.md
-          - text: Access FHIR API with Postman
-            url: access-fhir-postman-tutorial.md
-          - text: SMART integration for third-party apps & medical records
-            url: use-smart-on-fhir-proxy.md
-          - text: Receive device data through Azure IoT Hub
-            url: device-data-through-iot-hub.md
-
-  - title: Register apps for AD authentication
+          - text: Access using REST Client
+            url: ./../fhir/using-rest-client.md
+  - title: FHIR search capabilities
+    linkLists:
+      - linkListType: overview
+        links:
+          - text: Overview of FHIR search
+            url: overview-of-search.md
+      - linkListType: how-to-guide
+        links:
+          - text: Defining custom search parameters
+            url: how-to-do-custom-search.md
+          - text: How to run a reindex job
+            url: how-to-run-a-reindex.md
+          - text: Search examples
+            url: search-samples.md
+  - title: Compliance with mandates
+    linkLists:
+      - linkListType: overview
+        links:
+          - text: CMS interoperability and patient access rule
+            url: centers-for-medicare-tutorial-introduction.md
+      - linkListType: how-to-guide
+        links:
+          - text: CARIN Implementation Guide for Blue Button
+            url: carin-implementation-guide-blue-button-tutorial.md
+          - text: Da Vinci Drug Formulary
+            url: davinci-drug-formulary-tutorial.md
+  - title: FHIR operations
     linkLists:
       - linkListType: how-to-guide
         links:
-          - text: Register a resource app
-            url: register-resource-azure-ad-client-app.md
-          - text: Register a confidential client app
-            url: register-confidential-azure-ad-client-app.md
-          - text: Register a public client app
-            url: register-public-azure-ad-client-app.md
-          - text: Register a service client app
-            url: register-service-azure-ad-client-app.md       
+          - text: $member-match operation
+            url: tutorial-member-match.md
+          - text: Patient/$everything
+            url: patient-everything.md
+          - text: Profile validation
+            url: validation-against-profiles.md
+          - text: $purge-history operation
+            url: purge-history.md     
+  - title: Export and convert data
+    linkLists:
+      - linkListType: how-to-guide
+        links:
+          - text: Configure settings for export 
+            url: configure-export-data.md
+          - text: Configure settings for bulk-import
+            url: configure-import-data.md
+          - text: Convert data
+            url: convert-data-overview.md
+          - text: Copy data to Synapse
+            url: copy-to-synapse.md
+          - text: Export data
+            url: export-data.md
+        

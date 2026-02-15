@@ -1,9 +1,10 @@
 ---
 title: "Quickstart: Create a management group with Go"
 description: In this quickstart, you use Go to create a management group to organize your resources into a resource hierarchy.
-ms.date: 03/31/2021
+ms.date: 08/17/2021
 ms.topic: quickstart
-ms.custom: devx-track-csharp
+ms.devlang: golang
+ms.custom: devx-track-csharp, devx-track-go
 ---
 # Quickstart: Create a management group with Go
 
@@ -20,7 +21,7 @@ directory. You receive a notification when the process is complete. For more inf
 
 ## Prerequisites
 
-- If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/free/)
+- If you don't have an Azure subscription, create a [free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn)
   account before you begin.
 
 - An Azure service principal, including the _clientId_ and _clientSecret_. If you don't have a
@@ -28,18 +29,16 @@ directory. You receive a notification when the process is complete. For more inf
   [Azure management libraries for .NET authentication](/dotnet/azure/sdk/authentication#mgmt-auth).
   Skip the step to install the .NET Core packages as we'll do that in the next steps.
 
-- Any Azure AD user in the tenant can create a management group without the management group write
+- Any Microsoft Entra ID user in the tenant can create a management group without the management group write
   permission assigned to that user if
-  [hierarchy protection](./how-to/protect-resource-hierarchy.md#setting---require-authorization)
+  [hierarchy protection](./how-to/protect-resource-hierarchy.md#setting-require-authorization)
   isn't enabled. This new management group becomes a child of the Root Management Group or the
-  [default management group](./how-to/protect-resource-hierarchy.md#setting---default-management-group)
-  and the creator is given an "Owner" role assignment. Management group service allows this ability
-  so that role assignments aren't needed at the root level. No users have access to the Root
-  Management Group when it's created. To avoid the hurdle of finding the Azure AD Global Admins to
-  start using management groups, we allow the creation of the initial management groups at the root
-  level.
+  [default management group](./how-to/protect-resource-hierarchy.md#setting-define-the-default-management-group)
+  and the creator is given an Owner role assignment. Management group service allows this ability
+  so that role assignments aren't needed at the root level. When the Root
+    Management Group is created, users don't have access to it. To start using management groups, the service allows the creation of the initial management groups at the root level. For more information, see [Root management group for each directory](./overview.md#root-management-group-for-each-directory).
 
-[!INCLUDE [cloud-shell-try-it.md](../../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
 ## Add the management group package
 
@@ -47,7 +46,7 @@ To enable Go to manage management groups, the package must be added. This packag
 can be used, including [bash on Windows 10](/windows/wsl/install-win10) or locally installed.
 
 1. Check that the latest Go is installed (at least **1.15**). If it isn't yet installed, download it
-   at [Golang.org](https://golang.org/dl/).
+   at [Golang.org](https://go.dev/dl/).
 
 1. Check that the latest Azure CLI is installed (at least **2.5.1**). If it isn't yet installed, see
    [Install the Azure CLI](/cli/azure/install-azure-cli).
@@ -67,10 +66,10 @@ can be used, including [bash on Windows 10](/windows/wsl/install-win10) or local
 
    ```bash
    # Add the management group package for Go
-   go get -u github.com/Azure/azure-sdk-for-go/services/preview/resources/mgmt/2018-03-01-preview/managementgroups
+   go install github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2020-05-01/managementgroups@latest
 
    # Add the Azure auth package for Go
-   go get -u github.com/Azure/go-autorest/autorest/azure/auth
+   go install github.com/Azure/go-autorest/autorest/azure/auth@latest
    ```
 
 ## Application setup
@@ -84,39 +83,39 @@ that can create a management group.
    package main
 
    import (
-   	"context"
-   	"fmt"
-   	"os"
+     "context"
+     "fmt"
+     "os"
 
-   	mg "github.com/Azure/azure-sdk-for-go/services/preview/resources/mgmt/2018-03-01-preview/managementgroups"
-   	"github.com/Azure/go-autorest/autorest/azure/auth"
+     mg "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2020-05-01/managementgroups"
+     "github.com/Azure/go-autorest/autorest/azure/auth"
    )
 
    func main() {
-   	// Get variables from command line arguments
-   	var mgName = os.Args[1]
+     // Get variables from command line arguments
+     var mgName = os.Args[1]
 
-   	// Create and authorize a client
-   	mgClient := mg.NewClient()
-   	authorizer, err := auth.NewAuthorizerFromCLI()
-   	if err == nil {
-   		mgClient.Authorizer = authorizer
-   	} else {
-   		fmt.Printf(err.Error())
-   	}
+     // Create and authorize a client
+     mgClient := mg.NewClient()
+     authorizer, err := auth.NewAuthorizerFromCLI()
+     if err == nil {
+       mgClient.Authorizer = authorizer
+     } else {
+       fmt.Printf(err.Error())
+     }
 
-   	// Create the request
-   	Request := mg.CreateManagementGroupRequest{
-   		Name: &mgName,
-   	}
+     // Create the request
+     Request := mg.CreateManagementGroupRequest{
+       Name: &mgName,
+     }
 
-   	// Run the query and get the results
-   	var results, queryErr = mgClient.CreateOrUpdate(context.Background(), mgName, Request, "no-cache")
-   	if queryErr == nil {
-   		fmt.Printf("Results: " + fmt.Sprint(results) + "\n")
-   	} else {
-   		fmt.Printf(queryErr.Error())
-   	}
+     // Run the query and get the results
+     var results, queryErr = mgClient.CreateOrUpdate(context.Background(), mgName, Request, "no-cache")
+     if queryErr == nil {
+       fmt.Printf("Results: " + fmt.Sprint(results) + "\n")
+     } else {
+       fmt.Printf(queryErr.Error())
+     }
    }
    ```
 
@@ -142,7 +141,7 @@ the following command:
 
 ```bash
 # Remove the installed packages from the Go environment
-go clean -i github.com/Azure/azure-sdk-for-go/services/preview/resources/mgmt/2018-03-01-preview/managementgroups
+go clean -i github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2020-05-01/managementgroups
 go clean -i github.com/Azure/go-autorest/autorest/azure/auth
 ```
 

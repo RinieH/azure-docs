@@ -2,21 +2,22 @@
 title: Set up sign-up and sign-in with an Amazon account
 titleSuffix: Azure AD B2C
 description: Provide sign-up and sign-in to customers with Amazon accounts in your applications using Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
-
-ms.service: active-directory
-ms.workload: identity
+author: garrodonnell
+manager: CelesteDG
+ms.service: azure-active-directory
 ms.topic: how-to
-ms.custom: project-no-code
-ms.date: 03/17/2021
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 09/16/2021
+ms.author: godonnell
+ms.subservice: b2c
 zone_pivot_groups: b2c-policy-type
+
+#Customer Intent: As a developer using Azure Active Directory B2C, I want to set up sign-up and sign-in with an Amazon account, so that users can authenticate using their Amazon credentials.
+
 ---
 
 # Set up sign-up and sign-in with an Amazon account using Azure Active Directory B2C
+
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-choose-user-flow-or-custom-policy](../../includes/active-directory-b2c-choose-user-flow-or-custom-policy.md)]
 
@@ -50,8 +51,8 @@ To enable sign-in for users with an Amazon account in Azure Active Directory B2C
 
 ## Configure Amazon as an identity provider
 
-1. Sign in to the [Azure portal](https://portal.azure.com/) as the global administrator of your Azure AD B2C tenant.
-1. Make sure you're using the directory that contains your Azure AD B2C tenant by selecting the **Directory + subscription** filter in the top menu and choosing the directory that contains your tenant.
+1. Sign in to the [Azure portal](https://portal.azure.com/) with an account that has at least [External Identity Provider Administrator](/entra/identity/role-based-access-control/permissions-reference#external-identity-provider-administrator) privileges.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
 1. Choose **All services** in the top-left corner of the Azure portal, search for and select **Azure AD B2C**.
 1. Select **Identity providers**, then select **Amazon**.
 1. Enter a **Name**. For example, *Amazon*.
@@ -83,19 +84,19 @@ If the sign-in process is successful, your browser is redirected to `https://jwt
 You need to store the client secret that you previously recorded in your Azure AD B2C tenant.
 
 1. Sign in to the [Azure portal](https://portal.azure.com/).
-2. Make sure you're using the directory that contains your Azure AD B2C tenant by selecting the **Directory + subscription** filter in the top menu and choosing the directory that contains your tenant.
-3. Choose **All services** in the top-left corner of the Azure portal, and then search for and select **Azure AD B2C**.
-4. On the Overview page, select **Identity Experience Framework**.
-5. Select **Policy Keys** and then select **Add**.
-6. For **Options**, choose `Manual`.
-7. Enter a **Name** for the policy key. For example, `AmazonSecret`. The prefix `B2C_1A_` is added automatically to the name of your key.
-8. In **Secret**, enter your client secret that you previously recorded.
-9. For **Key usage**, select `Signature`.
-10. Click **Create**.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
+1. Choose **All services** in the top-left corner of the Azure portal, and then search for and select **Azure AD B2C**.
+1. On the Overview page, select **Identity Experience Framework**.
+1. Select **Policy Keys** and then select **Add**.
+1. For **Options**, choose `Manual`.
+1. Enter a **Name** for the policy key. For example, `AmazonSecret`. The prefix `B2C_1A_` is added automatically to the name of your key.
+1. In **Secret**, enter your client secret that you previously recorded.
+1. For **Key usage**, select `Signature`.
+1. Click **Create**.
 
 ## Configure Amazon as an identity provider
 
-To enable users to sign in using a Amazon account, you need to define the account as a claims provider. that Azure AD B2C can communicate with through an endpoint. The endpoint provides a set of claims that are used by Azure AD B2C to verify that a specific user has authenticated.
+To enable users to sign in using an Amazon account, you need to define the account as a claims provider. that Azure AD B2C can communicate with through an endpoint. The endpoint provides a set of claims that are used by Azure AD B2C to verify that a specific user has authenticated.
 
 You can define an Amazon account as a claims provider by adding it to the **ClaimsProviders** element in the extension file of your policy.
 

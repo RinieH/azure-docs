@@ -1,9 +1,8 @@
 ---
-author: linda33wj
-ms.service: data-factory
+author: jianleishen
 ms.topic: include
-ms.date: 08/18/2020
-ms.author: jingwang
+ms.date: 10/20/2023
+ms.author: jianleishen
 ---
 <!--
     Common for all ADF file-based connectors

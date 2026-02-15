@@ -1,12 +1,12 @@
 ---
-title: Azure Relay Hybrid Connections - HTTP requests in Node
-description: Write a Node.js console application for Azure Relay Hybrid Connections HTTP requests in Node.
-ms.topic: conceptual
-ms.date: 06/23/2020
-ms.custom: devx-track-js
+title: Azure Relay Hybrid Connections - HTTP requests in Node.js
+description: Write a Node.js console application for Azure Relay Hybrid Connections HTTP requests.
+ms.topic: tutorial
+ms.date: 01/24/2026
+ms.custom: devx-track-js, mode-ui, mode-api
 ---
 
-# Get started with Relay Hybrid Connections HTTP requests in Node
+# Get started with Relay Hybrid Connections HTTP requests in Node.js
 
 [!INCLUDE [relay-selector-hybrid-connections](./includes/relay-selector-hybrid-connections.md)]
 
@@ -22,7 +22,7 @@ In this quickstart, you take the following steps:
 
 ## Prerequisites
 - [Node.js](https://nodejs.org/en/).
-- An Azure subscription. If you don't have one, [create a free account](https://azure.microsoft.com/free/) before you begin.
+- An Azure subscription. If you don't have one, [create a free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Create a namespace using the Azure portal
 [!INCLUDE [relay-create-namespace-portal](./includes/relay-create-namespace-portal.md)]

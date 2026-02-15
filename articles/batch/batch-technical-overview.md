@@ -2,8 +2,10 @@
 title: Azure Batch runs large parallel jobs in the cloud
 description: Learn about using the Azure Batch service for large-scale parallel and HPC workloads.
 ms.topic: overview
-ms.date: 06/11/2021
+ms.date: 03/14/2025
+# Customer intent: "As a developer, I want to utilize Azure Batch for managing and executing large-scale parallel workloads, so that I can efficiently run high-performance computing tasks without worrying about underlying infrastructure management."
 ---
+
 
 # What is Azure Batch?
 
@@ -30,7 +32,7 @@ Some examples of intrinsically parallel workloads you can bring to Batch:
 - Data ingestion, processing, and ETL operations
 - Software test execution
 
-You can also use Batch to [run tightly coupled workloads](batch-mpi.md), where the applications you run need to communicate with each other, rather than running independently. Tightly coupled applications normally use the Message Passing Interface (MPI) API. You can run your tightly coupled workloads with Batch using [Microsoft MPI](/message-passing-interface/microsoft-mpi) or Intel MPI. Improve application performance with specialized [HPC](../virtual-machines/sizes-hpc.md) and [GPU-optimized](../virtual-machines/sizes-gpu.md) VM sizes.
+You can also use Batch to [run tightly coupled workloads](batch-mpi.md), where the applications you run need to communicate with each other, rather than running independently. Tightly coupled applications normally use the Message Passing Interface (MPI) API. You can run your tightly coupled workloads with Batch using [Microsoft MPI](/message-passing-interface/microsoft-mpi) or Intel MPI. Improve application performance with specialized [HPC](/azure/virtual-machines/sizes-hpc) and [GPU-optimized](/azure/virtual-machines/sizes-gpu) VM sizes.
 
 Some examples of tightly coupled workloads:
 
@@ -57,7 +59,7 @@ The following diagram shows steps in a common Batch workflow, with a client appl
 |Step  |Description  |
 |---------|---------|
 |1.  Upload **input files** and the **applications** to process those files to your Azure Storage account.     |The input files can be any data that your application processes, such as financial modeling data, or video files to be transcoded. The application files can include scripts or applications that process the data, such as a media transcoder.|
-|2.  Create a Batch **pool** of compute nodes in your Batch account, a **job** to run the workload on the pool, and **tasks** in the job.     | [Compute nodes](nodes-and-pools.md) are the VMs that execute your [tasks](jobs-and-tasks.md). Specify properties for your pool, such as the number and size of the nodes, a Windows or Linux VM image, and an application to install when the nodes join the pool. Manage the cost and size of the pool by using [low-priority VMs](batch-low-pri-vms.md) or by [automatically scaling](batch-automatic-scaling.md) the number of nodes as the workload changes. <br/><br/>When you add tasks to a job, the Batch service automatically schedules the tasks for execution on the compute nodes in the pool. Each task uses the application that you uploaded to process the input files. |
+|2.  Create a Batch **pool** of compute nodes in your Batch account, a **job** to run the workload on the pool, and **tasks** in the job.     | [Compute nodes](nodes-and-pools.md) are the VMs that execute your [tasks](jobs-and-tasks.md). Specify properties for your pool, such as the number and size of the nodes, a Windows or Linux VM image, and an application to install when the nodes join the pool. Manage the cost and size of the pool by using [Azure Spot VMs](batch-spot-vms.md) or by [automatically scaling](batch-automatic-scaling.md) the number of nodes as the workload changes. <br/><br/>When you add tasks to a job, the Batch service automatically schedules the tasks for execution on the compute nodes in the pool. Each task uses the application that you uploaded to process the input files. |
 |3.  Download **input files** and the **applications** to Batch     |Before each task executes, it can download the input data that it will process to the assigned node. If the application isn't already installed on the pool nodes, it can be downloaded here instead. When the downloads from Azure Storage complete, the task executes on the assigned node.|
 |4.  Monitor **task execution**     |As the tasks run, query Batch to monitor the progress of the job and its tasks. Your client application or service communicates with the Batch service over HTTPS. Because you may be monitoring thousands of tasks running on thousands of compute nodes, be sure to [query the Batch service efficiently](batch-efficient-list-queries.md).|
 |5.  Upload **task output**     |As the tasks complete, they can upload their result data to Azure Storage. You can also retrieve files directly from the file system on a compute node.|

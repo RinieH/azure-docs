@@ -1,104 +1,838 @@
 ---
-title: Azure Web PubSub service serverless quickstart
-description: A quickstart for using Azure Web PubSub service and Azure Functions to a serverless application.
-author: yjin81
-ms.author: yajin1
+title: Tutorial - Build a serverless real-time chat app with client authentication
+description: A tutorial to walk through how to use Azure Web PubSub service and Azure Functions to build a serverless chat app with client authentication.
+author: JialinXin
+ms.author: jixin
 ms.service: azure-web-pubsub
-ms.topic: overview 
-ms.date: 03/11/2021
+ms.custom: devx-track-azurecli
+ms.topic: tutorial
+ms.date: 01/12/2024
 ---
 
-# Quickstart: Create a serverless simple chat application with Azure Functions and Azure Web PubSub service 
+# Tutorial: Create a serverless real-time chat app with Azure Functions and Azure Web PubSub service
 
-The Azure Web PubSub service helps you build real-time messaging web applications using WebSockets and the publish-subscribe pattern easily. Azure Functions is a serverless platform that lets you run your code without managing any infrastructure. In this quickstart, learn how to use Azure Web PubSub service and Azure Functions to build a serverless application with real-time messaging and the publish-subscribe pattern.
+The Azure Web PubSub service helps you build real-time messaging web applications using WebSockets and the publish-subscribe pattern easily. Azure Functions is a serverless platform that lets you run your code without managing any infrastructure. In this tutorial, you learn how to use Azure Web PubSub service and Azure Functions to build a serverless application with real-time messaging and the publish-subscribe pattern.
+
+In this tutorial, you learn how to:
+
+> [!div class="checklist"]
+>
+> - Build a serverless real-time chat app
+> - Work with Web PubSub function trigger bindings and output bindings
+> - Deploy the function to Azure Function App
+> - Configure Azure Authentication
+> - Configure Web PubSub Event Handler to route events and messages to the application
+
+[!INCLUDE [Connection string security](includes/web-pubsub-connection-string-security.md)]
 
 ## Prerequisites
 
-# [JavaScript](#tab/javascript)
+# [JavaScript Model v4](#tab/javascript-v4)
 
-Install a code editor, such as [Visual Studio Code](https://code.visualstudio.com/), and also the library [Node.js](https://nodejs.org/en/download/), version 10.x
+- A code editor, such as [Visual Studio Code](https://code.visualstudio.com/)
 
-   > [!NOTE]
-   > For more information about the supported versions of Node.js, see [Azure Functions runtime versions documentation](../azure-functions/functions-versions.md#languages).
+- [Node.js](https://nodejs.org/en/download/package-manager/), version 18.x or above.
+  > [!NOTE]
+  > For more information about the supported versions of Node.js, see [Azure Functions runtime versions documentation](../azure-functions/functions-versions.md#languages).
+- [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools#installing) (v4 or higher preferred) to run Azure Function apps locally and deploy to Azure.
 
-Install the [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools#installing) (version 2.7.1505 or higher) to run Azure Function apps locally.
+- The [Azure CLI](/cli/azure) to manage Azure resources.
+
+# [JavaScript Model v3](#tab/javascript-v3)
+
+- A code editor, such as [Visual Studio Code](https://code.visualstudio.com/)
+
+- [Node.js](https://nodejs.org/en/download/package-manager/), version 18.x or above.
+  > [!NOTE]
+  > For more information about the supported versions of Node.js, see [Azure Functions runtime versions documentation](../azure-functions/functions-versions.md#languages).
+- [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools#installing) (v4 or higher preferred) to run Azure Function apps locally and deploy to Azure.
+
+- The [Azure CLI](/cli/azure) to manage Azure resources.
+
+# [C# in-process](#tab/csharp-in-process)
+
+- A code editor, such as [Visual Studio Code](https://code.visualstudio.com/).
+
+- [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools#installing) (v4 or higher preferred) to run Azure Function apps locally and deploy to Azure.
+
+- The [Azure CLI](/cli/azure) to manage Azure resources.
+
+# [C# isolated process](#tab/csharp-isolated-process)
+
+- A code editor, such as [Visual Studio Code](https://code.visualstudio.com/).
+
+- [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools#installing) (v4 or higher preferred) to run Azure Function apps locally and deploy to Azure.
+
+- The [Azure CLI](/cli/azure) to manage Azure resources.
+
+# [Python](#tab/python)
+
+- A code editor, such as [Visual Studio Code](https://code.visualstudio.com/).
+
+- [Python](https://www.python.org/downloads/) (v3.7+). See [supported Python versions](../azure-functions/functions-reference-python.md#supported-python-versions).
+
+- [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools#installing) (v4 or higher preferred) to run Azure Function apps locally and deploy to Azure.
+
+- The [Azure CLI](/cli/azure) to manage Azure resources.
 
 ---
 
-[!INCLUDE [quickstarts-free-trial-note](../../includes/quickstarts-free-trial-note.md)]
+[!INCLUDE [quickstarts-free-trial-note](~/reusable-content/ce-skilling/azure/includes/quickstarts-free-trial-note.md)]
 
 [!INCLUDE [create-instance-portal](includes/create-instance-portal.md)]
 
-## Clone the sample application
+## Create the functions
 
-While the service is deploying, let's switch to working with code. Clone the [sample app from GitHub](https://github.com/Azure/azure-webpubsub/tree/main/samples/functions/js/simplechat) as the first step.
+1. Make sure you have [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools#installing) installed. And then create an empty directory for the project. Run command under this working directory.
 
-1. Open a git terminal window. Navigate to a folder where you want to clone the sample project.
+   # [JavaScript Model v4](#tab/javascript-v4)
 
-1. Run the following command to clone the sample repository. This command creates a copy of the sample app on your computer.
+   ```bash
+   func init --worker-runtime javascript --model V4
+   ```
 
-    ```bash
-    git clone https://github.com/Azure/azure-webpubsub.git
-    ```
+   # [JavaScript Model v3](#tab/javascript-v3)
 
-## Configure and run the Azure Function app
+   ```bash
+   func init --worker-runtime javascript --model V3
+   ```
 
-- In the browser, open the **Azure portal** and confirm the Web PubSub Service instance you deployed earlier was successfully created. Navigate to the instance.
-- Select **Keys** and copy out the connection string.
+   # [C# in-process](#tab/csharp-in-process)
 
-# [JavaScript](#tab/javascript)
+   ```bash
+   func init --worker-runtime dotnet
+   ```
 
-- Update function configuration.
+   # [C# isolated process](#tab/csharp-isolated-process)
 
-  Open the */samples/functions/js/simplechat* folder in the cloned repository. Edit *local.settings.json* to add service connection string.
-  In *local.settings.json*, you need to make these changes and then save the file.
-    - Replace the place holder *<connection-string>* to the real one copied from **Azure portal** for **`WebPubSubConnectionString`** setting. 
-    - For **`AzureWebJobsStorage`** setting, this is required due to [Azure Functions requires an Azure Storage account](../azure-functions/storage-considerations.md).
-        - If you have Azure Storage Emulator run in local, keep the original settings of "UseDevelopmentStorage=true".
-        - If you have an Azure storage connection string, replace the value with it.
- 
-- JavaScript functions are organized into folders. In each folder are two files: `function.json` defines the bindings that are used in the function, and `index.js` is the body of the function. There are several triggered functions in this function app:
+   ```bash
+   func init --worker-runtime dotnet-isolated
+   ```
 
-    - **login** - This is the HTTP triggered function. It uses the *webPubSubConnection* input binding to generate and return valid service connection information.
-    - **messages** - This is the `WebPubSubTrigger` triggered function. Receives a chat message in the request body and uses the `WebPubSub` output binding to broadcast the message to all connected client applications.
-    - **connect** and **connected** - These are the `WebPubSubTrigger` triggered functions. Handle the connect and connected events.
+   # [Python](#tab/python)
 
-- In the terminal, ensure that you are in the */samples/functions/js/simplechat* folder. Install the extensions and run the function app.
+   ```bash
+   func init --worker-runtime python --model V1
+   ```
 
-    ```bash
-    func extensions install
+2. Install `Microsoft.Azure.WebJobs.Extensions.WebPubSub`.
 
-    func start
-    ```
+   # [JavaScript Model v4](#tab/javascript-v4)
 
-- The local function will use port defined in the `local.settings.json` file. To make it available in public network, you need to work with [ngrok](https://ngrok.com) to expose this endpoint. Run command below and you'll get a forwarding endpoint, for example: http://{ngrok-id}.ngrok.io -> http://localhost:7071.
+   Confirm and update `host.json`'s extensionBundle to version _4.*_ or later to get Web PubSub support.
 
-    ```bash
-    ngrok http 7071
-    ```    
+   ```json
+   {
+     "extensionBundle": {
+       "id": "Microsoft.Azure.Functions.ExtensionBundle",
+       "version": "[4.*, 5.0.0)"
+     }
+   }
+   ```
 
-- Set `Event Handler` in Azure Web PubSub service. Go to **Azure portal** -> Find your Web PubSub resource -> **Settings**. Add a new hub settings mapping to the one function in use as below. Replace the {ngrok-id} to yours.
+   # [JavaScript Model v3](#tab/javascript-v3)
 
-   - Hub Name: simplechat
-   - URL Template: **http://{ngrok-id}.ngrok.io/runtime/webhooks/webpubsub**
-   - User Event Pattern: *
-   - System Events: connect, connected, disconnected.
+   Confirm and update `host.json`'s extensionBundle to version _3.3.0_ or later to get Web PubSub support.
 
----
+   ```json
+   {
+     "extensionBundle": {
+       "id": "Microsoft.Azure.Functions.ExtensionBundle",
+       "version": "[3.3.*, 4.0.0)"
+     }
+   }
+   ```
 
-## Run the web application
+   # [C# in-process](#tab/csharp-in-process)
 
-1. To simplify your client testing, open your browser to our sample [single page web application](http://jialinxin.github.io/webpubsub/). 
+   ```bash
+   dotnet add package Microsoft.Azure.WebJobs.Extensions.WebPubSub
+   ```
 
-1. Enter the function app base URL as local: `http://localhost:7071`.
+   # [C# isolated process](#tab/csharp-isolated-process)
 
-1. Enter a username.
+   ```bash
+   dotnet add package Microsoft.Azure.Functions.Worker.Extensions.WebPubSub --prerelease
+   ```
 
-1. The web application calls the *login* function in the function app to retrieve the connection information to connect to Azure Web PubSub service. When you saw `Client websocket opened.`, it means the connection is established. 
+   # [Python](#tab/python)
 
-1. Type a message and press enter. The application sends the message to the *messages* function in the Azure Function app, which then uses the Web PubSub output binding to broadcast the message to all connected clients. If everything is working correctly, the message will appear in the application.
+   ```json
+   {
+     "extensionBundle": {
+       "id": "Microsoft.Azure.Functions.ExtensionBundle",
+       "version": "[3.3.*, 4.0.0)"
+   }
+   ```
+   
 
-1. Open another instance of the web application in a different browser window. You will see that any messages sent will appear in all instances of the application.
+3. Create an `index` function to read and host a static web page for clients.
+
+   ```bash
+   func new -n index -t HttpTrigger
+   ```
+   # [JavaScript Model v4](#tab/javascript-v4)
+
+   - Update `src/functions/index.js` and copy following codes.
+     ```js
+     const { app } = require('@azure/functions');
+     const { readFile } = require('fs/promises');
+     
+     app.http('index', {
+         methods: ['GET', 'POST'],
+         authLevel: 'anonymous',
+         handler: async (context) => {
+             const content = await readFile('index.html', 'utf8', (err, data) => {
+                 if (err) {
+                     context.err(err)
+                     return
+                 }
+             });
+     
+             return { 
+                 status: 200,
+                 headers: { 
+                     'Content-Type': 'text/html'
+                 }, 
+                 body: content, 
+             };
+         }
+     });
+     ```
+
+   # [JavaScript Model v3](#tab/javascript-v3)
+
+   - Update `index/function.json` and copy following json codes.
+     ```json
+     {
+       "bindings": [
+         {
+           "authLevel": "anonymous",
+           "type": "httpTrigger",
+           "direction": "in",
+           "name": "req",
+           "methods": ["get", "post"]
+         },
+         {
+           "type": "http",
+           "direction": "out",
+           "name": "res"
+         }
+       ]
+     }
+     ```
+   - Update `index/index.js` and copy following codes.
+
+     ```js
+     var fs = require("fs");
+     var path = require("path");
+
+     module.exports = function (context, req) {
+       var index =
+         context.executionContext.functionDirectory + "/../index.html";
+       context.log("index.html path: " + index);
+       fs.readFile(index, "utf8", function (err, data) {
+         if (err) {
+           console.log(err);
+           context.done(err);
+         }
+         context.res = {
+           status: 200,
+           headers: {
+             "Content-Type": "text/html",
+           },
+           body: data,
+         };
+         context.done();
+       });
+     };
+     ```
+
+   # [C# in-process](#tab/csharp-in-process)
+
+   - Update `index.cs` and replace `Run` function with following codes.
+     ```c#
+     [FunctionName("index")]
+     public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous)] HttpRequest req, ExecutionContext context, ILogger log)
+     {
+         var indexFile = Path.Combine(context.FunctionAppDirectory, "index.html");
+         log.LogInformation($"index.html path: {indexFile}.");
+         return new ContentResult
+         {
+             Content = File.ReadAllText(indexFile),
+             ContentType = "text/html",
+         };
+     }
+     ```
+
+   # [C# isolated process](#tab/csharp-isolated-process)
+
+   - Update `index.cs` and replace `Run` function with following codes.
+
+     ```c#
+     [Function("index")]
+     public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req, FunctionContext context)
+     {
+         var path = Path.Combine(context.FunctionDefinition.PathToAssembly, "../index.html");
+         _logger.LogInformation($"index.html path: {path}.");
+
+      var response = req.CreateResponse();
+      response.WriteString(File.ReadAllText(path));
+      response.Headers.Add("Content-Type", "text/html");
+      return response;
+     }
+     ```
+
+   # [Python](#tab/python)
+
+   - Update `index/function.json` and copy following json codes.
+   
+     ```json
+     {
+       "bindings": [
+         {
+           "authLevel": "anonymous",
+           "type": "httpTrigger",
+           "direction": "in",
+           "name": "req",
+           "methods": ["get", "post"]
+         },
+         {
+           "type": "http",
+           "direction": "out",
+           "name": "$return"
+         }
+       ]
+     }
+
+     ```
+     
+
+   - Update `__init__.py` and replace `main` function with following codes.
+   
+     ```python
+     import os
+
+     import azure.functions as func
+
+
+     def main(req: func.HttpRequest) -> func.HttpResponse:
+         f = open(os.path.dirname(os.path.realpath(__file__)) + "/../index.html")
+         return func.HttpResponse(f.read(), mimetype="text/html")
+     ```
+     
+
+4. Create a `negotiate` function to help clients get service connection url with access token.
+
+   ```bash
+   func new -n negotiate -t HttpTrigger
+   ```
+
+   > [!NOTE]
+   > In this sample, we use [Microsoft Entra ID](../app-service/configure-authentication-user-identities.md) user identity header `x-ms-client-principal-name` to retrieve `userId`. And this won't work in a local function. You can make it empty or change to other ways to get or generate `userId` when playing in local. For example, let client type a user name and pass it in query like `?user={$username}` when call `negotiate` function to get service connection url. And in the `negotiate` function, set `userId` with value `{query.user}`.
+
+   # [JavaScript Model v4](#tab/javascript-v4)
+   - Update `src/functions/negotiate` and copy following codes.
+     ```js
+     const { app, input } = require('@azure/functions');
+     
+     const connection = input.generic({
+         type: 'webPubSubConnection',
+         name: 'connection',
+         userId: '{headers.x-ms-client-principal-name}',
+         hub: 'simplechat'
+     });
+     
+     app.http('negotiate', {
+         methods: ['GET', 'POST'],
+         authLevel: 'anonymous',
+         extraInputs: [connection],
+         handler: async (request, context) => {
+             return { body: JSON.stringify(context.extraInputs.get('connection')) };
+         },
+     });
+     ```
+
+
+   # [JavaScript Model v3](#tab/javascript-v3)
+
+   - Update `negotiate/function.json` and copy following json codes.
+     ```json
+     {
+       "bindings": [
+         {
+           "authLevel": "anonymous",
+           "type": "httpTrigger",
+           "direction": "in",
+           "name": "req"
+         },
+         {
+           "type": "http",
+           "direction": "out",
+           "name": "res"
+         },
+         {
+           "type": "webPubSubConnection",
+           "name": "connection",
+           "hub": "simplechat",
+           "userId": "{headers.x-ms-client-principal-name}",
+           "direction": "in"
+         }
+       ]
+     }
+     ```
+   - Update `negotiate/index.js` and copy following codes.
+     ```js
+     module.exports = function (context, req, connection) {
+       context.res = { body: connection };
+       context.done();
+     };
+     ```
+
+   # [C# in-process](#tab/csharp-in-process)
+
+   - Update `negotiate.cs` and replace `Run` function with following codes.
+     ```c#
+     [FunctionName("negotiate")]
+     public static WebPubSubConnection Run(
+         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+         [WebPubSubConnection(Hub = "simplechat", UserId = "{headers.x-ms-client-principal-name}")] WebPubSubConnection connection,
+         ILogger log)
+     {
+         log.LogInformation("Connecting...");
+         return connection;
+     }
+     ```
+   - Add `using` statements in header to resolve required dependencies.
+     ```c#
+     using Microsoft.Azure.WebJobs.Extensions.WebPubSub;
+     ```
+
+   # [C# isolated process](#tab/csharp-isolated-process)
+
+   - Update `negotiate.cs` and replace `Run` function with following codes.
+     ```c#
+     [Function("negotiate")]
+     public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
+         [WebPubSubConnectionInput(Hub = "simplechat", UserId = "{headers.x-ms-client-principal-name}")] WebPubSubConnection connectionInfo)
+     {
+         var response = req.CreateResponse(HttpStatusCode.OK);
+         response.WriteAsJsonAsync(connectionInfo);
+         return response;
+     }
+     ```
+
+   # [Python](#tab/python)
+
+   - Update `negotiate/function.json` and copy following json codes. 
+     ```json
+     {
+       "bindings": [
+         {
+           "authLevel": "anonymous",
+           "type": "httpTrigger",
+           "direction": "in",
+           "name": "req"
+         },
+         {
+           "type": "http",
+           "direction": "out",
+           "name": "$return"
+         },
+         {
+           "type": "webPubSubConnection",
+           "name": "connection",
+           "hub": "simplechat",
+           "userId": "{headers.x-ms-client-principal-name}",
+           "direction": "in"
+         }
+       ]
+     }
+     ```
+
+   - Update `negotiate/__init__.py` and copy following codes.
+     ```python
+     import azure.functions as func
+
+
+     def main(req: func.HttpRequest, connection) -> func.HttpResponse:
+         return func.HttpResponse(connection)
+
+     ```
+     
+     
+
+5. Create a `message` function to broadcast client messages through service.
+
+   ```bash
+   func new -n message -t HttpTrigger
+   ```
+
+   # [JavaScript Model v4](#tab/javascript-v4)
+
+   - Update `src/functions/message.js` and copy following codes.
+     ```js
+     const { app, output, trigger } = require('@azure/functions');
+     
+     const wpsMsg = output.generic({
+         type: 'webPubSub',
+         name: 'actions',
+         hub: 'simplechat',
+     });
+     
+     const wpsTrigger = trigger.generic({
+         type: 'webPubSubTrigger',
+         name: 'request',
+         hub: 'simplechat',
+         eventName: 'message',
+         eventType: 'user'
+     });
+     
+     app.generic('message', {
+         trigger: wpsTrigger,
+         extraOutputs: [wpsMsg],
+         handler: async (request, context) => {
+             context.extraOutputs.set(wpsMsg, [{
+                 "actionName": "sendToAll",
+                 "data": `[${context.triggerMetadata.connectionContext.userId}] ${request.data}`,
+                 "dataType": request.dataType
+             }]);
+             
+             return {
+                 data: "[SYSTEM] ack.",
+                 dataType: "text",
+             };
+         }
+     });
+     ```
+
+   # [JavaScript Model v3](#tab/javascript-v3)
+
+   - Update `message/function.json` and copy following json codes.
+     ```json
+     {
+       "bindings": [
+         {
+           "type": "webPubSubTrigger",
+           "direction": "in",
+           "name": "data",
+           "hub": "simplechat",
+           "eventName": "message",
+           "eventType": "user"
+         },
+         {
+           "type": "webPubSub",
+           "name": "actions",
+           "hub": "simplechat",
+           "direction": "out"
+         }
+       ]
+     }
+     ```
+   - Update `message/index.js` and copy following codes.
+     ```js
+     module.exports = async function (context, data) {
+       context.bindings.actions = {
+         actionName: "sendToAll",
+         data: `[${context.bindingData.request.connectionContext.userId}] ${data}`,
+         dataType: context.bindingData.dataType,
+       };
+       // UserEventResponse directly return to caller
+       var response = {
+         data: "[SYSTEM] ack.",
+         dataType: "text",
+       };
+       return response;
+     };
+     ```
+
+   # [C# in-process](#tab/csharp-in-process)
+
+   - Update `message.cs` and replace `Run` function with following codes.
+     ```c#
+     [FunctionName("message")]
+     public static async Task<UserEventResponse> Run(
+         [WebPubSubTrigger("simplechat", WebPubSubEventType.User, "message")] UserEventRequest request,
+         BinaryData data,
+         WebPubSubDataType dataType,
+         [WebPubSub(Hub = "simplechat")] IAsyncCollector<WebPubSubAction> actions)
+     {
+         await actions.AddAsync(WebPubSubAction.CreateSendToAllAction(
+             BinaryData.FromString($"[{request.ConnectionContext.UserId}] {data.ToString()}"),
+             dataType));
+         return new UserEventResponse
+         {
+             Data = BinaryData.FromString("[SYSTEM] ack"),
+             DataType = WebPubSubDataType.Text
+         };
+     }
+     ```
+   - Add `using` statements in header to resolve required dependencies.
+     ```c#
+     using System.Threading.Tasks;
+     using Microsoft.Azure.WebJobs.Extensions.WebPubSub;
+     using Microsoft.Azure.WebPubSub.Common;
+     ```
+
+   # [C# isolated process](#tab/csharp-isolated-process)
+
+   - Update `message.cs` and replace `Run` function with following codes.
+     ```c#
+     [Function("message")]
+     [WebPubSubOutput(Hub = "simplechat")]
+     public SendToAllAction Run(
+         [WebPubSubTrigger("simplechat", WebPubSubEventType.User, "message")] UserEventRequest request)
+     {
+         return new SendToAllAction
+         {
+             Data = BinaryData.FromString($"[{request.ConnectionContext.UserId}] {request.Data.ToString()}"),
+             DataType = request.DataType
+         };
+     }
+     ```
+
+   # [Python](#tab/python)
+
+   - Update `message/function.json` and copy following json codes.
+     ```json
+     {
+       "bindings": [
+         {
+           "type": "webPubSubTrigger",
+           "direction": "in",
+           "name": "request",
+           "hub": "simplechat",
+           "eventName": "message",
+           "eventType": "user"
+         },
+         {
+           "type": "webPubSub",
+           "name": "actions",
+           "hub": "simplechat",
+           "direction": "out"
+         }
+       ]
+     }
+     ``` 
+   - Update `message/__init__.py` and copy following codes.
+     ```python
+     import json
+
+     import azure.functions as func
+     
+     
+     def main(request, actions: func.Out[str]) -> None:
+         req_json = json.loads(request)
+         actions.set(
+             json.dumps(
+                 {
+                     "actionName": "sendToAll",
+                     "data": f'[{req_json["connectionContext"]["userId"]}] {req_json["data"]}',
+                     "dataType": req_json["dataType"],
+                 }
+             )
+         )
+     ```
+     
+
+6. Add the client single page `index.html` in the project root folder and copy content.
+
+   ```html
+   <html>
+     <body>
+       <h1>Azure Web PubSub Serverless Chat App</h1>
+       <div id="login"></div>
+       <p></p>
+       <input id="message" placeholder="Type to chat..." />
+       <div id="messages"></div>
+       <script>
+         (async function () {
+           let authenticated = window.location.href.includes(
+             "?authenticated=true"
+           );
+           if (!authenticated) {
+             // auth
+             let login = document.querySelector("#login");
+             let link = document.createElement("a");
+             link.href = `${window.location.origin}/.auth/login/aad?post_login_redirect_url=/api/index?authenticated=true`;
+             link.text = "login";
+             login.appendChild(link);
+           } else {
+             // negotiate
+             let messages = document.querySelector("#messages");
+             let res = await fetch(`${window.location.origin}/api/negotiate`, {
+               credentials: "include",
+             });
+             let url = await res.json();
+             // connect
+             let ws = new WebSocket(url.url);
+             ws.onopen = () => console.log("connected");
+             ws.onmessage = (event) => {
+               let m = document.createElement("p");
+               m.innerText = event.data;
+               messages.appendChild(m);
+             };
+             let message = document.querySelector("#message");
+             message.addEventListener("keypress", (e) => {
+               if (e.charCode !== 13) return;
+               ws.send(message.value);
+               message.value = "";
+             });
+           }
+         })();
+       </script>
+     </body>
+   </html>
+   ```
+
+   # [JavaScript Model v4](#tab/javascript-v4)
+
+   # [JavaScript Model v3](#tab/javascript-v3)
+
+   # [C# in-process](#tab/csharp-in-process)
+
+   Since C# project compiles files to a different output folder, you need to update your `*.csproj` to make the content page go with it.
+
+   ```xml
+   <ItemGroup>
+       <None Update="index.html">
+           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+       </None>
+   </ItemGroup>
+   ```
+
+   # [C# isolated process](#tab/csharp-isolated-process)
+
+   Since C# project compiles files to a different output folder, you need to update your `*.csproj` to make the content page go with it.
+
+   ```xml
+   <ItemGroup>
+       <None Update="index.html">
+           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+       </None>
+   </ItemGroup>
+   ```
+
+   # [Python](#tab/python)
+
+## Create and Deploy the Azure Function App
+
+Before you can deploy your function code to Azure, you need to create three resources:
+
+- A resource group, which is a logical container for related resources.
+- A storage account, which is used to maintain state and other information about your functions.
+- A function app, which provides the environment for executing your function code. A function app maps to your local function project and lets you group functions as a logical unit for easier management, deployment and sharing of resources.
+
+Use the following commands to create these items.
+
+1. If you haven't done so already, sign in to Azure:
+
+   ```azurecli
+   az login
+   ```
+
+1. Create a resource group or you can skip by reusing the one of Azure Web PubSub service:
+
+   ```azurecli
+   az group create -n WebPubSubFunction -l <REGION>
+   ```
+
+1. Create a general-purpose storage account in your resource group and region:
+
+   ```azurecli
+   az storage account create -n <STORAGE_NAME> -l <REGION> -g WebPubSubFunction
+   ```
+
+1. Create the function app in Azure:
+
+   # [JavaScript Model v4](#tab/javascript-v4)
+
+   ```azurecli
+   az functionapp create --resource-group WebPubSubFunction --consumption-plan-location <REGION> --runtime node --runtime-version 18 --functions-version 4 --name <FUNCIONAPP_NAME> --storage-account <STORAGE_NAME>
+   ```
+
+   > [!NOTE]
+   > Check [Azure Functions runtime versions documentation](../azure-functions/functions-versions.md#languages) to set `--runtime-version` parameter to supported value.
+
+   # [JavaScript Model v3](#tab/javascript-v3)
+
+   ```azurecli
+   az functionapp create --resource-group WebPubSubFunction --consumption-plan-location <REGION> --runtime node --runtime-version 18 --functions-version 4 --name <FUNCIONAPP_NAME> --storage-account <STORAGE_NAME>
+   ```
+
+   > [!NOTE]
+   > Check [Azure Functions runtime versions documentation](../azure-functions/functions-versions.md#languages) to set `--runtime-version` parameter to supported value.
+
+   # [C# in-process](#tab/csharp-in-process)
+
+   ```azurecli
+   az functionapp create --resource-group WebPubSubFunction --consumption-plan-location <REGION> --runtime dotnet --functions-version 4 --name <FUNCIONAPP_NAME> --storage-account <STORAGE_NAME>
+   ```
+
+   # [C# isolated process](#tab/csharp-isolated-process)
+
+   ```azurecli
+   az functionapp create --resource-group WebPubSubFunction --consumption-plan-location <REGION> --runtime dotnet-isolated --functions-version 4 --name <FUNCIONAPP_NAME> --storage-account <STORAGE_NAME>
+   ```
+
+   # [Python](#tab/python)
+
+   ```azurecli
+   az functionapp create --resource-group WebPubSubFunction --consumption-plan-location <REGION> --runtime python --runtime-version 3.9 --functions-version 4 --name <FUNCIONAPP_NAME> --os-type linux --storage-account <STORAGE_NAME>
+   ```
+
+1. Deploy the function project to Azure:
+
+   After you have successfully created your function app in Azure, you're now ready to deploy your local functions project by using the [func azure functionapp publish](./../azure-functions/functions-run-local.md) command.
+
+   ```bash
+   func azure functionapp publish <FUNCIONAPP_NAME>
+   ```
+
+1. Configure the `WebPubSubConnectionString` for the function app:
+
+   [!INCLUDE [Connection string security comment](includes/web-pubsub-connection-string-security-comment.md)]
+
+   First, find your Web PubSub resource from **Azure portal** and copy out the connection string under **Keys**. Then, navigate to Function App settings in **Azure portal** -> **Settings** -> **Environment variables**. And add a new item under **App settings**, with name equals `WebPubSubConnectionString` and value is your Web PubSub resource connection string.
+
+## Configure the Web PubSub service `Event Handler`
+
+In this sample, we're using `WebPubSubTrigger` to listen to service upstream requests. So Web PubSub need to know the function's endpoint information in order to send target client requests. And Azure Function App requires a system key for security regarding extension-specific webhook methods. In the previous step after we deployed the Function App with `message` functions, we're able to get the system key.
+
+Go to **Azure portal** -> Find your Function App resource -> **App keys** -> **System keys** -> **`webpubsub_extension`**. Copy out the value as `<APP_KEY>`.
+
+:::image type="content" source="media/quickstart-serverless/func-keys.png" alt-text="Screenshot of get function system keys.":::
+
+Set `Event Handler` in Azure Web PubSub service. Go to **Azure portal** -> Find your Web PubSub resource -> **Settings**. Add a new hub settings mapping to the one function in use. Replace the `<FUNCTIONAPP_NAME>` and `<APP_KEY>` to yours.
+
+- Hub Name: `simplechat`
+- URL Template: **https://<FUNCTIONAPP_NAME>.azurewebsites.net/runtime/webhooks/webpubsub?code=<APP_KEY>**
+- User Event Pattern: \*
+- System Events: -(No need to configure in this sample)
+
+:::image type="content" source="media/quickstart-serverless/set-event-handler.png" alt-text="Screenshot of setting the event handler.":::
+
+## Configure to enable client authentication
+
+Go to **Azure portal** -> Find your Function App resource -> **Authentication**. Click **`Add identity provider`**. Set **App Service authentication settings** to **Allow unauthenticated access**, so your client index page can be visited by anonymous users before redirect to authenticate. Then **Save**.
+
+Here we choose `Microsoft` as identify provider, which uses `x-ms-client-principal-name` as `userId` in the `negotiate` function. Besides, you can configure other identity providers following the links, and don't forget update the `userId` value in `negotiate` function accordingly.
+
+- [Microsoft Entra ID](../app-service/configure-authentication-provider-aad.md)
+- [Facebook](../app-service/configure-authentication-provider-facebook.md)
+- [Google](../app-service/configure-authentication-provider-google.md)
+- [X](../app-service/configure-authentication-provider-twitter.md)
+
+## Try the application
+
+Now you're able to test your page from your function app: `https://<FUNCTIONAPP_NAME>.azurewebsites.net/api/index`. See snapshot.
+
+1. Click `login` to auth yourself.
+2. Type message in the input box to chat.
+
+In the message function, we broadcast caller's message to all clients and return caller with message `[SYSTEM] ack`. So we can know in sample chat snapshot, first four messages are from current client and last two messages are from another client.
+
+:::image type="content" source="media/quickstart-serverless/chat-sample.png" alt-text="Screenshot of chat sample.":::
 
 ## Clean up resources
 
@@ -109,3 +843,16 @@ If you're not going to continue to use this app, delete all resources created by
 1. In the window that opens, select the resource group, and then select **Delete resource group**.
 
 1. In the new window, type the name of the resource group to delete, and then select **Delete**.
+
+## Next steps
+
+In this quickstart, you learned how to run a serverless chat application. Now, you could start to build your own application.
+
+> [!div class="nextstepaction"] 
+> [Azure Web PubSub bindings for Azure Functions](./reference-functions-bindings.md)
+
+> [!div class="nextstepaction"] 
+> [Quick start: Create a simple chatroom with Azure Web PubSub](./tutorial-build-chat.md)
+
+> [!div class="nextstepaction"] 
+> [Explore more Azure Web PubSub samples](https://github.com/Azure/azure-webpubsub/tree/main/samples)

@@ -1,8 +1,8 @@
----
+﻿---
 title: Set deployment order for resources
 description: Describes how to set one Azure resource as dependent on another resource during deployment. The dependencies ensure resources are deployed in the correct order.
-ms.topic: conceptual
-ms.date: 12/21/2020
+ms.topic: article
+ms.date: 04/28/2025
 ---
 
 # Define the order for deploying resources in ARM templates
@@ -11,28 +11,69 @@ When deploying resources, you may need to make sure some resources exist before 
 
 Azure Resource Manager evaluates the dependencies between resources, and deploys them in their dependent order. When resources aren't dependent on each other, Resource Manager deploys them in parallel. You only need to define dependencies for resources that are deployed in the same template.
 
+> [!TIP]
+> We recommend [Bicep](../bicep/overview.md) because it offers the same capabilities as ARM templates and the syntax is easier to use. To learn more, see [resource dependencies](../bicep/resource-dependencies.md).
+
 ## dependsOn
 
 Within your Azure Resource Manager template (ARM template), the `dependsOn` element enables you to define one resource as a dependent on one or more resources. Its value is a JavaScript Object Notation (JSON) array of strings, each of which is a resource name or ID. The array can include resources that are [conditionally deployed](conditional-resource-deployment.md). When a conditional resource isn't deployed, Azure Resource Manager automatically removes it from the required dependencies.
 
-The following example shows a network interface that depends on a virtual network, network security group, and public IP address. For the full template, see [the quickstart template for a Linux VM](https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.compute/vm-simple-linux/azuredeploy.json).
+The following example shows a network interface that depends on a virtual network, network security group, and public IP address.
 
 ```json
 {
-    "type": "Microsoft.Network/networkInterfaces",
-    "apiVersion": "2020-06-01",
-    "name": "[variables('networkInterfaceName')]",
-    "location": "[parameters('location')]",
-    "dependsOn": [
-      "[resourceId('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
-      "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
-      "[resourceId('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
-    ],
-    ...
+  "type": "Microsoft.Network/networkInterfaces",
+  "apiVersion": "2025-01-01",
+  "name": "[variables('networkInterfaceName')]",
+  "location": "[parameters('location')]",
+  "dependsOn": [
+    "[resourceId('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
+    "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+    "[resourceId('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
+  ],
+  ...
 }
 ```
 
-While you may be inclined to use `dependsOn` to map relationships between your resources, it's important to understand why you're doing it. For example, to document how resources are interconnected, `dependsOn` isn't the right approach. You can't query which resources were defined in the `dependsOn` element after deployment. Setting unnecessary dependencies slows deployment time because Resource Manager can't deploy those resources in parallel.
+With [languageVersion 2.0](./syntax.md#languageversion-20), use resource symbolic name in `dependsOn` arrays. For example:
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "resources": {
+    "myStorage": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2025-06-01",
+      "name": "[format('storage{0}', uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    "myVm": {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2025-04-01",
+      "name": "[format('vm{0}', uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "myStorage"
+      ],
+      ...
+    }
+  }
+}
+```
+
+While you may be inclined to use `dependsOn` to map relationships between your resources, it's important to understand why you're doing it. For example, to document how resources are interconnected, `dependsOn` isn't the right approach. After deployment, the resource doesn't retain deployment dependencies in its properties, so there are no commands or operations that let you see dependencies. Setting unnecessary dependencies slows deployment time because Resource Manager can't deploy those resources in parallel.
 
 ## Child resources
 
@@ -44,7 +85,7 @@ The following example shows a logical SQL server and database. Notice that an ex
 "resources": [
   {
     "type": "Microsoft.Sql/servers",
-    "apiVersion": "2020-02-02-preview",
+    "apiVersion": "2022-05-01-preview",
     "name": "[parameters('serverName')]",
     "location": "[parameters('location')]",
     "properties": {
@@ -54,7 +95,7 @@ The following example shows a logical SQL server and database. Notice that an ex
     "resources": [
       {
         "type": "databases",
-        "apiVersion": "2020-08-01-preview",
+        "apiVersion": "2022-05-01-preview",
         "name": "[parameters('sqlDBName')]",
         "location": "[parameters('location')]",
         "sku": {
@@ -62,7 +103,7 @@ The following example shows a logical SQL server and database. Notice that an ex
           "tier": "Standard"
           },
         "dependsOn": [
-          "[resourceId('Microsoft.Sql/servers', concat(parameters('serverName')))]"
+          "[resourceId('Microsoft.Sql/servers', parameters('serverName'))]"
         ]
       }
     ]
@@ -96,9 +137,9 @@ In the following example, a CDN endpoint explicitly depends on the CDN profile, 
 
 ```json
 {
-    "name": "[variables('endpointName')]",
-    "apiVersion": "2016-04-02",
     "type": "endpoints",
+    "apiVersion": "2021-06-01",
+    "name": "[variables('endpointName')]",
     "location": "[resourceGroup().location]",
     "dependsOn": [
       "[variables('profileName')]"
@@ -107,6 +148,8 @@ In the following example, a CDN endpoint explicitly depends on the CDN profile, 
       "originHostHeader": "[reference(variables('webAppName')).hostNames[0]]",
       ...
     }
+    ...
+}
 ```
 
 To learn more, see [reference function](template-functions-resource.md#reference).
@@ -123,8 +166,8 @@ The following example shows how to deploy multiple virtual machines. The templat
 ```json
 {
   "type": "Microsoft.Network/networkInterfaces",
-  "apiVersion": "2020-05-01",
-  "name": "[concat(variables('nicPrefix'),'-',copyIndex())]",
+  "apiVersion": "2025-01-01",
+  "name": "[format('{0}-{1}', variables('nicPrefix'), copyIndex())]",
   "location": "[parameters('location')]",
   "copy": {
     "name": "nicCopy",
@@ -134,11 +177,11 @@ The following example shows how to deploy multiple virtual machines. The templat
 },
 {
   "type": "Microsoft.Compute/virtualMachines",
-  "apiVersion": "2020-06-01",
-  "name": "[concat(variables('vmPrefix'),copyIndex())]",
+  "apiVersion": "2025-04-01",
+  "name": "[format('{0}{1}', variables('vmPrefix'), copyIndex())]",
   "location": "[parameters('location')]",
   "dependsOn": [
-    "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('nicPrefix'),'-',copyIndex()))]"
+    "[resourceId('Microsoft.Network/networkInterfaces',format('{0}-{1}', variables('nicPrefix'),copyIndex()))]"
   ],
   "copy": {
     "name": "vmCopy",
@@ -148,7 +191,7 @@ The following example shows how to deploy multiple virtual machines. The templat
     "networkProfile": {
       "networkInterfaces": [
         {
-          "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('nicPrefix'),'-',copyIndex()))]",
+          "id": "[resourceId('Microsoft.Network/networkInterfaces',format('(0)-(1)', variables('nicPrefix'), copyIndex()))]",
           "properties": {
             "primary": "true"
           }
@@ -166,13 +209,18 @@ The following example shows how to deploy three storage accounts before deployin
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-04-01",
-      "name": "[concat(copyIndex(),'storage', uniqueString(resourceGroup().id))]",
-      "location": "[resourceGroup().location]",
+      "apiVersion": "2025-06-01",
+      "name": "[format('{0}storage{1}, copyIndex(), uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
       "sku": {
         "name": "Standard_LRS"
       },
@@ -185,13 +233,52 @@ The following example shows how to deploy three storage accounts before deployin
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2015-06-15",
-      "name": "[concat('VM', uniqueString(resourceGroup().id))]",
+      "apiVersion": "2025-04-01",
+      "name": "[format('VM{0}', uniqueString(resourceGroup().id))]",
       "dependsOn": ["storagecopy"],
       ...
     }
-  ],
-  "outputs": {}
+  ]
+}
+```
+
+[Symbolic names](./resource-declaration.md#use-symbolic-name) can be used in `dependsOn` arrays. If a symbolic name is for a copy loop, all resources in the loop are added as dependencies. The preceding sample can be written as the following JSON. In the sample, **myVM** depends on all of the storage accounts in the **myStorages** loop.
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "resources": {
+    "myStorages": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2025-06-01",
+      "name": "[format('{0}storage{1}, copyIndex(), uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage",
+      "copy": {
+        "name": "storagecopy",
+        "count": 3
+      },
+      "properties": {}
+    },
+    "myVM": {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2025-04-01",
+      "name": "[format('VM{0}', uniqueString(resourceGroup().id))]",
+      "dependsOn": ["myStorages"],
+      ...
+    }
+  }
 }
 ```
 
@@ -209,8 +296,9 @@ For information about assessing the deployment order and resolving dependency er
 ## Next steps
 
 * To go through a tutorial, see [Tutorial: Create ARM templates with dependent resources](template-tutorial-create-templates-with-dependent-resources.md).
-* For a Microsoft Learn module that covers resource dependencies, see [Manage complex cloud deployments by using advanced ARM template features](/learn/modules/manage-deployments-advanced-arm-template-features/).
+* For a Learn module that covers resource dependencies, see [Manage complex cloud deployments by using advanced ARM template features](/training/modules/manage-deployments-advanced-arm-template-features/).
 * For recommendations when setting dependencies, see [ARM template best practices](./best-practices.md).
 * To learn about troubleshooting dependencies during deployment, see [Troubleshoot common Azure deployment errors with Azure Resource Manager](common-deployment-errors.md).
 * To learn about creating Azure Resource Manager templates, see [Understand the structure and syntax of ARM templates](./syntax.md).
 * For a list of the available functions in a template, see [ARM template functions](template-functions.md).
+

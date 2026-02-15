@@ -2,17 +2,22 @@
 title: Protecting DNS Zones and Records - Azure DNS
 description: In this learning path, get started protecting DNS zones and record sets in Microsoft Azure DNS.
 services: dns
-author: duongau
-ms.service: dns
+author: asudbring
+ms.service: azure-dns
 ms.topic: how-to
-ms.date: 05/05/2021
-ms.author: duau 
-ms.custom: devx-track-azurepowershell
+ms.date: 11/30/2023
+ms.author: allensu 
+ms.devlang: azurecli
+ms.custom:
+  - devx-track-azurepowershell
+  - devx-track-azurecli
+  - sfi-image-nochange
+# Customer intent: "As a network administrator, I want to implement access controls and protection mechanisms for DNS zones and records, so that I can prevent unauthorized changes and accidental deletions that could disrupt service availability."
 ---
 
 # How to protect DNS zones and records
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 DNS zones and records are critical resources. Deleting a DNS zone or a single DNS record can result in a service outage. It's important that DNS zones and records are protected against unauthorized or accidental changes.
 
@@ -28,7 +33,7 @@ The DNS Zone Contributor role is a built-in role for managing private DNS resour
 
 The resource group *myResourceGroup* contains five zones for Contoso Corporation. Granting the DNS administrator DNS Zone Contributor permissions to that resource group, enables full control over those DNS zones. It avoids granting unnecessary permissions. The DNS administrator can't create or stop virtual machines.
 
-The simplest way to assign Azure RBAC permissions is [via the Azure portal](../role-based-access-control/role-assignments-portal.md).  
+The simplest way to assign Azure RBAC permissions is [via the Azure portal](/azure/role-based-access-control/role-assignments-portal).  
 
 Open **Access control (IAM)** for the resource group, then select **+ Add**, then select the **DNS Zone Contributor** role. Select the required users or groups to grant permissions.
 
@@ -151,7 +156,7 @@ The following example shows a custom role definition for managing CNAME records 
     "NotActions": [
     ],
     "AssignableScopes": [
-        "/subscriptions/c276fc76-9cd4-44c9-99a7-4fd71546436e"
+        "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
     ]
 }
 ```
@@ -177,7 +182,7 @@ It can also be created via the Azure CLI:
 
 ```azurecli-interactive
 # Create new role definition based on input file
-az role create -inputfile <file path>
+az role definition create --role-definition <file path>
 ```
 
 The role can then be assigned in the same way as built-in roles, as described earlier in this article.
@@ -212,7 +217,7 @@ $rsg = "<resource group name>"
 New-AzResourceLock -LockLevel $lvl -LockName $lnm -ResourceName $rsc -ResourceType $rty -ResourceGroupName $rsg
 ```
 
-The equivalent command is also [available via the Azure CLI](/cli/azure/lock#az_lock_create):
+The equivalent command is also [available via the Azure CLI](/cli/azure/lock#az-lock-create):
 
 ```azurecli-interactive
 # Lock a DNS zone

@@ -1,26 +1,21 @@
 ---
 author: cherylmc
 ms.author: cherylmc
-ms.date: 06/29/2021
-ms.service: bastion
+ms.date: 01/21/2025
+ms.service: azure-bastion
 ms.topic: include
+ms.custom: sfi-image-nochange
 
 ---
 
-When you connect to a VM using Azure Bastion, you do not need a public IP address for your VM. If you aren't using the public IP address for anything else, you can disassociate it from your VM. To disassociate a public IP address from your VM, use the following steps:
+When you connect to a VM by using Azure Bastion, you don't need a public IP address for your VM. If you aren't using the public IP address for anything else, you can dissociate it from your VM:
 
-1. Navigate to your virtual machine and select **Networking**. Select the **NIC Public IP** to open the public IP address page.
+1. Go to your virtual machine. On the **Overview** page, click the **Public IP address** to open the Public IP address page.
 
-   :::image type="content" source="./media/bastion-remove-ip/networking.png" alt-text="Screenshot of networking page.":::
+1. On the **Public IP address** page, go to **Overview**. You can view the resource that this IP address is **Associated to**. Select **Dissociate** at the top of the pane.
 
-1. On the **Public IP address** page for the VM, select **Disassociate**.
+1. Select **Yes** to dissociate the IP address from the VM network interface. After you dissociate the public IP address from the network interface, verify that it's no longer listed under **Associated to**.
 
-   :::image type="content" source="./media/bastion-remove-ip/disassociate.png" alt-text="Screenshot of public IP address for the VM.":::
+1. After you dissociate the IP address, you can delete the public IP address resource. On the **Public IP address** pane for the VM, at the top of the **Overview** page, select **Delete**.
 
-1. Select **Yes** to disassociated the IP address from the network interface.
-
-   :::image type="content" source="./media/bastion-remove-ip/disassociate-yes.png" alt-text="Screenshot of Disassociate public IP address.":::
-
-1. After you disassociate the IP address, you can delete the public IP address resource. To delete the public IP address resource, navigate to the resource group and locate the IP address resource you want to delete. Then, select **Delete** to delete the resource.
-
-   :::image type="content" source="./media/bastion-remove-ip/delete-resource.png" alt-text="Screenshot of delete the public IP address resource.":::
+1. Select **Yes** to delete the public IP address.

@@ -1,8 +1,11 @@
 ---
 title: Distributed collaborative development of Azure DevTest Labs resources
 description: Provides best practices for setting up a distributed and collaborative development environment to develop DevTest Labs resources. 
-ms.topic: article
+ms.topic: conceptual
+ms.author: rosemalcolm
+author: RoseHJM
 ms.date: 06/26/2020
+ms.custom: UpdateFrequency2
 ---
 
 # Best practices for distributed and collaborative development of Azure DevTest Labs resources
@@ -16,7 +19,7 @@ This document describes some best practices that allow collaboration and distrib
 ## Lab-based resources
 
 ### Custom virtual machine images
-You can have a common source of custom images that are deployed to labs on a nightly basis. For detailed information, see [Image factory](image-factory-create.md).    
+You can have a common source of custom images that are deployed to labs on a nightly basis. For detailed information, see [Azure VM Image Builder](/azure/virtual-machines/image-builder-overview?tabs=azure-powershell).
 
 ### Formulas
 [Formulas](devtest-lab-manage-formulas.md) are lab-specific and don't have a distribution mechanism. The lab members do all the development of formulas. 

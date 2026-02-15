@@ -1,20 +1,13 @@
 ---
 title: Disaster recovery using Azure Application Consistent Snapshot tool for Azure NetApp Files | Microsoft Docs
-description: Explains how to perform disaster recovery when using the Azure Application Consistent Snapshot tool that you can use with Azure NetApp Files. 
+description: Explains how to perform disaster recovery when using the Azure Application Consistent Snapshot tool that you can use with Azure NetApp Files.
 services: azure-netapp-files
-documentationcenter: ''
 author: Phil-Jensen
-manager: ''
-editor: ''
-
-ms.assetid:
 ms.service: azure-netapp-files
-ms.workload: storage
-ms.tgt_pltfrm: na
-ms.devlang: na
 ms.topic: how-to
 ms.date: 04/21/2021
 ms.author: phjensen
+# Customer intent: "As a database administrator, I want to perform disaster recovery using storage snapshots with Azure NetApp Files, so that I can ensure data integrity and minimize downtime in case of a failure."
 ---
 
 # Disaster recovery using Azure Application Consistent Snapshot tool
@@ -36,7 +29,7 @@ The following pre-requisites must be met before you plan the disaster recovery f
 - You have storage replication working. The Microsoft operations team performs the storage replication setup at the time of DR provisioning automatically. You can monitor the storage replication using the command `azacsnap -c details --details replication` at the DR site.
 - You have set up and configured storage snapshots at the primary location.
 - You have an HANA instance installed at the DR site for the primary with the same SID as the primary instance has.
-- You read and understand the DR Failover procedure described in [SAP HANA Large Instances high availability and disaster recovery on Azure](../virtual-machines/workloads/sap/hana-failover-procedure.md)
+- You read and understand the DR Failover procedure described in [SAP HANA Large Instances high availability and disaster recovery on Azure](/azure/virtual-machines/workloads/sap/hana-failover-procedure)
 - You have set up and configured storage snapshots at the DR location.
 - A configuration file (for example, `DR.json`) has been created with the DR storage volumes and associated
     information on the DR server.
@@ -121,7 +114,7 @@ tmpfs 76G 0 76G 0% /run/user/0
 
 If performing a complete failover of production workloads, and it is possible to connect to the Primary production site, then shut down the SAP HANA instance(s) being failed over to DR.
 
-For example, if logged in as root the following example shows how SAP HANA can be shut down.  Replace <sid> with your SAP HANA SID.
+For example, if logged in as root the following example shows how SAP HANA can be shut down.  Replace \<sid\> with your SAP HANA SID.
 
 ```bash
 su - <sid>adm
@@ -132,7 +125,7 @@ HDB stop
 
 It is important to shut down SAP HANA on the DR site before restoring the volumes.
 
-For example, if logged in as root the following example shows how SAP HANA can be shut down.  Replace <sid> with your SAP HANA SID.
+For example, if logged in as root the following example shows how SAP HANA can be shut down.  Replace \<sid\> with your SAP HANA SID.
 
 ```bash
 su - <sid>adm

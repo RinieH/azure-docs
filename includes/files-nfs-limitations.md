@@ -2,14 +2,13 @@
 title: "include file"
 description: "include file"
 services: storage
-author: roygara
-ms.service: storage
+author: khdownie
+ms.service: azure-file-storage
 ms.topic: "include"
-ms.date: 06/30/2021
-ms.author: rogarana
+ms.date: 05/12/2025
+ms.author: kendownie
 ms.custom: "include file"
 ---
-While in preview, NFS Azure file shares have the following limitations:
+Currently, only NFS version 4.1 is supported. NFSv4.1 shares are only supported within the **FileStorage** storage account type (SSD file shares only).
 
-- Only available for the premium tier.
-- If a storage account was created before registering for the NFS feature, NFS file shares cannot be created in that storage account. NFS file shares can only be created in storage accounts that were created after registering for the NFS feature.
+NFS Azure file shares support most features from the 4.1 protocol specification. Some features aren't supported, such as Kerberos authentication and delegations and callback of all kinds.

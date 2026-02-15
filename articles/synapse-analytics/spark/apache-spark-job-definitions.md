@@ -4,10 +4,14 @@ description: Tutorial - Use the Azure Synapse Analytics to create Spark job defi
 author: Jejiang
 ms.author: jejiang
 ms.reviewer: jasonh
-ms.service: synapse-analytics
+ms.service: azure-synapse-analytics
 ms.topic: tutorial
 ms.subservice: spark
 ms.date: 10/16/2020
+ms.custom:
+  - devx-track-dotnet
+  - devx-track-python
+  - sfi-image-nochange
 ---
 
 # Tutorial: Create Apache Spark job definition in Synapse Studio
@@ -30,7 +34,7 @@ This tutorial covers the following tasks:
 
 Before you start with this tutorial, make sure to meet the following requirements:
 
-* An Azure Synapse Analytics workspace. For instructions, see [Create an Azure Synapse Analytics workspace](../../machine-learning/how-to-manage-workspace.md).
+* An Azure Synapse Analytics workspace. For instructions, see [Create an Azure Synapse Analytics workspace](/azure/machine-learning/how-to-manage-workspace).
 * A serverless Apache Spark pool.
 * An ADLS Gen2 storage account. You need to be the **Storage Blob Data Contributor** of the ADLS Gen2 filesystem you want to work with. If you aren't, you need to add the permission manually.
 * If you don’t want to use the workspace default storage, link the required ADLS Gen2 storage account in Synapse Studio. 
@@ -48,7 +52,7 @@ In this section, you create an Apache Spark job definition for PySpark (Python).
 
 3. Select **Data** -> **Linked** -> **Azure Data Lake Storage Gen2**, and upload **wordcount.py** and **shakespeare.txt** into your ADLS Gen2 filesystem. 
 
-     ![upload python file](./media/apache-spark-job-definitions/upload-python-file.png)
+     ![upload Python file](./media/apache-spark-job-definitions/upload-python-file.png)
 
 4. Select **Develop** hub, select the '+' icon and select **Spark job definition** to create a new Spark job definition. 
 
@@ -71,6 +75,7 @@ In this section, you create an Apache Spark job definition for PySpark (Python).
      |Executors| Number of executors to be given in the specified Apache Spark pool for the job.|
      |Executor size| Number of cores and memory to be used for executors given in the specified Apache Spark pool for the job.|  
      |Driver size| Number of cores and memory to be used for driver given in the specified Apache Spark pool for the job.|
+     |Apache Spark configuration| Customize configurations by adding properties below. If you do not add a property, Azure Synapse will use the default value when applicable.|
 
      ![Set the value of the Spark job definition for Python](./media/apache-spark-job-definitions/create-py-definition.png)
 
@@ -112,8 +117,10 @@ In this section, you create an Apache Spark job definition for Apache Spark(Scal
      |Executors| Number of executors to be given in the specified Apache Spark pool for the job.|  
      |Executor size| Number of cores and memory to be used for executors given in the specified Apache Spark pool for the job.|
      |Driver size| Number of cores and memory to be used for driver given in the specified Apache Spark pool for the job.|
+     |Apache Spark configuration| Customize configurations by adding properties below. If you do not add a property, Azure Synapse will use the default value when applicable.|
 
      ![Set the value of the Spark job definition for scala](./media/apache-spark-job-definitions/create-scala-definition.png)
+     
 
  7. Select **Publish** to save the Apache Spark job definition.
 
@@ -152,12 +159,21 @@ In this section, you create an Apache Spark job definition for .NET Spark(C#/F#)
      |Executors| Number of executors to be given in the specified Apache Spark pool for the job.|  
      |Executor size| Number of cores and memory to be used for executors given in the specified Apache Spark pool for the job.|
      |Driver size| Number of cores and memory to be used for driver given in the specified Apache Spark pool for the job.|
-
+     |Apache Spark configuration| Customize configurations by adding properties below. If you do not add a property, Azure Synapse will use the default value when applicable.|
+     
      ![Set the value of the Spark job definition for dotnet](./media/apache-spark-job-definitions/create-dotnet-definition.png)
 
  7. Select **Publish** to save the Apache Spark job definition.
 
       ![publish dotnet definition](./media/apache-spark-job-definitions/publish-dotnet-definition.png)
+
+
+> [!NOTE] 
+>
+> For Apache Spark configuration, if the Apache Spark configuration Apache Spark job definition does not do anything special, the default configuration will be used when running the job.
+
+
+
 
 ## Create Apache Spark job definition by importing a JSON file
 
@@ -257,4 +273,3 @@ In this section, you add an Apache Spark job definition into pipeline.
 ## Next steps
 
 Next you can use Azure Synapse Studio to create Power BI datasets and manage Power BI data. Advance to the [Linking a Power BI workspace to a Synapse workspace](../quickstart-power-bi.md) article to learn more. 
-

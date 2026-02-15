@@ -1,26 +1,26 @@
 ---
 title: Restore Azure Managed Disks via Azure CLI
 description: Learn how to restore Azure Managed Disks using Azure CLI.
-ms.topic: conceptual
-ms.date: 06/18/2021
+ms.topic: how-to
+ms.custom: devx-track-azurecli
+ms.date: 02/13/2026
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+# Customer intent: "As a cloud administrator, I want to restore Azure Managed Disks using Azure CLI commands, so that I can efficiently recover data from backups to new disks in my chosen resource groups."
 ---
 
 # Restore Azure Managed Disks using Azure CLI
 
-This article describes how to restore [Azure Managed Disks](../virtual-machines/managed-disks-overview.md) from a restore point created by Azure Backup using Azure CLI.
+This article describes how to restore [Azure Managed Disks](/azure/virtual-machines/managed-disks-overview) from a restore point created by Azure Backup using Azure CLI. You can also restore Managed Disk using [Azure portal](restore-managed-disks.md), [Azure PowerShell](restore-managed-disks-ps.md), [REST API](backup-azure-dataprotection-use-rest-api-restore-disks.md).
 
 > [!IMPORTANT]
 > Support for Azure Managed Disks backup and restore via CLI is in preview and available as an extension in Az 2.15.0 version and later. The extension is automatically installed when you run the **az dataprotection** commands. [Learn more](/cli/azure/azure-cli-extensions-overview) about extensions.
 
-Currently, the Original-Location Recovery (OLR) option of restoring by replacing the existing source disk from where the backups were taken isn't supported. You can restore from a recovery point to create a new disk in the same resource group of the source disk or in any other resource group. It's known as Alternate-Location Recovery (ALR).
+Currently, the Original-Location Recovery (OLR) option of restoring by replacing the existing source disk from where the backups were taken isn't supported. You can restore from a recovery point to create a new disk in the same resource group of the source disk or in any other resource group, which is called Alternate-Location Recovery (ALR).
 
-In this article, you'll learn how to:
+Here, let's use an existing Backup vault _TestBkpVault_, under the resource group _testBkpVaultRG_ in the examples.
 
-- Restore to create a new disk
-
-- Track the restore operation status
-
-We'll refer to an existing Backup vault _TestBkpVault_, under the resource group _testBkpVaultRG_ in the examples.
+To view the supported Azure Disk backup and restore scenarios, region availability, and limitations, see the [support matrix](disk-backup-support-matrix.md). For common questions, see the [frequently asked questions](disk-backup-faq.yml).
 
 ## Restore to create a new disk
 
@@ -30,26 +30,27 @@ Backup vault uses managed identity to access other Azure resources. To restore f
 
 Backup vault uses a system-assigned managed identity, which is restricted to one per resource and is tied to the lifecycle of this resource. You can grant permissions to the managed identity by using the Azure role-based access control (Azure RBAC). Managed identity is a service principal of a special type that may only be used with Azure resources. Learn more about [Managed Identities](../active-directory/managed-identities-azure-resources/overview.md).
 
-Assign the relevant permissions for vault's system-assigned managed identity on the target resource group where the disks will be restored/created as mentioned [here](restore-managed-disks.md#restore-to-create-a-new-disk).
+Assign the relevant permissions for vault's system-assigned managed identity on the target resource group where the disks should be restored/created as mentioned [here](restore-managed-disks.md#restore-a-new-disk-from-a-recovery-point).
 
 ### Fetching the relevant recovery point
 
-List all backup instances within a vault using [az dataprotection backup-instance list](/cli/azure/dataprotection/backup-instance?view=azure-cli-latest&preserve-view=true#az_dataprotection_backup_instance_list) command, and then fetch the relevant instance using the [az dataprotection backup-instance show](/cli/azure/dataprotection/backup-instance?view=azure-cli-latest&preserve-view=true#az_dataprotection_backup_instance_show) command. Alternatively, for at-scale scenarios, you can list backup instances across vaults and subscriptions using the [az dataprotection backup-instance list-from-resourcegraph](/cli/azure/dataprotection/backup-instance?view=azure-cli-latest&preserve-view=true#az_dataprotection_backup_instance_list_from_resourcegraph)
+List all backup instances within a vault using [az dataprotection backup-instance list](/cli/azure/dataprotection/backup-instance#az-dataprotection-backup-instance-list) command, and then fetch the relevant instance using the [az dataprotection backup-instance show](/cli/azure/dataprotection/backup-instance#az-dataprotection-backup-instance-show) command. Alternatively, for at-scale scenarios, you can list backup instances across vaults and subscriptions using the [az dataprotection backup-instance list-from-resourcegraph](/cli/azure/dataprotection/backup-instance#az-dataprotection-backup-instance-list-from-resourcegraph)
 
 ```azurecli-interactive
 az dataprotection backup-instance list-from-resourcegraph --datasource-type AzureDisk --datasource-id /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx/resourcegroups/diskrg/providers/Microsoft.Compute/disks/CLITestDisk
+```
 
-
+```output
 [
   {
     "datasourceId": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx/resourcegroups/diskrg/providers/Microsoft.Compute/disks/CLITestDisk",
     "extendedLocation": null,
-    "id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/testBkpVaultRG/providers/Microsoft.DataProtection/BackupVaults/TestBkpVault/backupInstances/diskrg-CLITestDisk-3df6ac08-9496-4839-8fb5-8b78e594f166",
+    "id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/testBkpVaultRG/providers/Microsoft.DataProtection/BackupVaults/TestBkpVault/backupInstances/diskrg-CLITestDisk-aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e",
     "identity": null,
     "kind": "",
     "location": "",
     "managedBy": "",
-    "name": "diskrg-CLITestDisk-3df6ac08-9496-4839-8fb5-8b78e594f166",
+    "name": "diskrg-CLITestDisk-aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e",
     "plan": null,
     "properties": {
       "currentProtectionState": "ProtectionConfigured",
@@ -99,17 +100,17 @@ az dataprotection backup-instance list-from-resourcegraph --datasource-type Azur
     "zones": null
   }
 ]
-
-
 ```
 
-Once the instance is identified, fetch the relevant recovery point using the [az dataprotection recovery-point list](/cli/azure/dataprotection/recovery-point?view=azure-cli-latest&preserve-view=true#az_dataprotection_recovery_point_list) command.
+Once the instance is identified, fetch the relevant recovery point using the [az dataprotection recovery-point list](/cli/azure/dataprotection/recovery-point#az-dataprotection-recovery-point-list) command.
 
 ```azurecli-interactive
-az dataprotection recovery-point list --backup-instance-name diskrg-CLITestDisk-3df6ac08-9496-4839-8fb5-8b78e594f166 -g testBkpVaultRG --vault-name TestBkpVault
+az dataprotection recovery-point list --backup-instance-name diskrg-CLITestDisk-aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e -g testBkpVaultRG --vault-name TestBkpVault
+```
 
+```output
 {
-"id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/testBkpVaultRG/providers/Microsoft.DataProtection/BackupVaults/TestBkpVault/backupInstances/diskrg-CLITestDisk-3df6ac08-9496-4839-8fb5-8b78e594f166/recoveryPoints/5081ad8f1e6c4548ae89536d0d45c493",
+"id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/testBkpVaultRG/providers/Microsoft.DataProtection/BackupVaults/TestBkpVault/backupInstances/diskrg-CLITestDisk-aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/recoveryPoints/5081ad8f1e6c4548ae89536d0d45c493",
 "name": "5081ad8f1e6c4548ae89536d0d45c493",
 "properties": {
 "friendlyName": "0f598ced-cbfe-4169-b962-ee94b0210490",
@@ -140,7 +141,7 @@ az dataprotection recovery-point list --backup-instance-name diskrg-CLITestDisk-
 "type": "Microsoft.DataProtection/backupVaults/backupInstances/recoveryPoints"
 },
 {
-"id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/testBkpVaultRG/providers/Microsoft.DataProtection/BackupVaults/TestBkpVault/backupInstances/diskrg-CLITestDisk-3df6ac08-9496-4839-8fb5-8b78e594f166/recoveryPoints/039322cc563049bcbdb77bd695d4c02c",
+"id": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/testBkpVaultRG/providers/Microsoft.DataProtection/BackupVaults/TestBkpVault/backupInstances/diskrg-CLITestDisk-aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/recoveryPoints/039322cc563049bcbdb77bd695d4c02c",
 "name": "039322cc563049bcbdb77bd695d4c02c",
 "properties": {
 "friendlyName": "af6512b6-aa38-4966-b8e1-660c4eccdc0d",
@@ -173,26 +174,26 @@ az dataprotection recovery-point list --backup-instance-name diskrg-CLITestDisk-
 ]
 ```
 
-For example, the below query returns the latest recovery point.
+For example, the following query returns the latest recovery point.
 
 ```azurecli-interactive
-az dataprotection recovery-point list --backup-instance-name diskrg-CLITestDisk-3df6ac08-9496-4839-8fb5-8b78e594f166 -g testBkpVaultRG --vault-name TestBkpVault --query "[0].id"
+az dataprotection recovery-point list --backup-instance-name diskrg-CLITestDisk-aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e -g testBkpVaultRG --vault-name TestBkpVault --query "[0].id"
 
-"/subscriptions/62b829ee-7936-40c9-a1c9-47a93f9f3965/resourceGroups/testBkpVaultRG/providers/Microsoft.DataProtection/backupVaults/sarath-vault/backupInstances/clitest-clitest-3165cfe7-a932-11eb-9d24-9cfce85d4fae/recoveryPoints/5081ad8f1e6c4548ae89536d0d45c493"
+"/subscriptions/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f/resourceGroups/testBkpVaultRG/providers/Microsoft.DataProtection/backupVaults/sarath-vault/backupInstances/clitest-clitest-cccc2c2c-dd3d-ee4e-ff5f-aaaaaa6a6a6a/recoveryPoints/5081ad8f1e6c4548ae89536d0d45c493"
 ```
 
 ### Preparing the restore request
 
-Construct the ARM ID of the new disk to be created with the target resource group, to which permissions were assigned as detailed [above](#setting-up-permissions), and the required disk name. We'll use an example of a disk named _CLITestDisk2_, under a resource group _targetrg_, under a different subscription.
+Construct the ARM ID of the new disk to be created with the target resource group, to which permissions were assigned as detailed [above](#setting-up-permissions), and the required disk name. Let's use an example of a disk named _CLITestDisk2_, under a resource group _targetrg_, under a different subscription.
 
 ```azurecli-interactive
 $targetDiskId = /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx/resourceGroups/targetrg/providers/Microsoft.Compute/disks/CLITestDisk2
 ```
 
-Use the [az dataprotection backup-instance restore initialize-for-data-recovery](/cli/azure/dataprotection/backup-instance/restore?view=azure-cli-latest&preserve-view=true#az_dataprotection_backup_instance_restore_initialize_for_data_recovery) command to prepare the restore request with all relevant details.
+Use the [az dataprotection backup-instance restore initialize-for-data-recovery](/cli/azure/dataprotection/backup-instance/restore#az-dataprotection-backup-instance-restore-initialize-for-data-recovery) command to prepare the restore request with all relevant details.
 
 ```azurecli-interactive
-az dataprotection backup-instance restore initialize-for-data-recovery --datasource-type AzureDisk --restore-location southeastasia --source-datastore OperationalStore --recovery-point-id /subscriptions/62b829ee-7936-40c9-a1c9-47a93f9f3965/resourceGroups/testBkpVaultRG/providers/Microsoft.DataProtection/backupVaults/sarath-vault/backupInstances/clitest-clitest-3165cfe7-a932-11eb-9d24-9cfce85d4fae/recoveryPoints/5081ad8f1e6c4548ae89536d0d45c493 --target-resource-id /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx/resourceGroups/targetrg/providers/Microsoft.Compute/disks/CLITestDisk2 > restore.json
+az dataprotection backup-instance restore initialize-for-data-recovery --datasource-type AzureDisk --restore-location southeastasia --source-datastore OperationalStore --recovery-point-id 5081ad8f1e6c4548ae89536d0d45c493 --target-resource-id /subscriptions/xxxxxxxx-xxxx-xxxx-xxxx/resourceGroups/targetrg/providers/Microsoft.Compute/disks/CLITestDisk2 > restore.json
 ```
 
 ```json
@@ -218,30 +219,31 @@ az dataprotection backup-instance restore initialize-for-data-recovery --datasou
 
 ```
 
-You can also validate if the JSON file will succeed in creating new resources using the [az dataprotection backup-instance validate-for-restore](/cli/azure/dataprotection/backup-instance?view=azure-cli-latest&preserve-view=true#az_dataprotection_backup_instance_validate_for_restore) command.
+You can also validate if the JSON file will succeed in creating new resources using the [az dataprotection backup-instance validate-for-restore](/cli/azure/dataprotection/backup-instance#az-dataprotection-backup-instance-validate-for-restore) command.
 
 ```azurecli-interactive
-az dataprotection backup-instance validate-for-restore -g testBkpVaultRG --vault-name TestBkpVault --backup-instance-name diskrg-CLITestDisk-3df6ac08-9496-4839-8fb5-8b78e594f166 --restore-request-object restore.json
+az dataprotection backup-instance validate-for-restore -g testBkpVaultRG --vault-name TestBkpVault --backup-instance-name diskrg-CLITestDisk-aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e --restore-request-object restore.json
 ```
 
 ### Trigger the restore
 
-Use the [az dataprotection backup-instance restore trigger](/cli/azure/dataprotection/backup-instance/restore?view=azure-cli-latest&preserve-view=true#az_dataprotection_backup_instance_restore_trigger) command to trigger the restore with the request prepared above.
+Use the [az dataprotection backup-instance restore trigger](/cli/azure/dataprotection/backup-instance/restore#az-dataprotection-backup-instance-restore-trigger) command to trigger the restore with the request prepared above.
 
 ```azurecli-interactive
-az dataprotection backup-instance restore trigger -g testBkpVaultRG --vault-name TestBkpVault --backup-instance-name diskrg-CLITestDisk-3df6ac08-9496-4839-8fb5-8b78e594f166 --parameters restore.json
+az dataprotection backup-instance restore trigger -g testBkpVaultRG --vault-name TestBkpVault --backup-instance-name diskrg-CLITestDisk-aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e --restore-request-object restore.json
 ```
 
 ## Tracking job
 
-Track all jobs using the [az dataprotection job list](/cli/azure/dataprotection/job?view=azure-cli-latest&preserve-view=true#az_dataprotection_job_list) command. You can list all jobs and fetch a particular job detail.
+Track all jobs using the [az dataprotection job list](/cli/azure/dataprotection/job#az-dataprotection-job-list) command. You can list all jobs and fetch a particular job detail.
 
-You can also use Az.ResourceGraph to track all jobs across all Backup vaults. Use the [az dataprotection job list-from-resourcegraph](/cli/azure/dataprotection/job?view=azure-cli-latest&preserve-view=true#az_dataprotection_job_list_from_resourcegraph) command to get the relevant job that can be across any Backup vault.
+You can also use Az.ResourceGraph to track all jobs across all Backup vaults. Use the [az dataprotection job list-from-resourcegraph](/cli/azure/dataprotection/job#az-dataprotection-job-list-from-resourcegraph) command to get the relevant job that can be across any Backup vault.
 
-```azurepowershell-interactive
+```azurecli-interactive
 az dataprotection job list-from-resourcegraph --datasource-type AzureDisk --operation Restore
 ```
 
 ## Next steps
 
-[Azure Disk Backup FAQ](/azure/backup/disk-backup-faq)
+- [Azure Disk Backup FAQ](./disk-backup-faq.yml).
+- [Troubleshoot Azure Disk backup](disk-backup-troubleshoot.md).

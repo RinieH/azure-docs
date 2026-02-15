@@ -1,13 +1,13 @@
 ---
 title: Troubleshoot Azure reservation type not available
 description: This article helps you understand and troubleshoot reserved instances appearing as not available in the Azure portal.
-author: bandersmsft
+author: pri-mittal
 ms.service: cost-management-billing
 ms.subservice: reservations
-ms.author: banders
-ms.reviewer: yashar
+ms.author: primittal
+ms.reviewer: primittal
 ms.topic: troubleshooting
-ms.date: 10/27/2020
+ms.date: 01/15/2026
 ---
 
 # Troubleshoot reservation type not available
@@ -21,9 +21,9 @@ This article helps you understand and troubleshoot reserved instances appearing 
 3. Select the **All Products** tab.
 4. In the list of products select one. You might see one of the following messages:
     - `Product unavailable for the selected subscription or region. Contact support.`  
-        :::image type="content" source="./media/troubleshoot-product-not-available/product-unavailable-message.png" alt-text="Example showing the Product unavailable for the selected subscription or region message" lightbox="./media/troubleshoot-product-not-available/product-unavailable-message.png" :::
+        :::image type="content" source="./media/troubleshoot-product-not-available/product-unavailable-message.png" alt-text="Screenshot showing the Product unavailable for the selected subscription or region message." lightbox="./media/troubleshoot-product-not-available/product-unavailable-message.png" :::
     - `The selected subscription does not have enough core quota remaining to purchase this product. Request quota increase`  
-        :::image type="content" source="./media/troubleshoot-product-not-available/not-enough-core-quota-message.png" alt-text="Example showing the not enough core quota message" lightbox="./media/troubleshoot-product-not-available/not-enough-core-quota-message.png" :::
+        :::image type="content" source="./media/troubleshoot-product-not-available/not-enough-core-quota-message.png" alt-text="Screenshot showing the not enough core quota message." lightbox="./media/troubleshoot-product-not-available/not-enough-core-quota-message.png" :::
 
 ## Cause
 
@@ -46,7 +46,7 @@ Your subscription has a quota restriction. Subscriptions have limits on how many
 
 The check to allow you to add a particular product to your cart and purchase a reservation is simple. Azure evaluates the total number of CPU cores available to your subscription and checks whether the number is greater than the number of cores for the selected item.
 
-Azure doesn't check the quota for **Shared** scope reserved instances. The reserved instance benefit for the shared scope applies to all the subscriptions in the enrollment. Azure can't determine whether you have enough free cores across all of your subscriptions to deploy the resource. Whatever the quota, Azure always lets you select a VM size when the selected scope is shared.
+Azure doesn't check the quota for **Shared** scope or **management group** scope reserved instances. The reserved instance benefit for the shared scope applies to all the subscriptions in the enrollment. The reserved instance benefit for the management group scope applies to all the subscriptions that are part of the both the management group and billing scope. Azure can't determine whether you have enough free cores across all of your subscriptions to deploy the resource. Whatever the quota, Azure always lets you select a VM size when the selected scope is set to shared or management group.
 
 Additionally, Azure doesn't do a quota check for **Recommended** purchases. Recommendations are based on active usage. Azure assumes that you have enough cores to run a specific VM size because you've already generated the usage required to create the recommendation.
 

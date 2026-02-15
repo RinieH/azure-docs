@@ -2,19 +2,24 @@
 title: Define a RESTful technical profile in a custom policy
 titleSuffix: Azure AD B2C
 description: Define a RESTful technical profile in a custom policy in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
 
-ms.service: active-directory
-ms.workload: identity
+author: kengaderdus
+manager: CelesteDG
+
+ms.service: azure-active-directory
+
 ms.topic: reference
-ms.date: 05/03/2021
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 01/22/2024
+ms.author: kengaderdus
+ms.subservice: b2c
+
+
+#Customer intent: As a developer customer-facing apps with Azure Active Directory B2C, I want to learn how to define a REST technical profile, so that I can send and receive data from external services.
+
 ---
 
 # Define a RESTful technical profile in an Azure Active Directory B2C custom policy
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-advanced-audience-warning](../../includes/active-directory-b2c-advanced-audience-warning.md)]
 
@@ -65,7 +70,7 @@ The following example `TechnicalProfile` sends a verification email by using a t
 
 ```xml
 <TechnicalProfile Id="SendGrid">
-  <DisplayName>Use SendGrid's email API to send the code the the user</DisplayName>
+  <DisplayName>Use SendGrid's email API to send the code to the user</DisplayName>
   <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
   <Metadata>
     <Item Key="ServiceUrl">https://api.sendgrid.com/v3/mail/send</Item>
@@ -119,7 +124,7 @@ The technical profile also returns claims, that aren't returned by the identity 
 | ClaimUsedForRequestPayload| No | Name of a string claim that contains the payload to be sent to the REST API. |
 | DebugMode | No | Runs the technical profile in debug mode. Possible values: `true`, or `false` (default). In debug mode, the REST API can return more information. See the [Returning error message](#returning-validation-error-message) section. |
 | IncludeClaimResolvingInClaimsHandling  | No | For input and output claims, specifies whether [claims resolution](claim-resolver-overview.md) is included in the technical profile. Possible values: `true`, or `false` (default). If you want to use a claims resolver in the technical profile, set this to `true`. |
-| ResolveJsonPathsInJsonTokens  | No | Indicates whether the technical profile resolves JSON paths. Possible values: `true`, or `false` (default). Use this metadata to read data from a nested JSON element. In an [OutputClaim](technicalprofiles.md#output-claims), set the `PartnerClaimType` to the JSON path element you want to output. For example: `firstName.localized`, or `data.0.to.0.email`.|
+| ResolveJsonPathsInJsonTokens  | No | Indicates whether the technical profile resolves JSON paths. Possible values: `true`, or `false` (default). Use this metadata to read data from a nested JSON element. In an [OutputClaim](technicalprofiles.md#output-claims), set the `PartnerClaimType` to the JSON path element you want to output. For example: `firstName.localized`, or `data[0].to[0].email`.|
 | UseClaimAsBearerToken| No| The name of the claim that contains the bearer token.|
 
 ## Error handling
@@ -223,7 +228,7 @@ If the type of authentication is set to `ApiKeyHeader`, the **CryptographicKeys*
 | The name of the HTTP header, such as `x-functions-key`, or `x-api-key`. | Yes | The key that is used to authenticate. |
 
 > [!NOTE]
-> At this time, Azure AD B2C supports only one HTTP header for authentication. If your RESTful call requires multiple headers, such as a client ID and client secret, you will need to proxy the request in some manner.
+> At this time, Azure AD B2C supports only one HTTP header for authentication. If your RESTful call requires multiple headers, such as a client ID and client secret value, you will need to proxy the request in some manner.
 
 ```xml
 <TechnicalProfile Id="REST-API-SignUp">
@@ -259,7 +264,7 @@ Your REST API may need to return an error message, such as 'The user was not fou
 | Attribute | Required | Description |
 | --------- | -------- | ----------- |
 | version | Yes | Your REST API version. For example: 1.0.1 |
-| status | Yes | Must be 409 |
+| status | Yes | An HTTP response status codes-like number, and must be 409. Your REST service can return an HTTP 4XX status code, but the value of the `status` filed in the JSON-formatted response body must be `409`. |
 | code | No | An error code from the RESTful endpoint provider, which is displayed when `DebugMode` is enabled. |
 | requestId | No | A request identifier from the RESTful endpoint provider, which is displayed when `DebugMode` is enabled. |
 | userMessage | Yes | An error message that is shown to the user. |
@@ -272,13 +277,13 @@ The following example shows a C# class that returns an error message:
 ```csharp
 public class ResponseContent
 {
-  public string version { get; set; }
-  public int status { get; set; }
-  public string code { get; set; }
-  public string userMessage { get; set; }
-  public string developerMessage { get; set; }
-  public string requestId { get; set; }
-  public string moreInfo { get; set; }
+  public string Version { get; set; }
+  public int Status { get; set; }
+  public string Code { get; set; }
+  public string UserMessage { get; set; }
+  public string DeveloperMessage { get; set; }
+  public string RequestId { get; set; }
+  public string MoreInfo { get; set; }
 }
 ```
 
@@ -288,5 +293,5 @@ See the following articles for examples of using a RESTful technical profile:
 
 - [Integrate REST API claims exchanges in your Azure AD B2C custom policy](api-connectors-overview.md)
 - [Walkthrough: Add an API connector to a sign-up user flow](add-api-connector.md)
-- [Walkthrough: Add REST API claims exchanges to custom policies in Azure Active Directory B2C](custom-policy-rest-api-claims-exchange.md)
+- [Walkthrough: Add REST API claims exchanges to custom policies in Azure Active Directory B2C](add-api-connector-token-enrichment.md)
 - [Secure your REST API services](secure-rest-api.md)

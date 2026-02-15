@@ -4,11 +4,12 @@ ms.service: azure-functions
 ms.topic: include
 ms.date: 05/28/2021
 ms.author: glenga
+ms.custom: sfi-image-nochange
 ---
 
 Use the following steps to delete the function app and its related resources to avoid incurring any further costs.
 
-1. In the Cloud Explorer, expand your subscription > **App Services**, right-click your function app, and choose **Open in Portal**. 
+1. In the Visual Studio Publish dialogue, in the Hosting section, select **Open in Azure portal**. 
 
 1. In the function app page, select the **Overview** tab and then select the link under **Resource group**.
 

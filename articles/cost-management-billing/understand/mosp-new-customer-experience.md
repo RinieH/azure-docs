@@ -1,13 +1,15 @@
 ---
 title: Get started with your updated Azure billing account
 description: Get started with your updated Azure billing account to understand changes in the new billing and cost management experience
-author: bandersmsft
-ms.reviewer: amberbhargava
+author: jkinma39
+ms.reviewer: jkinma
 ms.service: cost-management-billing
 ms.subservice: billing
 ms.topic: conceptual
-ms.date: 05/20/2021
-ms.author: banders
+ms.date: 11/11/2025
+ms.author: jkinma
+ms.custom: sfi-image-nochange
+service.tree.id: 95459a4b-434c-4f83-879b-aa5f509fc7fa
 ---
 
 # Get started with your updated Azure billing account
@@ -31,7 +33,7 @@ Roles on the billing account have the highest level of permissions. These roles 
 
 ## Billing profiles
 
-A billing profile is used to manage your invoice and payment methods. A monthly invoice is generated at the beginning of the month for each billing profile in your account. The invoice contains respective charges from the previous month for all subscriptions associated with the billing profile.
+A billing profile is used to manage your invoice and payment methods. A monthly invoice is generated at the beginning of the month for each billing profile in your account. The invoice contains respective charges from the previous month for all consumption-based subscriptions associated with the billing profile.
 
 When your account is updated, a billing profile is automatically created for each subscription. Subscription's charges are billed to its respective billing profile and displayed on its invoice.
 
@@ -53,25 +55,25 @@ Your new experience includes the following cost management and billing capabilit
 
 #### Invoice management
 
-**More predictable monthly billing period** - In your new account, the billing period begins from the first day of the month and ends at the last day of the month, no matter when you sign up to use Azure. An invoice will be generated at the beginning of each month, and will contain all charges from the previous month.
+**More predictable monthly billing period** - In your new account, the billing period begins from the first day of the month and ends at the last day of the month, no matter when you sign up to use Azure. An invoice will be generated at the beginning of each month, and will contain all consumption-based charges from the previous month.
 
-**Get a single monthly invoice for multiple subscriptions** - In your existing account, you get an invoice for each Azure subscription. When your account is updated, the existing behavior is maintained but you have the flexibility to consolidate the charges of your subscriptions on a single invoice. After you account is updated, follow the steps below to consolidate your charges on a single invoice:
+**Get a single monthly invoice for multiple subscriptions** - In your existing account, you get an invoice for each Azure subscription. When your account is updated, the existing behavior is maintained but you have the flexibility to consolidate the charges of your Azure subscriptions on a single invoice. After your account is updated, follow the steps below to consolidate your charges on a single invoice:
 
 1. Sign in to the [Azure portal](https://portal.azure.com).
 2. Search for **Cost Management + Billing**.  
-   ![Screenshot that shows search in the Azure portal for Cost Management + Billing.](./media/mosp-new-customer-experience/billing-search-cost-management-billing.png)
+   :::image type="content" border="true" source="./media/mosp-new-customer-experience/billing-search-cost-management-billing.png" alt-text="Screenshot that shows search in the Azure portal for Cost Management + Billing.":::
 3. Select **Azure subscriptions** from the left-side of the screen. 
 4. The table lists Azure subscriptions that you're paying for. In the billing profile column, you would find the billing profile that is billed for the subscription. The subscription charges are displayed on the invoice for the billing profile. To consolidate the charges for all your subscriptions on a single invoice, you need to link all your subscriptions to a single billing profile.  
     :::image type="content" source="./media/mosp-new-customer-experience/list-azure-subscriptions.png" alt-text="Screenshot that shows the list of Azure subscriptions." lightbox="./media/mosp-new-customer-experience/list-azure-subscriptions.png" :::
 5. Pick a billing profile that you want to use. 
-6. Select a subscription that is not linked to the billing profile that you chose in step 5. Click on ellipsis (three dots) for the subscription. Select **Change invoice section**.  
+6. Select a subscription that is not linked to the billing profile that you chose in step 5. Select the ellipsis (three dots) for the subscription. Select **Change invoice section**.  
     :::image type="content" source="./media/mosp-new-customer-experience/select-change-invoice-section.png" alt-text="Screenshot that shows where to find the option to change invoice section." lightbox="./media/mosp-new-customer-experience/select-change-invoice-section-zoomed-in.png" :::
 7. Select the billing profile that you chose in step #5.  
     :::image type="content" source="./media/mosp-new-customer-experience/change-invoice-section.png" alt-text="Screenshot that shows how to change invoice section." lightbox="./media/mosp-new-customer-experience/change-invoice-section-zoomed-in.png" :::
 8. Select **Change**.
 9. Repeat steps 6-8 for all other subscriptions. 
 
-**Receive a single monthly invoice for Azure subscriptions, support plans, and Azure Marketplace products** - You'll get one monthly invoice for all charges including usage charges for Azure subscriptions, and support plans and Azure Marketplace purchases.
+**Receive a single monthly invoice for Azure subscriptions and support plans** - You'll get one monthly invoice for all charges including usage charges for Azure subscriptions, and support plans.
 
 **Group costs on the invoice based on your needs** - You can group costs on your invoice based on your needs - by departments, projects, or teams.
 
@@ -105,8 +107,7 @@ We recommend the following to get prepared for your new experience:
 
 **Monthly billing period and different invoice date**
 
-In the new experience, your invoice will be generated around the ninth day of each month and it contains all charges from previous month. This date might differ from the date when your invoice is generated in the old account. If you share your invoices with others, notify them of the change in the date.
-
+In the new experience, your invoice will be generated around the ninth day of each month and it contains all charges for your consumption-based subscriptions from the previous month. This date might differ from the date when your invoice is generated in the old account. If you share your invoices with others, notify them of the change in the date.
 
 **Invoices in the first month after migration**
 
@@ -135,7 +136,7 @@ The following new capabilities are available with your Azure billing account.
 
 As part of your updated account, you have new scopes in Cost Management + Billing. Besides aiding with hierarchical organization and invoicing, they are also a way to view combined charges from multiple underlying subscriptions. For more information about billing scopes, see [Microsoft Customer Agreement scopes](../costs/understand-work-scopes.md#microsoft-customer-agreement-scopes).
 
-You can also access Cost Management APIs to get combined cost views at higher scopes. All Cost Management APIs that use the subscription scope are still available with some minor changes in the schema. For more information about the APIs, see [Azure Cost Management APIs](/rest/api/cost-management/) and [Azure Consumption APIs](/rest/api/consumption/).
+You can also access Cost Management APIs to get combined cost views at higher scopes. All Cost Management APIs that use the subscription scope are still available with some minor changes in the schema. For more information about the APIs, see [Cost Management APIs](/rest/api/cost-management/) and [Azure Consumption APIs](/rest/api/consumption/).
 
 #### Cost allocation
 
@@ -143,7 +144,7 @@ With your updated account, you can use cost allocation capabilities to distribut
 
 #### Power BI
 
-The Azure Cost Management connector for Power BI Desktop helps you build custom visualizations and reports of your Azure usage and spending. You access your cost and usage data after you connect to your updated account. For more information about the Azure Cost Management connector for Power BI Desktop, see [Create visuals and reports with the Azure Cost Management connector in Power BI Desktop](/power-bi/connect-data/desktop-connect-azure-cost-management).
+The Cost Management connector for Power BI Desktop helps you build custom visualizations and reports of your Azure usage and spending. You access your cost and usage data after you connect to your updated account. For more information about the Cost Management connector for Power BI Desktop, see [Create visuals and reports with the Cost Management connector in Power BI Desktop](/power-bi/connect-data/desktop-connect-azure-cost-management).
 
 ### Updated capabilities
 
@@ -161,11 +162,11 @@ For example, if your billing period was November 24 to December 23 for your old 
 
 #### Budgets
 
-You can now create budgets for the billing account, allowing you to track costs across subscriptions. You can also stay on top of your purchase charges using budgets. For more information about budgets, see [Create and manage Azure budgets](../costs/tutorial-acm-create-budgets.md).
+You can now create budgets for the billing account, allowing you to track costs across subscriptions. You can also stay on top of your purchase charges using budgets. For more information about budgets, see [Create and manage budgets](../costs/tutorial-acm-create-budgets.md).
 
 #### Exports
 
-Your new billing account provides improved export functionality. For example, you can create exports for actual costs that include purchases or amortized costs (reservation purchase costs spread across the purchase term). You can also create an export for the billing account to get usage and charges data across all subscriptions in the billing account. For more information about exports, see [Create and manage exported data](../costs/tutorial-export-acm-data.md).
+Your new billing account provides improved export functionality. For example, you can create exports for actual costs that include purchases or amortized costs (reservation purchase costs spread across the purchase term). You can also create an export for the billing account to get usage and charges data across all subscriptions in the billing account. For more information about exports, see [Create and manage exported data](../costs/tutorial-improved-exports.md).
 
 > [!NOTE]
 > Exports created before your account update with the **Monthly export of last month's costs** type will export data for the last calendar month, not the last billing period.
@@ -190,11 +191,39 @@ Invoices generated before your account was updated are still available in the Az
 **Invoices for account updated in the middle of the month**
 If your account is updated in the middle of the month, you'll get one invoice for charges accumulated until the day your account is updated. You'll get another invoice for the rest of the month. For example, your account has one subscription and it's updated on 15 September. You'll get one invoice for charges accumulated until 15 September. You'll get another invoice for the period between 15 September through 30 September. After September, you'll get one invoice per month.
 
+## Troubleshooting
+
+### You get an email to accept the terms of the Microsoft Customer Agreement but the link in the email doesn't work
+
+After your Azure billing account is updated, you'll get an email from Microsoft to accept the terms of the Microsoft Customer Agreement. The link in the email might not work due to the following reasons:
+
+- You have access to perform billing administration through one of your other emails. 
+
+    This typically happens when you get an email asking you to accept the terms of the Microsoft Customer Agreement. You select the link and you see an error message - `You don't have permission to accept the agreement. This typically happens when you sign in with an email, which doesn’t have permission to accept the agreement. Check you’ve signed in with the correct email address. If you are still seeing the error, see Why I can't accept an agreement`. Verify that you're signed in with the email address that has permission to perform billing administration.
+
+- You have access to the invoice through a different identity. 
+
+    Some customers have two identities with the same email address - a work account and a Microsoft account. Typically, only one of their identities has permissions to perform billing administration. If they sign in with the identity that doesn't have permission, they would not be able to accept the terms. Verify that you're using the correct identity to sign in.
+
+- You have signed in to the incorrect Microsoft Entra tenant. 
+
+    Your billing account is associated with a Microsoft Entra tenant. If you're signed in to an incorrect tenant, you won't be able to accept the terms. Verify that you're signed in to the correct Microsoft Entra tenant. If you aren't signed in to the correct tenant, use the following to switch the tenant in the Azure portal:
+
+    1. Select your email from the top right of the page.
+
+    2. Select **Switch directory**.
+
+        :::image type="content" border="true" source="./media/mosp-new-customer-experience/select-switch-directory.png" alt-text="Screenshot that shows selecting switch directory in the portal.":::
+
+    3. Select **Switch** for a directory from the **All directories** section.
+
+        :::image type="content" border="true" source="./media/mosp-new-customer-experience/select-directory.png" alt-text="Screenshot that shows selecting a directory in the Azure portal.":::
+
 ## Need help? Contact support.
 
 If you need help, [contact support](https://portal.azure.com/?#blade/Microsoft_Azure_Support/HelpAndSupportBlade) to get your issue resolved quickly.
 
-## Next steps
+## Related content
 
 See the following articles to learn more about your billing account.
 

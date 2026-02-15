@@ -3,31 +3,33 @@ title: 'Quickstart: Create and modify an ExpressRoute circuit: Azure CLI'
 description: This quickstart shows how to create, provision, verify, update, delete, and deprovision an ExpressRoute circuit using Azure CLI.
 services: expressroute
 author: duongau
-
-ms.service: expressroute
+ms.service: azure-expressroute
 ms.topic: quickstart
-ms.date: 10/05/2020
-ms.author: duau 
-ms.custom: devx-track-azurecli
-
+ms.date: 01/31/2025
+ms.author: duau
+ms.custom: devx-track-azurecli, mode-api
+# Customer intent: As a network engineer, I want to create and manage an ExpressRoute circuit using the command line interface, so that I can efficiently provision, update, and monitor my organization's dedicated connection to Azure.
 ---
+
 # Quickstart: Create and modify an ExpressRoute circuit using Azure CLI
 
 This quickstart describes how to create an Azure ExpressRoute circuit by using the Command Line Interface (CLI). This article also shows you how to check the status, update, or delete and deprovision a circuit.
 
+:::image type="content" source="media/expressroute-howto-circuit-portal-resource-manager/environment-diagram.png" alt-text="Diagram of ExpressRoute circuit deployment environment using Azure CLI." lightbox="media/expressroute-howto-circuit-portal-resource-manager/environment-diagram.png":::
+
 ## Prerequisites
 
 * Review the [prerequisites](expressroute-prerequisites.md) and [workflows](expressroute-workflows.md) before you begin configuration.
-* An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
+* An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 * Install the latest version of the CLI commands (2.0 or later). For information about installing the CLI commands, see [Install the Azure CLI](/cli/azure/install-azure-cli) and [Get Started with Azure CLI](/cli/azure/get-started-with-azure-cli).
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
 ## <a name="create"></a>Create and provision an ExpressRoute circuit
 
 ### Sign in to your Azure account and select your subscription
 
-To begin your configuration, sign in to your Azure account. If you use the Cloud Shell "Try It", you're signed in automatically. Use the following examples to help you connect:
+To begin your configuration, sign in to your Azure account. If you use the Cloud Shell Try It, you're signed in automatically. Use the following examples to help you connect:
 
 ```azurecli-interactive
 az login
@@ -47,7 +49,7 @@ az account set --subscription "<subscription ID>"
 
 ### Get the list of supported providers, locations, and bandwidths
 
-Before you create an ExpressRoute circuit, you need the list of supported connectivity providers, locations, and bandwidth options. The CLI command `az network express-route list-service-providers` returns this information, which you’ll use in later steps:
+Before you create an ExpressRoute circuit, you need the list of supported connectivity providers, locations, and bandwidth options. The CLI command `az network express-route list-service-providers` returns this information, which you use in later steps:
 
 ```azurecli-interactive
 az network express-route list-service-providers
@@ -106,7 +108,7 @@ The response is similar to the following example:
   },
 ```
 
-Check the response to see if your connectivity provider is listed. Make a note of the following information, which you'll need when you create a circuit:
+Check the response to see if your connectivity provider is listed. Make a note of the following information, which you need when you create a circuit:
 
 * Name
 * PeeringLocations
@@ -131,7 +133,7 @@ The following example shows how to create a 200-Mbps ExpressRoute circuit throug
 
 Make sure that you specify the correct SKU tier and SKU family:
 
-* SKU tier determines whether an ExpressRoute circuit is [Local](expressroute-faqs.md#expressroute-local), Standard, or [Premium](expressroute-faqs.md#expressroute-premium). You can specify *Local*, *Standard, or *Premium*. You can't change the SKU from *Standard/Premium* to *Local*.
+* SKU tier determines whether an ExpressRoute circuit is [Local](expressroute-faqs.md#expressroute-local), Standard, or [Premium](expressroute-faqs.md#expressroute-premium). You can specify *Local*, *Standard, or *Premium*.
 * SKU family determines the billing type. You can specify *MeteredData* for a metered data plan and *UnlimitedData* for an unlimited data plan. You can change the billing type from *MeteredData* to *UnlimitedData*, but you can't change the type from *UnlimitedData* to *MeteredData*. A *Local* circuit is *UnlimitedData* only.
 
 
@@ -159,7 +161,7 @@ Your service key is listed in the *ServiceKey* field of the response.
 "circuitProvisioningState": "Enabled",
 "etag": "W/\"1262c492-ffef-4a63-95a8-a6002736b8c4\"",
 "gatewayManagerEtag": null,
-"id": "/subscriptions/81ab786c-56eb-4a4d-bb5f-f60329772466/resourceGroups/ExpressRouteResourceGroup/providers/Microsoft.Network/expressRouteCircuits/MyCircuit",
+"id": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/ExpressRouteResourceGroup/providers/Microsoft.Network/expressRouteCircuits/MyCircuit",
 "location": "westus",
 "name": "MyCircuit",
 "peerings": [],
@@ -190,7 +192,7 @@ az network express-route list -h
 
 ### Send the service key to your connectivity provider for provisioning
 
-'ServiceProviderProvisioningState' provides information about the current state of provisioning on the service-provider side. The status provides the state on the Microsoft side. For more information, see the [Workflows article](expressroute-workflows.md#expressroute-circuit-provisioning-states).
+'ServiceProviderProvisioningState' provides information about the current state of provisioning on the service-provider side. The status provides the state on the Microsoft side. For more information, see the [Workflows article](expressroute-workflows.md#expressroute-partner-circuit-provisioning-states).
 
 When you create a new ExpressRoute circuit, the circuit is in the following state:
 
@@ -215,7 +217,7 @@ To use the ExpressRoute circuit, it must be in the following state:
 
 ### Periodically check the status and the state of the circuit key
 
-Checking the status and the state of the service key will let you know when your provider has provisioned your circuit. After the circuit has been configured, *ServiceProviderProvisioningState* appears as *Provisioned*, as shown in the following example:
+Checking the status and the state of the service key lets you know when your provider has provisioned your circuit. After the circuit has been configured, *ServiceProviderProvisioningState* appears as *Provisioned*, as shown in the following example:
 
 ```azurecli-interactive
 az network express-route show --resource-group ExpressRouteResourceGroup --name MyCircuit
@@ -229,7 +231,7 @@ The response is similar to the following example:
 "circuitProvisioningState": "Enabled",
 "etag": "W/\"1262c492-ffef-4a63-95a8-a6002736b8c4\"",
 "gatewayManagerEtag": null,
-"id": "/subscriptions/81ab786c-56eb-4a4d-bb5f-f60329772466/resourceGroups/ExpressRouteResourceGroup/providers/Microsoft.Network/expressRouteCircuits/MyCircuit",
+"id": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/ExpressRouteResourceGroup/providers/Microsoft.Network/expressRouteCircuits/MyCircuit",
 "location": "westus",
 "name": "MyCircuit",
 "peerings": [],
@@ -259,17 +261,16 @@ For step-by-step instructions, see the [ExpressRoute circuit routing configurati
 > [!IMPORTANT]
 > These instructions only apply to circuits that are created with service providers that offer layer 2 connectivity services. If you're using a service provider that offers managed layer 3 services (typically an IP VPN, like MPLS), your connectivity provider configures and manages routing for you.
 >
->
 
 ### Link a virtual network to an ExpressRoute circuit
 
-Next, link a virtual network to your ExpressRoute circuit. Use the [Linking virtual networks to ExpressRoute circuits](howto-linkvnet-cli.md) article.
+Next, link a virtual network to your ExpressRoute circuit. Use the [Linking virtual networks to ExpressRoute circuits](expressroute-howto-linkvnet-cli.md) article.
 
 ## <a name="modify"></a>Modifying an ExpressRoute circuit
 
 You can modify certain properties of an ExpressRoute circuit without impacting connectivity. You can make the following changes with no downtime:
 
-* You can enable or disable an ExpressRoute premium add-on for your ExpressRoute circuit. Changing the SKU from *Standard/Premium* to *Local* isn't supported.
+* You can enable or disable an ExpressRoute premium add-on for your ExpressRoute circuit.
 * You can increase the bandwidth of your ExpressRoute circuit provided there's capacity available on the port. However, downgrading the bandwidth of a circuit isn't supported.
 * You can change the metering plan from Metered Data to Unlimited Data. However, changing the metering plan from Unlimited Data to Metered Data isn't supported.
 * You can enable and disable *Allow Classic Operations*.
@@ -296,8 +297,8 @@ The circuit now has the ExpressRoute premium add-on features enabled. We begin b
 Before disabling the ExpressRoute premium add-on, understand the following criteria:
 
 * Before you downgrade from premium to standard, you must ensure that the number of virtual networks that are linked to the circuit is less than 10. If you don't, your update request fails, and we bill you at premium rates.
-* All virtual networks in other geopolitical regions must be first unlinked. If you don't remove the link, your update request will fail and we continue to bill you at premium rates.
-* Your route table must be less than 4,000 routes for private peering. If your route table size is greater than 4,000 routes, the BGP session will drop. The BGP session won't be re-enabled until the number of advertised prefixes is under 4,000.
+* All virtual networks in other geopolitical regions must be first unlinked. If you don't remove the link, your update request fails and we continue to bill you at premium rates.
+* Your route table must be less than 4,000 routes for private peering. If your route table size is greater than 4,000 routes, the BGP session drops. The BGP session doesn't reestablish until the number of advertised prefixes is under 4,000.
 
 You can disable the ExpressRoute premium add-on for the existing circuit by using the following example:
 
@@ -321,7 +322,7 @@ After you decide the size you need, use the following command to resize your cir
 az network express-route update -n MyCircuit -g ExpressRouteResourceGroup --bandwidth 1000
 ```
 
-Your circuit will be upgraded on the Microsoft side. Next, you must contact your connectivity provider to update configurations on their side to match this change. After you make this notification, we begin billing you for the updated bandwidth option.
+Your circuit is upgraded on the Microsoft side. Next, you must contact your connectivity provider to update configurations on their side to match this change. After you make this notification, we begin billing you for the updated bandwidth option.
 
 ### To move the SKU from metered to unlimited
 
@@ -339,9 +340,9 @@ Review the instructions in [Move ExpressRoute circuits from the classic to the R
 
 To deprovision and delete an ExpressRoute circuit, make sure you understand the following criteria:
 
-* All virtual networks must be unlinked from the ExpressRoute circuit. If this operation fails, check to see if any virtual networks are linked to the circuit.
+* All virtual networks, route filters, authorizations, and global reach associations must be unlinked from the ExpressRoute circuit. If this operation fails, check to see if any virtual networks are linked to the circuit.
 * If the ExpressRoute circuit service provider provisioning state is **Provisioning** or **Provisioned** you must work with your service provider to deprovision the circuit on their side. We continue to reserve resources and bill you until the service provider completes deprovisioning the circuit and notifies us.
-* If the service provider has deprovisioned the circuit meaning the service provider provisioning state gets set to **Not provisioned**, you can delete the circuit. The billing for the circuit will then stop.
+* If the service provider has deprovisioned the circuit meaning the service provider provisioning state gets set to **Not provisioned**, you can delete the circuit. The billing for the circuit stop.
 
 ## Clean up resources
 

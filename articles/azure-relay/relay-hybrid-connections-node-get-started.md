@@ -1,9 +1,9 @@
 ---
 title: Azure Relay Hybrid Connections - WebSockets in Node
-description: Write a Node.js console application for Azure Relay Hybrid Connections WebSockets
-ms.topic: conceptual
-ms.date: 06/23/2020
-ms.custom: devx-track-js
+description: Write a Node.js console application for Azure Relay Hybrid Connections WebSockets.
+ms.topic: tutorial
+ms.date: 01/24/2026
+ms.custom: devx-track-js,  mode-ui, mode-api
 ---
 
 # Get started with Relay Hybrid Connections WebSockets in Node.js
@@ -24,7 +24,7 @@ In this quickstart, you take the following steps:
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/en/).
-- An Azure subscription. If you don't have one, [create a free account](https://azure.microsoft.com/free/) before you begin.
+- An Azure subscription. If you don't have one, [create a free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Create a namespace
 [!INCLUDE [relay-create-namespace-portal](./includes/relay-create-namespace-portal.md)]

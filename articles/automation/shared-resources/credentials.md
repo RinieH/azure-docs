@@ -3,9 +3,12 @@ title: Manage credentials in Azure Automation
 description: This article tells how to create credential assets and use them in a runbook or DSC configuration.
 services: automation
 ms.subservice: shared-capabilities
-ms.date: 12/22/2020
-ms.topic: conceptual 
-ms.custom: devx-track-azurepowershell
+ms.custom: devx-track-python
+ms.date: 11/17/2025
+ms.topic: how-to 
+ms.service: azure-automation
+ms.author: v-rochak2
+author: RochakSingh-blr
 ---
 
 # Manage credentials in Azure Automation
@@ -15,11 +18,11 @@ An Automation credential asset holds an object that contains security credential
 >[!NOTE]
 >Secure assets in Azure Automation include credentials, certificates, connections, and encrypted variables. These assets are encrypted and stored in Azure Automation using a unique key that is generated for each Automation account. Azure Automation stores the key in the system-managed Key Vault. Before storing a secure asset, Automation loads the key from Key Vault and then uses it to encrypt the asset. 
 
-[!INCLUDE [gdpr-dsr-and-stp-note.md](../../../includes/gdpr-dsr-and-stp-note.md)]
+[!INCLUDE [gdpr-dsr-and-stp-note.md](~/reusable-content/ce-skilling/azure/includes/gdpr-dsr-and-stp-note.md)]
 
 ## PowerShell cmdlets used to access credentials
 
-The cmdlets in the following table create and manage Automation credentials with PowerShell. They ship as part of the [Az modules](modules.md#az-modules).
+The cmdlets in the following table create and manage Automation credentials with PowerShell. They ship as part of the Az modules.
 
 | Cmdlet | Description |
 |:--- |:--- |
@@ -36,7 +39,7 @@ The cmdlets in the following table are used to access credentials in your runboo
 |:--- |:--- |
 | `Get-AutomationPSCredential` |Gets a `PSCredential` object to use in a runbook or DSC configuration. Most often, you should use this [internal cmdlet](modules.md#internal-cmdlets) instead of the `Get-AzAutomationCredential` cmdlet, as the latter only retrieves credential information. This information isn't normally helpful to pass to another cmdlet. |
 | [Get-Credential](/powershell/module/microsoft.powershell.security/get-credential) |Gets a credential with a prompt for user name and password. This cmdlet is part of the default Microsoft.PowerShell.Security module. See [Default modules](modules.md#default-modules).|
-| [New-AzureAutomationCredential](/powershell/module/servicemanagement/azure.service/new-azureautomationcredential) | Creates a credential asset. This cmdlet is part of the default Azure module. See [Default modules](modules.md#default-modules).|
+| [New-AzAutomationCredential](/powershell/module/az.automation/new-azautomationcredential) | Creates a credential asset. This cmdlet is part of the default Azure module. See [Default modules](modules.md#default-modules).|
 
 To retrieve `PSCredential` objects in your code, you must import the `Orchestrator.AssetManagement.Cmdlets` module. For more information, see [Manage modules in Azure Automation](modules.md).
 
@@ -72,11 +75,11 @@ You can create a new credential asset using the Azure portal or using Windows Po
 
     ![Create new credential](../media/credentials/credential-create.png)
 
-6. If the multi-factor authentication box is checked, uncheck it.
+6. If the multifactor authentication box is checked, uncheck it.
 7. Click **Create** to save the new credential asset.
 
 > [!NOTE]
-> Azure Automation does not support user accounts that use multi-factor authentication.
+> Azure Automation does not support user accounts that use multifactor authentication.
 
 ### Create a new credential asset with Windows PowerShell
 
@@ -86,7 +89,7 @@ The following example shows how to create a new Automation credential asset. A `
 $user = "MyDomain\MyUser"
 $pw = ConvertTo-SecureString "PassWord!" -AsPlainText -Force
 $cred = New-Object –TypeName System.Management.Automation.PSCredential –ArgumentList $user, $pw
-New-AzureAutomationCredential -AutomationAccountName "MyAutomationAccount" -Name "MyCredential" -Value $cred
+New-AzAutomationCredential -ResourceGroupName "MyResourceGroup" -AutomationAccountName "MyAutomationAccount" -Name "MyCredential" -Value $cred
 ```
 
 ## Get a credential asset
@@ -111,17 +114,33 @@ $securePassword = $myCredential.Password
 $password = $myCredential.GetNetworkCredential().Password
 ```
 
-You can also use a credential to authenticate to Azure with [Connect-AzAccount](/powershell/module/az.accounts/connect-azaccount). Under most circumstances, you should use a [Run As account](../automation-security-overview.md#run-as-accounts) and retrieve the connection with [Get-AzAutomationConnection](../automation-connections.md).
+You can also use a credential to authenticate to Azure with [Connect-AzAccount](/powershell/module/az.accounts/connect-azaccount) after first connecting with a [managed identity](../automation-security-overview.md#managed-identities). This example uses a [system-assigned managed identity](../enable-managed-identity-for-automation.md).
 
 ```powershell
-$myCred = Get-AutomationPSCredential -Name 'MyCredential'
+# Ensures you do not inherit an AzContext in your runbook
+Disable-AzContextAutosave -Scope Process
+
+# Connect to Azure with system-assigned managed identity
+$AzureContext = (Connect-AzAccount -Identity).context
+
+# set and store context
+$AzureContext = Set-AzContext -SubscriptionName $AzureContext.Subscription -DefaultProfile $AzureContext
+
+# Get credential
+$myCred = Get-AutomationPSCredential -Name "MyCredential"
 $userName = $myCred.UserName
 $securePassword = $myCred.Password
 $password = $myCred.GetNetworkCredential().Password
 
 $myPsCred = New-Object System.Management.Automation.PSCredential ($userName,$securePassword)
 
-Connect-AzAccount -Credential $myPsCred
+# Connect to Azure with credential
+$AzureContext = (Connect-AzAccount -Credential $myPsCred -TenantId $AzureContext.Subscription.TenantId).context
+
+# set and store context
+$AzureContext = Set-AzContext -SubscriptionName $AzureContext.Subscription `
+    -TenantId $AzureContext.Subscription.TenantId `
+    -DefaultProfile $AzureContext
 ```
 
 # [Python 2](#tab/python2)
@@ -160,7 +179,7 @@ You can add an activity for the internal `Get-AutomationPSCredential` cmdlet to 
 
 ![Add credential cmdlet to canvas](../media/credentials/credential-add-canvas.png)
 
-The following image shows an example of using a credential in a graphical runbook. In this case, the credential provides authentication for a runbook to Azure resources, as described in [Use Azure AD in Azure Automation to authenticate to Azure](../automation-use-azure-ad.md). The first activity retrieves the credential that has access to the Azure subscription. The account connection activity then uses this credential to provide authentication for any activities that come after it. A [pipeline link](../automation-graphical-authoring-intro.md#use-links-for-workflow) is used here since `Get-AutomationPSCredential` is expecting a single object.  
+The following image shows an example of using a credential in a graphical runbook. In this case, the credential provides authentication for a runbook to Azure resources, as described in [Use Microsoft Entra ID in Azure Automation to authenticate to Azure](../automation-use-azure-ad.md). The first activity retrieves the credential that has access to the Azure subscription. The account connection activity then uses this credential to provide authentication for any activities that come after it. A [pipeline link](../automation-graphical-authoring-intro.md#use-links-for-workflow) is used here since `Get-AutomationPSCredential` is expecting a single object.  
 
 ![Credential workflow with pipeline link example](../media/credentials/get-credential.png)
 

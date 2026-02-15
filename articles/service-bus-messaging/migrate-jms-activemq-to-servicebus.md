@@ -1,20 +1,17 @@
 ---
 title: Migrate Java Message Service (JMS) applications from Apache ActiveMQ to Azure Service Bus | Microsoft Docs
 description: This article explains how to migrate existing JMS applications that interact with Apache ActiveMQ to interact with Azure Service Bus.
-services: service-bus-messaging
-documentationcenter: ''
 author: spelluru
 manager: timlt
 editor: spelluru
-
-ms.service: service-bus-messaging
-ms.workload: na
-ms.tgt_pltfrm: na
-ms.devlang: na
+ms.devlang: java
 ms.topic: article
-ms.date: 07/07/2020
+ms.date: 09/27/2021
 ms.author: spelluru
-ms.custom: devx-track-java
+ms.custom:
+  - devx-track-java
+  - devx-track-extended-java
+  - sfi-ropc-nochange
 ---
 
 # Migrate existing Java Message Service (JMS) 2.0 applications from Apache ActiveMQ to Azure Service Bus
@@ -36,7 +33,7 @@ Even so, there are some differences between the two, as the following table show
 | Application tiering | Clustered monolith | Two-tier <br> (gateway + back end) |
 | Protocol support | <ul> <li>AMQP</li> <li> STOMP </li> <li> OpenWire </li> </ul> | AMQP |
 | Provisioning mode | <ul> <li> Infrastructure as a service (IaaS), on-premises </li> <li> Amazon MQ (managed platform as a service) </li> | Managed platform as a service (PaaS) |
-| Message size | Customer configurable | 1 MB (Premium tier) |
+| Message size | Customer configurable | 100 MB (Premium tier) |
 | High availability | Customer managed | Platform managed |
 | Disaster recovery | Customer managed | Platform managed | 
 
@@ -58,7 +55,7 @@ As part of migrating and modifying your client applications to interact with Azu
 
 #### Authentication and authorization
 
-Azure role-based access control (Azure RBAC), backed by Azure Active Directory, is the preferred authentication mechanism for Service Bus. Because Azure RBAC, or claim-based authentication, isn't currently supported by Apache QPID JMS, however, you should use SAS keys for authentication.
+Azure role-based access control (Azure RBAC), backed by Microsoft Entra ID, is the preferred authentication mechanism for Service Bus. To enable role-based access control, please follow the steps in the [Azure Service Bus JMS 2.0 developer guide](jms-developer-guide.md).
 
 ## Pre-migration
 
@@ -92,7 +89,7 @@ Service Bus enables various enterprise security and high availability features. 
 
 For each Service Bus namespace, you publish metrics onto Azure Monitor. You can use these metrics for alerting and dynamic scaling of resources allocated to the namespace.
 
-For more information about the different metrics and how to set up alerts on them, see [Service Bus metrics in Azure Monitor](monitor-service-bus-reference.md). You can also find out more about [client side tracing for data operations](service-bus-end-to-end-tracing.md) and [operational/diagnostic logging for management operations](service-bus-diagnostic-logs.md).
+For more information about the different metrics and how to set up alerts on them, see [Service Bus metrics in Azure Monitor](monitor-service-bus-reference.md). You can also find out more about [client side tracing for data operations](service-bus-end-to-end-tracing.md) and [operational/diagnostic logging for management operations](monitor-service-bus-reference.md#resource-logs).
 
 ### Metrics - New Relic
 

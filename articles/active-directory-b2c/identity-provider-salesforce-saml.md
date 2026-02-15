@@ -2,21 +2,22 @@
 title: Set up sign-in with a Salesforce SAML provider by using SAML protocol
 titleSuffix: Azure AD B2C
 description: Set up sign-in with a Salesforce SAML provider by using SAML protocol in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
-
-ms.service: active-directory
-ms.workload: identity
+author: garrodonnell
+manager: CelesteDG
+ms.service: azure-active-directory
 ms.topic: how-to
-ms.date: 03/15/2021
-ms.custom: project-no-code
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 09/16/2021
+ms.author: godonnell
+ms.subservice: b2c
 zone_pivot_groups: b2c-policy-type
+
+#Customer Intent: As a developed using Azure Active Directory B2C, I want to set up sign-in with a Salesforce SAML provider, so that users from my Salesforce organization can sign in to Azure AD B2C using their Salesforce accounts.
+
 ---
 
 # Set up sign-in with a Salesforce SAML provider by using SAML protocol in Azure Active Directory B2C
+
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-choose-user-flow-or-custom-policy](../../includes/active-directory-b2c-choose-user-flow-or-custom-policy.md)]
 
@@ -34,8 +35,8 @@ This article shows you how to enable sign-in for users from a Salesforce organiz
 ## Prerequisites
 
 [!INCLUDE [active-directory-b2c-customization-prerequisites-custom-policy](../../includes/active-directory-b2c-customization-prerequisites-custom-policy.md)]
-- If you haven't already done so, sign up for a [free Developer Edition account](https://developer.salesforce.com/signup). This article uses the [Salesforce Lightning Experience](https://developer.salesforce.com/page/Lightning_Experience_FAQ).
-- [Set up a My Domain](https://help.salesforce.com/articleView?id=domain_name_setup.htm&language=en_US&type=0) for your Salesforce organization.
+- If you haven't already done so, sign up for a [free Developer Edition account](https://developer.salesforce.com/signup). This article uses the [Salesforce Lightning Experience](https://trailhead.salesforce.com/content/learn/trails/lex_admin_implementation).
+- [Set up a My Domain](https://help.salesforce.com/s/articleView?id=domain_name_setup.htm&language=en_US&type=0) for your Salesforce organization.
 
 ## Set up Salesforce as an identity provider
 
@@ -95,15 +96,15 @@ This article shows you how to enable sign-in for users from a Salesforce organiz
 You need to store the certificate that you created in your Azure AD B2C tenant.
 
 1. Sign in to the [Azure portal](https://portal.azure.com/).
-2. Make sure you're using the directory that contains your Azure AD B2C tenant by selecting the **Directory + subscription** filter in the top menu and choosing the directory that contains your tenant.
-3. Choose **All services** in the top-left corner of the Azure portal, and then search for and select **Azure AD B2C**.
-4. On the Overview page, select **Identity Experience Framework**.
-5. Select **Policy Keys** and then select **Add**.
-6. For **Options**, choose `Upload`.
-7. Enter a **Name** for the policy. For example, SAMLSigningCert. The prefix `B2C_1A_` is automatically added to the name of your key.
-8. Browse to and select the B2CSigningCert.pfx certificate that you created.
-9. Enter the **Password** for the certificate.
-3. Click **Create**.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
+1. Choose **All services** in the top-left corner of the Azure portal, and then search for and select **Azure AD B2C**.
+1. On the Overview page, select **Identity Experience Framework**.
+1. Select **Policy Keys** and then select **Add**.
+1. For **Options**, choose `Upload`.
+1. Enter a **Name** for the policy. For example, SAMLSigningCert. The prefix `B2C_1A_` is automatically added to the name of your key.
+1. Browse to and select the B2CSigningCert.pfx certificate that you created.
+1. Enter the **Password** for the certificate.
+1. Click **Create**.
 
 ## Add a claims provider
 

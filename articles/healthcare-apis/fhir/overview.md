@@ -1,106 +1,81 @@
 ---
-title: What is Azure API for FHIR? - Azure API for FHIR 
-description: Azure API for FHIR enables rapid exchange of data through FHIR APIs. Ingest, manage, and persist Protected Health Information PHI with a managed cloud service.
+title: What is the FHIR service in Azure Health Data Services?
+description: Discover the FHIR service in Azure Health Data Services for secure, compliant, and scalable health data exchange and management in the cloud
 services: healthcare-apis
-author: matjazl
-ms.service: healthcare-apis
+author: expekesheth
+ms.service: azure-health-data-services
 ms.subservice: fhir
 ms.topic: overview
-ms.date: 11/13/2020
-ms.author: chrupa
+ms.date: 10/10/2025
+ms.author: kesheth
 ---
 
-# What is Azure API for FHIR&reg;?
+# What is the FHIR service?
 
-Azure API for FHIR enables rapid exchange of data through Fast Healthcare Interoperability Resources (FHIR®) APIs, backed by a managed Platform-as-a Service (PaaS) offering in the cloud. It makes it easier for anyone working with health data to ingest, manage, and persist Protected Health Information [PHI](https://www.hhs.gov/answers/hipaa/what-is-phi/index.html) in the cloud: 
+The FHIR&reg; service in Azure Health Data Services enables rapid exchange of health data using the Fast Healthcare Interoperability Resources (FHIR) data standard. As part of a managed Platform-as-a-Service (PaaS), the FHIR service makes it easy for anyone working with health data to securely store and exchange Protected Health Information ([PHI](https://www.hhs.gov/answers/hipaa/what-is-phi/index.html)) in the cloud. 
 
-- Managed FHIR service, provisioned in the cloud in minutes 
-- Enterprise-grade, FHIR®-based endpoint in Azure for data access, and storage in FHIR® format
+The FHIR service offers:
+
+- Managed FHIR-compliant server, provisioned in the cloud in minutes
+- Enterprise-grade FHIR API endpoint for FHIR data access and storage
 - High performance, low latency
 - Secure management of Protected Health Information (PHI) in a compliant cloud environment
-- SMART on FHIR for mobile and web implementations
-- Control your own data at scale with role-based access control (RBAC)
-- Audit log tracking for access, creation, modification, and reads within each data store
+- SMART on FHIR for mobile and web clients
+- Controlled access to FHIR data at scale with Microsoft Entra role-Based Access Control (RBAC)
+- Audit log tracking for access, creation, and modification events within the FHIR service data store
 
-Azure API for FHIR allows you to create and deploy a FHIR service in just minutes to leverage the elastic scale of the cloud.  You pay only for the throughput and storage you need. The Azure services that power Azure API for FHIR are designed for rapid performance no matter what size datasets you’re managing.
+The FHIR service allows you to quickly create and deploy a FHIR server to the cloud for ingesting, persisting, and querying FHIR data. The Azure services that power the FHIR service are designed for high performance no matter how much data you're working with.
 
-The FHIR API and compliant data store enable you to securely connect and interact with any system that utilizes FHIR APIs.  Microsoft takes on the operations, maintenance, updates, and compliance requirements in the PaaS offering, so you can free up your own operational and development resources. 
+The FHIR API in the FHIR service enables any FHIR-compliant system to securely connect and interact with FHIR data. As a PaaS offering, Microsoft takes on the operations, maintenance, update, and compliance requirements for the FHIR service so you can free up your own operational and development resources.
 
-The following video presents an overview of Azure API for FHIR:
+## Leverage the power of health data
 
->[!VIDEO https://www.youtube.com/embed/5vS7Iq9vpXE]
-
-## Leveraging the power of your data with FHIR
-
-The healthcare industry is rapidly transforming health data to the emerging standard of [FHIR&reg;](https://hl7.org/fhir) (Fast Healthcare Interoperability Resources). FHIR enables a robust, extensible data model with standardized semantics and data exchange that enables all systems using FHIR to work together.  Transforming your data to FHIR allows you to quickly connect existing data sources such as the electronic health record systems or research databases. FHIR also enables the rapid exchange of data in modern implementations of mobile and web development. Most importantly, FHIR can simplify data ingestion and accelerate development with analytics and machine learning tools.  
+The healthcare industry is rapidly adopting [FHIR®](https://hl7.org/fhir) as the industry-wide standard for health data storage, querying, and exchange. FHIR provides a robust, extensible data model with standardized semantics that all FHIR-compliant systems can use interchangeably. With FHIR, organizations can unify disparate electronic health record systems (EHRs) and other health data repositories – allowing all data to be persisted and exchanged in a single, universal format. With the addition of SMART on FHIR, user-facing mobile and web-based applications can securely interact with FHIR data – opening a new range of possibilities for patient and provider access to PHI. Most of all, FHIR simplifies the process of assembling large health datasets for research – enabling researchers and clinicians to apply machine learning and analytics at scale for gaining new health insights. 
 
 ### Securely manage health data in the cloud
 
-The Azure API for FHIR allows for the exchange of data via consistent, RESTful, FHIR APIs based on the HL7 FHIR specification. Backed by a managed PaaS offering in Azure, it also provides a scalable and secure environment for the management and storage of Protected Health Information (PHI) data in the native FHIR format.  
+The FHIR service in Azure Health Data Services makes FHIR data available to clients through a RESTful API. This API is an implementation of the HL7 FHIR API specification. As a managed PaaS offering in Azure, the FHIR service gives organizations a scalable and secure environment for the storage and exchange of PHI in the native FHIR format.  
 
-### Free up your resources to innovate
+### Free up resources to innovate
 
-You could invest resources building and running your own FHIR service, but with the Azure API for FHIR, Microsoft takes on the workload of operations, maintenance, updates and compliance requirements, allowing you to free up your own operational and development resources.
+You can build and maintain your own FHIR server. However, with the FHIR service in Azure Health Data Services, Microsoft handles setting up server components, and ensuring all compliance requirements are met, so you can focus on building innovative solutions.
 
-### Enable interoperability with FHIR
+### Enable interoperability
 
-Using the Azure API for FHIR enables to you connect with any system that leverages FHIR APIs for read, write, search, and other functions.  It can be used as a powerful tool to consolidate, normalize, and apply machine learning with clinical data from electronic health records, clinician and patient dashboards, remote monitoring programs, or with databases outside of your system that have FHIR APIs.
+The FHIR service enables connection with any health data system or application capable of sending FHIR API requests. Along with other parts of the Azure ecosystem, the FHIR service forms a link between electronic health records systems (EHRs) and Azure's suite of data analytics and machine learning tools, enabling organizations to build patient and provider applications that harness the full power of the Microsoft cloud.
 
-### Control Data Access at Scale
+### Control data access at scale
 
-You control your data. Role-based access control (RBAC) enables you to manage how your data is stored and accessed.  Providing increased security and reducing administrative workload, you determine who has access to the datasets you create, based on role definitions you create for your environment.  
+With the FHIR service, you control health data at scale. The FHIR service's role-based access control (RBAC) is based on Microsoft Entra identities management. You can grant or deny access to health data based on the roles given to individuals in your organization. The RBAC settings for the FHIR service are configurable in Azure Health Data Services at the workspace level. Workspaces simplify system management and help ensure your organization's PHI is safe within a HIPAA and HITRUST-compliant environment.
 
-### Audit logs and tracking 
+### Secure healthcare data
 
-Quickly track where your data is going with built-in audit logs. Track access, creation, modification, and reads within each data store.
+Because it belongs to the Azure family of services, the FHIR service protects your organization's PHI with an unparalleled level of security. In Azure Health Data Services, FHIR data is isolated to a unique database per FHIR service instance and protected with multi-region failover. Plus, the FHIR service implements a layered, in-depth defense and advanced threat detection for health data.
 
-### Secure your data
+## Use cases for the FHIR service
 
-Protect your PHI with unparalleled security intelligence.  Your data is isolated to a unique database per API instance and protected with multi-region failover. The Azure API for FHIR implements a layered, in-depth defense and advanced threat protection for your data.  
+FHIR servers are essential for interoperability of health data. The FHIR service is designed as a managed FHIR server with a RESTful API for connecting to a broad range of client systems and applications. Some of the key use cases for the FHIR service are as follows.
 
-## Applications for a FHIR Service
+- **Startup app development:** Customers developing a patient- or provider-centric app (mobile or web) can use the FHIR service as a fully managed backend for health data transactions. The FHIR service enables secure transfer of PHI. With SMART on FHIR, app developers can take advantage of the robust identities management in Microsoft Entra ID for authorization of FHIR RESTful API actions.
 
-FHIR servers are key tools for interoperability of health data.  The Azure API for FHIR is designed as an API and service that you can create, deploy, and begin using quickly.  As the FHIR standard expands in healthcare, use cases will continue to grow, but some initial customer applications where Azure API for FHIR is useful are below: 
+- **Healthcare ecosystems:** Although EHRs are the primary source of truth in many clinical settings, it's common for providers to have multiple databases that aren’t connected to each other (often because the data is stored in different formats). Using the FHIR service as a conversion layer between these systems, organizations can standardize data in the FHIR format. Ingesting and persisting in FHIR format enables health data querying and exchange across multiple disparate systems.
 
-- **Startup/IoT and App Development:**  Customers developing a patient or provider centric app (mobile or web) can leverage Azure API for FHIR as a fully managed backend service. The Azure API for FHIR provides a valuable resource in that customers can managing data and exchanging data in a secure cloud environment designed for health data, leverage SMART on FHIR implementation guidelines, and enable their technology to be utilized by all provider systems (for example, most EHRs have enabled FHIR read APIs).   
-- **Healthcare Ecosystems:**  While EHRs exist as the primary ‘source of truth’ in many clinical settings, it is not uncommon for providers to have multiple databases that aren’t connected to one another or store data in different formats.  Utilizing the Azure API for FHIR as a service that sits on top of those systems allows you to standardize data in the FHIR format.  This helps to enable data exchange across multiple systems with a consistent data format. 
+- **Research:** Health researchers use the FHIR standard because it gives the community a shared data model and removes barriers to assembling large datasets for machine learning and analytics. With the data conversion and PHI de-identification capabilities in the FHIR service, researchers can prepare HIPAA-compliant data for secondary use before sending the data to Azure Machine Learning and analytics pipelines. The FHIR service's audit logging and alert mechanisms also play an important role in research workflows.
 
-- **Research:** Healthcare researchers will find the FHIR standard in general and the Azure API for FHIR useful as it normalizes data around a common FHIR data model and reduces the workload for machine learning and data sharing.
-Exchange of data via the Azure API for FHIR provides audit logs and access controls that help control the flow of data and who has access to what data types. 
+## FHIR platforms from Microsoft
 
-## FHIR from Microsoft
+FHIR capabilities from Microsoft are available in three configurations:
 
-FHIR capabilities from Microsoft are available in two configurations:
+- The **FHIR service** is a managed PaaS that operates as part of Azure Health Data Services. In addition to the FHIR service, Azure Health Data Services includes managed services for other types of health data, such as the DICOM service for medical imaging data, and the MedTech service for medical IoT data. All services (FHIR service, DICOM service, and MedTech service) can be connected and administered within an Azure Health Data Services workspace.
 
-* Azure API for FHIR – A PaaS offering in Azure, easily provisioned in the Azure portal and managed by Microsoft.
-* FHIR Server for Azure – an open-source project that can be deployed into your Azure subscription, available on GitHub at https://github.com/Microsoft/fhir-server.
+- **Azure API for FHIR** is a managed FHIR server offered as a PaaS in Azure and is easily deployed in the Azure portal. Azure API for FHIR isn't part of Azure Health Data Services and lacks some of the features of the FHIR service.
 
-For use cases that requires extending or customizing the FHIR server or require access the underlying services—such as the database—without going through the FHIR APIs, developers should choose the open-source FHIR Server for Azure.   For implementation of a turn-key, production-ready FHIR API and backend service where persisted data should only be accessed through the FHIR API, developers should choose the Azure API for FHIR
+- **FHIR server for Azure** is an open-source FHIR server that can be deployed into your Azure subscription. It's available on GitHub at https://github.com/Microsoft/fhir-server.
 
-## Azure IoT Connector for FHIR (preview)
+For use cases that require customizing a FHIR server with admin access to the underlying services (for example, access to the database without going through the FHIR API), developers should choose the open-source FHIR Server for Azure. For implementation of a turnkey, production-ready FHIR API with a provisioned database backend (data can only be accessed through the FHIR API, not the database directly), developers should choose the FHIR service.
 
-Azure IoT Connector for Fast Healthcare Interoperability Resources (FHIR&#174;)* is an optional feature of Azure API for FHIR that provides the capability to ingest data from Internet of Medical Things (IoMT) devices. Internet of Medical Things is a category of IoT devices that capture and exchange health & wellness data with other healthcare IT systems over network. Some examples of IoMT devices include fitness and clinical wearables, monitoring sensors, activity trackers, point of care kiosks, or even a smart pill. The Azure IoT Connector for FHIR feature enables you to quickly set up a service to ingest IoMT data into Azure API for FHIR in a scalable, secure, and compliant manner.
+## Next steps
 
-Azure IoT Connector for FHIR can accept any JSON-based messages sent out by an IoMT device. This data is first transformed into appropriate FHIR-based [Observation](https://www.hl7.org/fhir/observation.html) resources and then persisted into Azure API for FHIR. The data transformation logic is defined through a pair of mapping templates that you configure based on your message schema and FHIR requirements. Device data can be pushed directly to Azure IoT Connector for FHIR or seamlessly used in concert with other Azure IoT solutions ([Azure IoT Hub](../../iot-hub/index.yml) and [Azure IoT Central](../../iot-central/index.yml)). Azure IoT Connector for FHIR provides a secure data pipeline while allowing the Azure IoT solutions manage provisioning and maintenance of the physical devices.
+[Deploy the FHIR service](deploy-azure-portal.md)
 
-### Applications of Azure IoT Connector for FHIR (preview)
-
-Use of IoMT devices is rapidly expanding in healthcare and Azure IoT Connector for FHIR is designed to bridge the gap of bringing multiple devices data with security and compliance into Azure API for FHIR. Bringing IoMT data into a FHIR server enables holistic data insights and innovative clinical workflows. Some common scenarios for Azure IoT Connector for FHIR are:
-- **Remote Patient Monitoring/Telehealth:** Remote patient monitoring provides the ability to gather patient health data outside of traditional healthcare settings. Healthcare institutions can use Azure IoT Connector for FHIR to bring health data generated by remote devices into Azure API for FHIR. This data could be used to closely track patients health status, monitor patients adherence to the treatment plan and provide personalized care.
-- **Research and Life Sciences:** Clinical trials are rapidly adopting IoMT devices like bio sensors, wearables, mobile apps to capture trial data. These trials can harness Azure IoT Connector for FHIR to transmit device data to Azure API for FHIR in a secure, efficient, and effective manner. Once in Azure API for FHIR, trial data could be used to run real-time analysis of trial data.
-- **Advanced Analytics:** IoMT devices can provide large volume and variety of data at a high velocity, which makes them a great fit for serving training and testing data for your machine learning models. Azure IoT Connector for FHIR is inherently built to work with wide range of data frequency, flexible data schema, and cloud scaling with low latency. These attributes make Azure IoT Connector for FHIR an excellent choice for capturing device data for your advanced analytics needs.
-- **Smart Hospitals/Clinics:** Today smart hospitals and clinics are setting up an infrastructure of interconnected digital assets. Azure IoT Connector for FHIR can be used to capture and integrate data from these connected components. Actionable insights from such data set enable better patient care and operational efficiency.
-
-## Next Steps
-
-To start working with the Azure API for FHIR, follow the 5-minute quickstart to deploy the Azure API for FHIR.
-
->[!div class="nextstepaction"]
->[Deploy Azure API for FHIR](fhir-paas-portal-quickstart.md)
-
-To try out the Azure IoT Connector for FHIR feature, check out the quickstart to deploy Azure IoT Connector for FHIR using Azure portal.
-
->[!div class="nextstepaction"]
->[Deploy Azure IoT Connector for FHIR](iot-fhir-portal-quickstart.md)
-
-*In the Azure portal, Azure IoT Connector for FHIR is referred to as IoT Connector (preview). FHIR is a registered trademark of HL7 and is used with the permission of HL7. 
+[!INCLUDE [FHIR trademark statement](../includes/healthcare-apis-fhir-trademark.md)]

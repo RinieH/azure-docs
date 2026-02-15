@@ -1,39 +1,38 @@
 ---
-title: Identify advanced threats with User and Entity Behavior Analytics (UEBA) in Azure Sentinel | Microsoft Docs
-description:  Create behavioral baselines for entities (users, hostnames, IP addresses) and use them to detect anomalous behavior and identify zero-day advanced persistent threats (APT).
-services: sentinel
-documentationcenter: na
-author: yelevin
-manager: rkarlin
-editor: ''
+title: Advanced threat detection with User and Entity Behavior Analytics (UEBA) in Microsoft Sentinel | Microsoft Docs
+description: Create behavioral baselines for entities (users, hostnames, IP addresses) and use them to detect anomalous behavior and identify zero-day advanced persistent threats (APT).
+author: guywi-ms
+ms.author: guywild
+ms.topic: article
+ms.date: 12/15/2025
+appliesto:
+    - Microsoft Sentinel in the Microsoft Defender portal
+    - Microsoft Sentinel in the Azure portal
+ms.collection: usx-security
+ms.custom: sfi-image-nochange
 
-ms.service: azure-sentinel
-ms.subservice: azure-sentinel
-ms.devlang: na
-ms.topic: conceptual
-ms.tgt_pltfrm: na
-ms.workload: na
-ms.date: 05/11/2021
-ms.author: yelevin
+
+#Customer intent: As a security analyst, I want to leverage User and Entity Behavior Analytics (UEBA) so that I can efficiently detect and prioritize sophisticated threats within my organization.
 
 ---
-# Identify advanced threats with User and Entity Behavior Analytics (UEBA) in Azure Sentinel
 
-> [!IMPORTANT]
->
-> - The UEBA and Entity Pages features are now in **General Availability** in ***all*** Azure Sentinel geographies and regions. 
->
-> - The **IP address entity** is currently in **PREVIEW**. See the [Supplemental Terms of Use for Microsoft Azure Previews](https://azure.microsoft.com/support/legal/preview-supplemental-terms/) for additional legal terms that apply to Azure features that are in beta, preview, or otherwise not yet released into general availability.
+# Advanced threat detection with User and Entity Behavior Analytics (UEBA) in Microsoft Sentinel
 
 [!INCLUDE [reference-to-feature-availability](includes/reference-to-feature-availability.md)]
 
-## What is User and Entity Behavior Analytics (UEBA)?
+Detecting anomalous behavior inside your organization is complex and slow. Microsoft Sentinel User and Entity Behavior Analytics (UEBA) streamlines anomaly detection and investigation by using machine learning models to build dynamic baselines and peer comparisons for your tenant. Instead of just collecting logs, UEBA learns from your data to surface actionable intelligence that helps analysts detect and investigate anomalies.
 
-Identifying threats inside your organization and their potential impact - whether a compromised entity or a malicious insider - has always been a time-consuming and labor-intensive process. Sifting through alerts, connecting the dots, and active hunting all add up to massive amounts of time and effort expended with minimal returns, and the possibility of sophisticated threats simply evading discovery. Particularly elusive threats like zero-day, targeted, and advanced persistent threats can be the most dangerous to your organization, making their detection all the more critical.
+This article explains how Microsoft Sentinel UEBA works and how to use UEBA to surface and investigate anomalies and enhance your threat detection capabilities.
 
-The UEBA capability in Azure Sentinel eliminates the drudgery from your analysts’ workloads and the uncertainty from their efforts, and delivers high-fidelity, actionable intelligence, so they can focus on investigation and remediation.
+[!INCLUDE [unified-soc-preview](includes/unified-soc-preview.md)]
 
-As Azure Sentinel collects logs and alerts from all of its connected data sources, it analyzes them and builds baseline behavioral profiles of your organization’s entities (such as users, hosts, IP addresses, and applications) across time and peer group horizon. Using a variety of techniques and machine learning capabilities, Azure Sentinel can then identify anomalous activity and help you determine if an asset has been compromised. Not only that, but it can also figure out the relative sensitivity of particular assets, identify peer groups of assets, and evaluate the potential impact of any given compromised asset (its “blast radius”). Armed with this information, you can effectively prioritize your investigation and incident handling. 
+All the benefits of UEBA are available in the Microsoft Defender portal.
+
+## What is UEBA?
+
+As Microsoft Sentinel collects logs and alerts from all of your connected data sources, UEBA uses AI to build baseline behavioral profiles of your organization's entities - such as users, hosts, IP addresses, and applications - over time and across peer groups. UEBA then identifies anomalous activity and helps you determine whether an asset is compromised. 
+
+UEBA also determines the relative sensitivity of particular assets, identifies peer groups of assets, and evaluates the potential impact of any given compromised asset - its "blast radius." This information lets you prioritize your investigation, hunting, and incident handling effectively.
 
 ### UEBA analytics architecture
 
@@ -41,136 +40,141 @@ As Azure Sentinel collects logs and alerts from all of its connected data source
 
 ### Security-driven analytics
 
-Inspired by Gartner’s paradigm for UEBA solutions, Azure Sentinel provides an "outside-in" approach, based on three frames of reference:
+Inspired by Gartner's paradigm for UEBA solutions, Microsoft Sentinel provides an "outside-in" approach, based on three frames of reference:
 
-- **Use cases:** By prioritizing for relevant attack vectors and scenarios based on security research aligned with the MITRE ATT&CK framework of tactics, techniques, and sub-techniques that puts various entities as victims, perpetrators, or pivot points in the kill chain; Azure Sentinel focuses specifically on the most valuable logs each data source can provide.
+- **Use cases:** By prioritizing relevant attack vectors and scenarios based on security research aligned with the MITRE ATT&CK framework of tactics, techniques, and subtechniques that puts various entities as victims, perpetrators, or pivot points in the attack chain, Microsoft Sentinel focuses specifically on the most valuable logs each data source can provide.
 
-- **Data Sources:** While first and foremost supporting Azure data sources, Azure Sentinel thoughtfully selects third-party data sources to provide data that matches our threat scenarios.
+- **Data sources:** While first and foremost supporting Azure data sources, Microsoft Sentinel thoughtfully selects third-party data sources to provide data that matches its threat scenarios.
 
-- **Analytics:** Using various machine learning (ML) algorithms, Azure Sentinel identifies anomalous activities and presents evidence clearly and concisely in the form of contextual enrichments, some examples of which appear below.
+- **Analytics:** By using various machine learning (ML) algorithms, Microsoft Sentinel identifies anomalous activities and presents evidence clearly and concisely in the form of contextual enrichments, some examples of which appear in the following image.
 
     :::image type="content" source="media/identify-threats-with-entity-behavior-analytics/behavior-analytics-top-down.png" alt-text="Behavior analytics outside-in approach":::
 
-Azure Sentinel presents artifacts that help your security analysts get a clear understanding of anomalous activities in context, and in comparison with the user's baseline profile. Actions performed by a user (or a host, or an address) are evaluated contextually, where a "true" outcome indicates an identified anomaly:
+Microsoft Sentinel presents artifacts that help your security analysts get a clear understanding of anomalous activities in context, and in comparison with the user's baseline profile. Actions performed by a user (or a host, or an address) are evaluated contextually, where a "true" outcome indicates an identified anomaly:
 - across geographical locations, devices, and environments.
 - across time and frequency horizons (compared to user's own history).
 - as compared to peers' behavior.
 - as compared to organization's behavior.
-
     :::image type="content" source="media/identify-threats-with-entity-behavior-analytics/context.png" alt-text="Entity context":::
 
+The user entity information that Microsoft Sentinel uses to build its user profiles comes from your Microsoft Entra ID (and/or your on-premises Active Directory, now in Preview). When you enable UEBA, it synchronizes your Microsoft Entra ID with Microsoft Sentinel, storing the information in an internal database visible through the *IdentityInfo* table.
+
+- In Microsoft Sentinel in the Azure portal, you query the *IdentityInfo* table in Log Analytics on the **Logs** page.
+- In the Defender portal, you query this table in **Advanced hunting**.
+
+Now in preview, you can also sync your on-premises Active Directory user entity information by using Microsoft Defender for Identity.
+
+See [Enable User and Entity Behavior Analytics (UEBA) in Microsoft Sentinel](enable-entity-behavior-analytics.md) to learn how to enable UEBA and synchronize user identities.
 
 ### Scoring
 
-Each activity is scored with “Investigation Priority Score” – which determine the probability of a specific user performing a specific activity, based on behavioral learning of the user and their peers. Activities identified as the most abnormal receive the highest scores (on a scale of 0-10).
+Each activity is scored with an "Investigation Priority Score" – which determines the probability of a specific user performing a specific activity, based on behavioral learning of the user and their peers. Activities identified as the most abnormal receive the highest scores (on a scale of 0-10).
 
-See how behavior analytics is used in [Microsoft Cloud App Security](https://techcommunity.microsoft.com/t5/microsoft-security-and/prioritize-user-investigations-in-cloud-app-security/ba-p/700136) for an example of how this works.
+For an example of how this works, see [Microsoft Defender for Cloud Apps](https://techcommunity.microsoft.com/t5/microsoft-security-and/prioritize-user-investigations-in-cloud-app-security/ba-p/700136).
 
-## Entity Pages
+Learn more about [entities in Microsoft Sentinel](entities.md) and see the full list of [supported entities and identifiers](entities-reference.md).
 
-Learn more about [entities in Azure Sentinel](entities-in-azure-sentinel.md) and see the full list of [supported entities and identifiers](entities-reference.md).
+### Entity pages
 
-When you encounter a user or host entity (IP address entities are in preview) in an entity search, an alert, or an investigation, you can select the entity and be taken to an **entity page**, a datasheet full of useful information about that entity. The types of information you will find on this page include basic facts about the entity, a timeline of notable events related to this entity and insights about the entity's behavior.
- 
-Entity pages consist of three parts:
-- The left-side panel contains the entity's identifying information, collected from data sources like Azure Active Directory, Azure Monitor, Azure Defender, CEF/Syslog, and Microsoft 365 Defender.
+Information about **entity pages** can now be found at [Entity pages in Microsoft Sentinel](entity-pages.md).
 
-- The center panel shows a graphical and textual timeline of notable events related to the entity, such as alerts, bookmarks, and activities. Activities are aggregations of notable events from Log Analytics. The queries that detect those activities are developed by Microsoft security research teams, and you can now [add your own custom queries to detect activities](customize-entity-activities.md) of your choosing. 
+##  UEBA experiences in the Defender portal empower analysts and streamline workflows (preview)
 
-- The right-side panel presents behavioral insights on the entity. These insights help to quickly identify anomalies and security threats. The insights are developed by Microsoft security research teams, and are based on anomaly detection models.
+By surfacing anomalies in investigation graphs and user pages, and prompting analysts to incorporate anomaly data in hunting queries, UEBA facilitates faster threat detection, smarter prioritization, and more efficient incident response. 
 
-> [!NOTE]
-> The **IP address entity page** (now in preview) contains **geolocation data** supplied by the **Microsoft Threat Intelligence service**. This service combines geolocation data from Microsoft solutions and third-party vendors and partners. The data is then available for analysis and investigation in the context of a security incident.
+This section outlines the key UEBA analyst experiences available in the Defender portal when you enable UEBA.
 
-### The timeline
+### UEBA home page widget 
 
-:::image type="content" source="./media/identify-threats-with-entity-behavior-analytics/entity-pages-timeline.png" alt-text="Entity pages timeline":::
+The Defender portal home page includes a UEBA widget where analysts can immediately have visibility into anomalous user behavior and therefore accelerate threat detection workflows. If the tenant isn't onboarded yet to UEBA, this widget also provides security admins quick access to the onboarding process. 
 
-The timeline is a major part of the entity page's contribution to behavior analytics in Azure Sentinel. It presents a story about entity-related events, helping you understand the entity's activity within a specific time frame.
+### UEBA insights in user investigations
 
-You can choose the **time range** from among several preset options (such as *last 24 hours*), or set it to any custom-defined time frame. Additionally, you can set filters that limit the information in the timeline to specific types of events or alerts.
+Analysts can quickly assess user risk using UEBA context displayed in side panels and the **Overview** tab on all user pages. When unusual behavior is detected, the portal automatically tags users with **UEBA anomalies** helping prioritize investigations based on recent activity. For more information, see [User entity page in Microsoft Defender](https://aka.ms/ueba-entity-details).
 
-The following types of items are included in the timeline:
+Each user page includes a **Top UEBA anomalies** section, showing the top three anomalies from the past 30 days, along with direct links to pre-built anomaly queries and the Sentinel events timeline for deeper analysis.
 
-- Alerts - any alerts in which the entity is defined as a **mapped entity**. Note that if your organization has created [custom alerts using analytics rules](./tutorial-detect-threats-custom.md), you should make sure that the rules' entity mapping is done properly.
+:::image type="content" source="media/identify-threats-with-entity-behavior-analytics/entity-behavior-analytics-user-investigations.png" alt-text="Screenshot that shows the overview tab of the User page for a user with UEBA anomalies in the past 30 days." lightbox="media/identify-threats-with-entity-behavior-analytics/entity-behavior-analytics-user-investigations.png":::
 
-- Bookmarks - any bookmarks that include the specific entity shown on the page.
+### Built-in user anomaly queries in incident investigations
 
-- Activities - aggregation of notable events relating to the entity. A wide range of activities are collected automatically, and you can now [customize this section by adding activities](customize-entity-activities.md) of your own choosing.
+During incident investigations, analysts can launch built-in queries directly from incident graphs to retrieve all user anomalies related to the case.
 
-### Entity Insights
- 
-Entity insights are queries defined by Microsoft security researchers to help your analysts investigate more efficiently and effectively. The insights are presented as part of the entity page, and provide valuable security information on hosts and users, in the form of tabular data and charts. Having the information here means you don't have to detour to Log Analytics. The insights include data regarding sign-ins, group additions, anomalous events and more, and include advanced ML algorithms to detect anomalous behavior. 
+:::image type="content" source="media/identify-threats-with-entity-behavior-analytics/entity-behavior-analytics-incident-investigations.png" alt-text="Screenshot that shows an incident graph, highlighting the Go hunt All user anomalies option, which allows analysts to quickly find all anomalies related to the user." lightbox="media/identify-threats-with-entity-behavior-analytics/entity-behavior-analytics-incident-investigations.png":::
 
-The insights are based on the following data sources:
-- Syslog (Linux)
-- SecurityEvent (Windows)
-- AuditLogs (Azure AD)
-- SigninLogs (Azure AD)
-- OfficeActivity (Office 365)
-- BehaviorAnalytics (Azure Sentinel UEBA)
-- Heartbeat (Azure Monitor Agent)
-- CommonSecurityLog (Azure Sentinel)
-- ThreatIntelligenceIndicators (Azure Sentinel)
+For more information, see [Investigate incidents in the Microsoft Defender portal](https://aka.ms/ueba-go-hunt).
 
-### How to use entity pages
+### Enrich advanced hunting queries and custom detections with UEBA data
 
-Entity pages are designed to be part of multiple usage scenarios, and can be accessed from incident management, the investigation graph, bookmarks, or directly from the entity search page under **Entity behavior analytics** in the Azure Sentinel main menu.
+When analysts write advanced hunting or custom detection queries using UEBA-related tables, the Defender portal displays a banner that prompts them to join the **Anomalies** table. This action enriches investigations with behavioral insights and strengthens the overall analysis.
 
-:::image type="content" source="./media/identify-threats-with-entity-behavior-analytics/entity-pages-use-cases.png" alt-text="Entity page use cases":::
+:::image type="content" source="media/identify-threats-with-entity-behavior-analytics/entity-behavior-analytics-advanced-hunting.png" alt-text="Screenshot that shows the Advanced Hunting page with a banner that prompts the analyst to join the Anomalies table and enrich their analysis with behavioral insights." lightbox="media/identify-threats-with-entity-behavior-analytics/entity-behavior-analytics-advanced-hunting.png":::
 
-Entity page information is stored in the **BehaviorAnalytics** table, described in detail in the [Azure Sentinel UEBA enrichments reference](ueba-enrichments.md).
+For more information, see: 
+- [Proactively hunt for threats with advanced hunting in Microsoft Defender](/defender-xdr/advanced-hunting-overview).
+- [KQL join operator](/kusto/query/join-operator?view=microsoft-sentinel).
+- [UEBA data sources](ueba-reference.md#ueba-data-sources).
+- [Anomalies detected by the Microsoft Sentinel machine learning engine](anomalies-reference.md).
 
 ## Querying behavior analytics data
 
-Using [KQL](/azure/data-explorer/kusto/query/), we can query the Behavioral Analytics Table.
+Using [KQL](/kusto/query/?view=microsoft-sentinel&preserve-view=true), you can query the `BehaviorAnalytics` table.
 
-For example – if we want to find all the cases of a user that failed to sign in to an Azure resource, where it was the user's first attempt to connect from a given country, and connections from that country are uncommon even for the user's peers, we can use the following query:
+For example, if you want to find all the cases of a user that failed to sign in to an Azure resource, where it was the user's first attempt to connect from a given country or region, and connections from that country or region are uncommon even for the user's peers, you can use the following query:
 
 ```Kusto
 BehaviorAnalytics
 | where ActivityType == "FailedLogOn"
-| where FirstTimeUserConnectedFromCountry == True
-| where CountryUncommonlyConnectedFromAmongPeers == True
+| where ActivityInsights.FirstTimeUserConnectedFromCountry == True
+| where ActivityInsights.CountryUncommonlyConnectedFromAmongPeers == True
 ```
+
+- In Microsoft Sentinel in the Azure portal, you query the `BehaviorAnalytics` table in Log Analytics on the **Logs** page.
+- In the Defender portal, you query this table in **Advanced hunting**.
 
 ### User peers metadata - table and notebook
 
-User peers' metadata provides important context in threat detections, in investigating an incident, and in hunting for a potential threat. Security analysts can observe the normal activities of a user's peers to determine if the user's activities are unusual as compared to those of his or her peers.
+User peers' metadata provides important context in threat detections, in investigating an incident, and in hunting for a potential threat. Security analysts can observe the normal activities of users' peers to determine whether a user's activities are unusual as compared to those of their peers.
 
-Azure Sentinel calculates and ranks a user's peers, based on the user’s Azure AD security group membership, mailing list, et cetera, and stores the peers ranked 1-20 in the **UserPeerAnalytics** table. The screenshot below shows the schema of the UserPeerAnalytics table, and displays the top eight-ranked peers of the user Kendall Collins. Azure Sentinel uses the *term frequency-inverse document frequency* (TF-IDF) algorithm to normalize the weighing for calculating the rank: the smaller the group, the higher the weight. 
+Microsoft Sentinel calculates and ranks a user's peers, based on the user's Microsoft Entra security group membership, mailing list, and other factors. It stores the peers ranked 1-20 in the `UserPeerAnalytics` table. The following screenshot shows the schema of the `UserPeerAnalytics` table, and displays the top eight-ranked peers of the user Kendall Collins. Microsoft Sentinel uses the *term frequency-inverse document frequency* (TF-IDF) algorithm to normalize the weighing for calculating the rank: the smaller the group, the higher the weight. 
 
-:::image type="content" source="./media/identify-threats-with-entity-behavior-analytics/user-peers-metadata.png" alt-text="Screen shot of user peers metadata table":::
+:::image type="content" source="./media/identify-threats-with-entity-behavior-analytics/user-peers-metadata.png" alt-text="Screen shot of user peers metadata table" lightbox="./media/identify-threats-with-entity-behavior-analytics/user-peers-metadata.png":::
 
-You can use the [Jupyter notebook](https://github.com/Azure/Azure-Sentinel-Notebooks/tree/master/BehaviorAnalytics/UserSecurityMetadata) provided in the Azure Sentinel GitHub repository to visualize the user peers metadata. For detailed instructions on how to use the notebook, see the [Guided Analysis - User Security Metadata](https://github.com/Azure/Azure-Sentinel-Notebooks/blob/master/BehaviorAnalytics/UserSecurityMetadata/Guided%20Analysis%20-%20User%20Security%20Metadata.ipynb) notebook.
+You can use the [Jupyter notebook](https://github.com/Azure/Azure-Sentinel-Notebooks/tree/master/scenario-notebooks/UserSecurityMetadata) provided in the Microsoft Sentinel GitHub repository to visualize the user peers metadata. For detailed instructions on how to use the notebook, see the [Guided Analysis - User Security Metadata](https://github.com/Azure/Azure-Sentinel-Notebooks/blob/master/scenario-notebooks/UserSecurityMetadata/Guided%20Analysis%20-%20User%20Security%20Metadata.ipynb) notebook.
 
-### Permission analytics - table and notebook
-
-Permission analytics helps determine the potential impact of the compromising of an organizational asset by an attacker. This impact is also known as the asset's "blast radius." Security analysts can use this information to prioritize investigations and incident handling.
-
-Azure Sentinel determines the direct and transitive access rights held by a given user to Azure resources, by evaluating the Azure subscriptions the user can access directly or via groups or service principals. This information, as well as the full list of the user's Azure AD security group membership, is then stored in the **UserAccessAnalytics** table. The screenshot below shows a sample row in the UserAccessAnalytics table, for the user Alex Johnson. **Source entity** is the user or service principal account, and **target entity** is the resource that the source entity has access to. The values of **access level** and **access type** depend on the access-control model of the target entity. You can see that Alex has Contributor access to the Azure subscription *Contoso Hotels Tenant*. The access control model of the subscription is Azure RBAC.
-
-:::image type="content" source="./media/identify-threats-with-entity-behavior-analytics/user-access-analytics.png" alt-text="Screen shot of user access analytics table":::
-
-You can use the [Jupyter notebook](https://github.com/Azure/Azure-Sentinel-Notebooks/tree/master/BehaviorAnalytics/UserSecurityMetadata) (the same notebook mentioned above) from the Azure Sentinel GitHub repository to visualize the permission analytics data. For detailed instructions on how to use the notebook, see the [Guided Analysis - User Security Metadata](https://github.com/Azure/Azure-Sentinel-Notebooks/blob/master/BehaviorAnalytics/UserSecurityMetadata/Guided%20Analysis%20-%20User%20Security%20Metadata.ipynb) notebook.
+> [!NOTE]
+> The `UserAccessAnalytics` table is deprecated.
 
 ### Hunting queries and exploration queries
 
-Azure Sentinel provides out-of-the-box a set of hunting queries, exploration queries, and the **User and Entity Behavior Analytics** workbook, which is based on the **BehaviorAnalytics** table. These tools present enriched data, focused on specific use cases, that indicate anomalous behavior.
+Microsoft Sentinel provides an out-of-the-box set of hunting queries, exploration queries, and the **User and Entity Behavior Analytics** workbook, which is based on the `BehaviorAnalytics` table. These tools present enriched data, focused on specific use cases, that indicate anomalous behavior.
 
 For more information, see:
 
-- [Hunt for threats with Azure Sentinel](hunting.md)
-- [Visualize and monitor your data](tutorial-monitor-your-data.md)
+- [Hunt for threats with Microsoft Sentinel](hunting.md)
+- [Visualize and monitor your data](monitor-your-data.md)
 
-As legacy defense tools become obsolete, organizations may have such a vast and porous digital estate that it becomes unmanageable to obtain a comprehensive picture of the risk and posture their environment may be facing. Relying heavily on reactive efforts, such as analytics and rules, enable bad actors to learn how to evade those efforts. This is where UEBA comes to play, by providing risk scoring methodologies and algorithms to figure out what is really happening.
+As legacy defense tools become obsolete, organizations might have such a vast and porous digital property that it becomes unmanageable to obtain a comprehensive picture of the risk and posture their environment might be facing. Relying heavily on reactive efforts, such as analytics and rules, enables threat actors to learn how to evade those efforts. This is where UEBA comes to play, by providing risk scoring methodologies and algorithms to figure out what is really happening.
 
+## Aggregate behavior insights with the UEBA behaviors layer (Preview)
+
+As Microsoft Sentinel collects logs from supported data sources, the behaviors layer uses AI to transform raw security logs into structured, contextualized behavioral insights. While UEBA builds baseline profiles to detect anomalous activity, the behaviors layer aggregates related events into meaningful behaviors that explain "who did what to whom."
+
+The behaviors layer enriches raw logs with:
+- **MITRE ATT&CK mappings** that align behaviors with known tactics and techniques
+- **Entity role identification** that clarifies the actors and targets involved
+- **Natural language explanations** that make complex activities immediately understandable
+
+By converting fragmented logs into coherent behavior objects, the behaviors layer accelerates threat hunting, simplifies detection authoring, and provides richer context for UEBA anomaly detection. Together, these capabilities help analysts quickly understand not just *that* something anomalous happened, but *what* happened and *why* it matters.
+
+For more information, see [Translate raw security logs to behavioral insights using UEBA behaviors in Microsoft Sentinel (Preview)](../sentinel/entity-behaviors-layer.md).
 
 ## Next steps
-In this document, you learned about Azure Sentinel's entity behavior analytics capabilities. For practical guidance on implementation, and to use the insights you've gained, see the following articles:
+In this document, you learned about Microsoft Sentinel's entity behavior analytics capabilities. For practical guidance on implementation, and to use the insights you gained, see the following articles:
 
-- [Enable entity behavior analytics](./enable-entity-behavior-analytics.md) in Azure Sentinel.
+- [Enable entity behavior analytics](./enable-entity-behavior-analytics.md) in Microsoft Sentinel.
+- See the [list of anomalies](anomalies-reference.md#ueba-anomalies) detected by the UEBA engine.
 - [Investigate incidents with UEBA data](investigate-with-ueba.md).
 - [Hunt for security threats](./hunting.md).
 
-For more information, also see the [Azure Sentinel UEBA enrichments reference](ueba-enrichments.md).
+For more information, see the [Microsoft Sentinel UEBA reference](ueba-reference.md).

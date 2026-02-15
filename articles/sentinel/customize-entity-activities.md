@@ -1,58 +1,74 @@
 ---
-title: Customize activities on Azure Sentinel entity timelines | Microsoft Docs
-description: Add customized activities to those Azure Sentinel tracks and displays on the timeline of entity pages
-services: sentinel
-documentationcenter: na
-author: yelevin
-manager: rkarlin
-editor: ''
-
-ms.service: azure-sentinel
-ms.subservice: azure-sentinel
-ms.devlang: na
+title: Customize activities on Microsoft Sentinel entity timelines | Microsoft Docs
+description: Add customized activities to those Microsoft Sentinel tracks and displays on the timeline of entity pages
+author: guywi-ms
+ms.author: guywild
 ms.topic: how-to
-ms.tgt_pltfrm: na
-ms.workload: na
-ms.date: 06/07/2021
-ms.author: yelevin
+ms.date: 10/16/2024
+appliesto:
+    - Microsoft Sentinel in the Microsoft Defender portal
+    - Microsoft Sentinel in the Azure portal
+ms.collection: usx-security
+ms.custom: sfi-image-nochange
+
+#Customer intent: As a security analyst, I want to customize activity tracking on entity timelines so that I can monitor specific events and behaviors relevant to my organization's security needs.
 
 ---
+
 # Customize activities on entity page timelines
 
 > [!IMPORTANT]
 >
 > - Activity customization is in **PREVIEW**. See the [Supplemental Terms of Use for Microsoft Azure Previews](https://azure.microsoft.com/support/legal/preview-supplemental-terms/) for additional legal terms that apply to Azure features that are in beta, preview, or otherwise not yet released into general availability.
+> - [!INCLUDE [unified-soc-preview-without-alert](includes/unified-soc-preview-without-alert.md)]
 
 ## Introduction
 
-In addition to the activities tracked and presented in the timeline by Azure Sentinel out-of-the-box, you can create any other activities you want to keep track of and have them presented on the timeline as well. You can create customized activities based on queries of entity data from any connected data sources. The following examples show how you might use this capability:
+In addition to the activities tracked and presented in the timeline by Microsoft Sentinel out-of-the-box, you can create any other activities you want to keep track of and have them presented on the timeline as well. You can create customized activities based on queries of entity data from any connected data sources. The following examples show how you might use this capability:
 
 - Add new activities to the entity timeline by modifying existing out-of-the-box activity templates.
 
-- Add new activities from custom logs - for example, from a physical access-control log, you can add a user's entry and exit activities for a particular building to the user's timeline.
+- Add new activities from custom logs. For example, from a physical access-control log, you can add a user's entry and exit activities for a particular restricted area&mdash;say, a server room&mdash;to the user's timeline.
 
 ## Getting started
 
-1. From the Azure Sentinel navigation menu, select **Entity behavior**.
+- Users of Microsoft Sentinel in the Azure portal, select the **Azure portal** tab below.
+- Users of the Microsoft Defender portal, select the **Defender portal** tab.
 
-1. In the **Entity behavior** blade, select **Customize entity page** at the top of the screen.
+# [Azure portal](#tab/azure)
+
+1. From the Microsoft Sentinel navigation menu, select **Entity behavior**.
+
+1. On the **Entity behavior** page, select **Customize entity page (Preview)** at the top of the screen.
 
     :::image type="content" source="./media/customize-entity-activities/entity-behavior-blade.png" alt-text="Entity behavior page":::
 
-1. You'll see a page with a list of any activities you've created in the **My activities** tab. In the **Activity templates** tab, you'll see the collection of activities offered out-of-the-box by Microsoft security researchers. These are the activities that are already being tracked and displayed on the timelines in your entity pages.
+# [Defender portal](#tab/defender)
 
-    > [!NOTE]
-    > - As long as you have not created any user-defined activities, your entity pages will display all the activities listed under the **Activity templates** tab.
-    >
-    > - Once you define a single custom activity, your entity pages will display **only** those activities that appear in the **My activities** tab.
-    >
-    > - If you want to continue seeing the out-of-the-box activities in your entity pages, you must create an activity for each template you want to be tracked and displayed. Follow the instructions under "Create an activity from a template" below.
+1. In the Microsoft Defender portal, find any entity page.
+    1. Select **Assets > Devices** or **Identities**.
+    1. Select a device or a user from the list. If you selected a user, then select **View user page** on the following popup.
+
+1. On the entity page, select the **Sentinel events** tab.
+
+1. On the **Sentinel events** tab, select **Customize Sentinel activities**.
+    :::image type="content" source="media/customize-entity-activities/identity-entity-page-defender.png" alt-text="Screenshot of Defender entity page menu.":::
+    
+---
+
+On the **Customize Sentinel activities** page, you'll see a list of any activities you've created in the **My activities** tab. In the **Activity templates** tab, you'll see the collection of activities offered out-of-the-box by Microsoft security researchers. These are the activities that are already being tracked and displayed on the timelines in your entity pages.
+
+- As long as you have not created any user-defined activities, your entity pages will display *all* the activities listed under the **Activity templates** tab.
+
+- Once you create or customize an activity, your entity pages will display *only* those activities, which appear in the **My activities** tab.
+
+- If you want to continue seeing the out-of-the-box activities in your entity pages, you must create an activity for each template you want to be tracked and displayed. Follow the instructions under "Create an activity from a template" below.
 
 ## Create an activity from a template
 
-1. Click on the **Activity templates** tab to see the various activities available by default. You can filter the list by entity type as well as by data source. Selecting an activity from the list will display the following details in the preview pane:
+1. Select the **Activity templates** tab to see the various activities available by default. You can filter the list by entity type as well as by data source. Selecting an activity from the list will display the following information in the details pane:
 
-    -  A description of the activity
+    - A description of the activity
 
     - The data source that provides the events that make up the activity
 
@@ -60,9 +76,19 @@ In addition to the activities tracked and presented in the timeline by Azure Sen
 
     - The query that results in the detection of this activity
 
-1. Click the **Create activity** button at the bottom of the preview pane to start the activity creation wizard.
+1. Select **Create activity** at the bottom of the details pane to start the activity creation wizard.
 
-    :::image type="content" source="./media/customize-entity-activities/activity-details.png" alt-text="View activity details":::
+    # [Azure portal](#tab/azure)
+
+    :::image type="content" source="./media/customize-entity-activities/activity-details.png" alt-text="Screenshot of activity template list in Azure portal.":::
+
+    # [Defender portal](#tab/defender)
+
+    :::image type="content" source="./media/customize-entity-activities/activity-details-defender.png" alt-text="Screenshot of activity template list in Defender portal.":::
+
+    When you select **Create activity** in the Defender portal, you are redirected to the Microsoft Sentinel activity wizard in the Azure portal in a new tab.
+
+    ---
 
 1. The **Activity wizard - Create new activity from template** will open, with its fields already populated from the template. You can make changes as you like in the **General** and **Activity configuration** tabs, or leave everything as is to continue viewing the out-of-the-box activity.
 
@@ -95,9 +121,14 @@ The **Activity wizard - Create new activity** will open, with its fields blank.
 
 Here you will write or paste the KQL query that will be used to detect the activity for the chosen entity, and determine how it will be represented in the timeline.
 
+> [!IMPORTANT]
+>
+> We recommend that your query uses an [Advanced Security Information Model (ASIM) parser](normalization-about-parsers.md) and not a built-in table. This ensures that the query will support any current or future relevant data source rather than a single data source.
+>
+
 In order to correlate events and detect the custom activity, the KQL requires an input of several parameters, depending on the entity type. The parameters are the various identifiers of the entity in question.
 
-Selecting a strong identifier is better in order to have one-to-one mapping between the query results and the entity. Selecting a weak identifier may yield inaccurate results. [Learn more about entities and strong vs. weak identifiers](entities-in-azure-sentinel.md).
+Selecting a strong identifier is better in order to have one-to-one mapping between the query results and the entity. Selecting a weak identifier may yield inaccurate results. [Learn more about entities and strong vs. weak identifiers](entities.md).
 
 The following table provides information about the entities' identifiers.
 
@@ -108,16 +139,15 @@ At least one identifier is required in a query.
 | Entity | Identifier | Description |
 | - | - | - |
 | **Account** | Account_Sid | The on-premises SID of the account in Active Directory |
-| | Account_AadUserId | The Azure AD object ID of the user in Azure Active Directory |
+| | Account_AadUserId | The Microsoft Entra object ID of the user in Microsoft Entra ID |
 | | Account_Name + Account_NTDomain | Similar to SamAccountName (example: Contoso\Joe) |
 | | Account_Name + Account_UPNSuffix | Similar to UserPrincipalName (example: Joe@Contoso.com) |
 | **Host** | Host_HostName + Host_NTDomain | similar to fully qualified domain name (FQDN) |
 | | Host_HostName + Host_DnsDomain | similar to fully qualified domain name (FQDN) |
 | | Host_NetBiosName + Host_NTDomain | similar to fully qualified domain name (FQDN) |
 | | Host_NetBiosName + Host_DnsDomain | similar to fully qualified domain name (FQDN) |
-| | Host_AzureID | the Azure AD object ID of the host in Azure Active Directory (if AAD domain joined) |
-| | Host_OMSAgentID | the OMS Agent ID of the agent installed on a specific host (unique per host) |
-|
+| | Host_AzureID | the Microsoft Entra object ID of the host in Microsoft Entra ID (if Microsoft Entra domain joined) |
+| | Host_OMSAgentID | the OMS Agent ID of the agent installed on a specific host (unique per host) 
 
 Based on the entity selected you will see the available identifiers. Clicking on the relevant identifiers will paste the identifier into the query, at the location of the cursor.
 
@@ -137,24 +167,56 @@ SecurityEvent
 
 #### Presenting the activity in the timeline
 
-You can determine how the activity will be presented in the timeline for your convenience.
+For the sake of convenience, you may want to determine how the activity is presented in the timeline by adding dynamic parameters to the activity output.
 
-You can add dynamic parameters to the activity output with the following format: `{{ParameterName}}`. The parameters include built-in ones provided by Azure Sentinel, plus others based on the fields you projected in the query.
+Microsoft Sentinel provides built-in parameters for you to use, and you can also use others based on the fields you projected in the query.
 
-Once the activity query passes validation (you'll know it has if you see the "View query results" link below the query window), the **Available values** section can be expanded, and you'll see the different parameters you can use to create a dynamic activity title. Clicking on the **copy** icon next to a particular parameter will copy that parameter to your clipboard, and you can then paste it into the **Activity title** field above.
+Use the following format for your parameters: `{{ParameterName}}`
 
-You can add the following parameters: 
+After the activity query passes validation and displays the **View query results** link below the query window, you'll be able to expand the **Available values** section to view the parameters available for you to use when creating a dynamic activity title.
+
+Select the **Copy** icon next to a specific parameter to copy that parameter to your clipboard so that you can paste it into the **Activity title** field above.
+
+Add any of the following parameters to your query:
+
 - Any field you projected in the query.
+
 - Entity identifiers of any entities mentioned in the query.
-- Count – use this parameter to summarize the count of the KQL query output. The bucket size is determined in the entity page.
-- StartTimeUTC – Start time of the activity in UTC.
-- EndTimeUTC – End time of the activity in UTC.
+
+- `StartTimeUTC`, to add the start time of the activity, in UTC time.
+
+- `EndTimeUTC`, to add the end time of the activity, in UTC time.
+
+- `Count`, to summarize several KQL query outputs into a single output.
+
+    The `count` parameter adds the following command to your query in the background, even though it's not displayed fully in the editor:
+
+    ```kusto
+    Summarize count() by <each parameter you’ve projected in the activity>
+    ```
+
+    Then, when you use the **Bucket Size** filter in the entity pages, the following command is also added to the query that's run in the background:
+
+    ```kusto
+    Summarize count() by <each parameter you’ve projected in the activity>, bin (TimeGenerated, Bucket in Hours)
+    ```
+
+For example:
 
 :::image type="content" source="./media/customize-entity-activities/new-activity-title.png" alt-text="Screenshot - See the available values for your activity title":::
 
 When you are satisfied with your query and activity title, select **Next : Review**.
 
-### Review and create tab 
+See more information on the following items used in the preceding examples, in the Kusto documentation:
+- [***where*** operator](/kusto/query/where-operator?view=microsoft-sentinel&preserve-view=true)
+- [***project*** operator](/kusto/query/project-operator?view=microsoft-sentinel&preserve-view=true)
+- [***summarize*** operator](/kusto/query/summarize-operator?view=microsoft-sentinel&preserve-view=true)
+- [***bin()*** function](/kusto/query/bin-function?view=microsoft-sentinel&preserve-view=true)
+- [***count()*** aggregation function](/kusto/query/count-aggregation-function?view=microsoft-sentinel&preserve-view=true)
+
+[!INCLUDE [kusto-reference-general-no-alert](includes/kusto-reference-general-no-alert.md)]
+
+### Review and create tab
 
 1. Verify all the configuration information of your custom activity.
 
@@ -179,6 +241,7 @@ You can also use the **Activities** filter to present or hide specific activitie
 
 ## Next steps
 
-In this document, you learned how to create custom activities for your entity page timelines. To learn more about Azure Sentinel, see the following articles:
-- Get the complete picture on [entity pages](identify-threats-with-entity-behavior-analytics.md).
+In this document, you learned how to create custom activities for your entity page timelines. To learn more about Microsoft Sentinel, see the following articles:
+- Get the complete picture on [entity pages](entity-pages.md).
+- Learn about [User and Entity Behavior Analytics (UEBA)](identify-threats-with-entity-behavior-analytics.md).
 - See the full list of [entities and identifiers](entities-reference.md).

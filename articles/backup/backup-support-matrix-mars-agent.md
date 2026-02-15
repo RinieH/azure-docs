@@ -1,8 +1,12 @@
 ---
 title: Support matrix for the MARS agent
 description: This article summarizes Azure Backup support when you back up machines that are running the Microsoft Azure Recovery Services (MARS) agent.
-ms.date: 06/04/2021
-ms.topic: conceptual
+ms.date: 11/24/2025
+ms.topic: reference
+ms.custom: engagement-fy24
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+# Customer intent: As an IT administrator managing backups, I want to understand the support matrix for the MARS agent, so that I can ensure proper backup configuration and compliance with our data protection requirements.
 ---
 
 # Support matrix for backup with the Microsoft Azure Recovery Services (MARS) agent
@@ -41,7 +45,7 @@ When you use the MARS agent to back up data, the agent takes a snapshot of the d
 Size |  Free space in the cache folder should be at least 5 to 10 percent of the overall size of your backup data.
 Location | The cache folder must be locally stored on the machine that's being backed up, and it must be online. The cache folder shouldn't be on a network share, on removable media, or on an offline volume.
 Folder | The cache folder shouldn't be encrypted on a deduplicated volume or in a folder that's compressed, that's sparse, or that has a reparse point.
-Location changes | You can change the cache location by stopping the backup engine (`net stop bengine`) and copying the cache folder to a new drive. (Ensure the new drive has sufficient space.) Then update two registry entries under **HKLM\SOFTWARE\Microsoft\Windows Azure Backup** (**Config/ScratchLocation** and **Config/CloudBackupProvider/ScratchLocation**) to the new location and restart the engine.
+Location changes | You can change the cache location by stopping the backup engine (`net stop obengine`) and copying the cache folder to a new drive. (Ensure the new drive has sufficient space.) Then update two registry entries under **HKLM\SOFTWARE\Microsoft\Windows Azure Backup** (**Config/ScratchLocation** and **Config/CloudBackupProvider/ScratchLocation**) to the new location and restart the engine.
 
 ## Networking and access support
 
@@ -54,21 +58,25 @@ Location changes | You can change the cache location by stopping the backup engi
 
 You can use the MARS agent to back up directly to Azure on the operating systems listed below that run on:
 
-1. On-premises Windows Servers
+1. On-premises Windows or Windows Servers
 2. Azure VMs running Windows
 
 The operating systems must be 64 bit and should be running the latest services packs and updates. The following table summarizes these operating systems:
 
 **Operating system** | **Files/folders** | **System state** | **Software/Module requirements**
 --- | --- | --- | ---
-Windows 10 (Enterprise, Pro, Home) | Yes | No |  Check the corresponding server version for software/module requirements
+Windows 11 (Enterprise, Pro, Home, IoT Enterprise) | Yes | No |  Check the corresponding server version for software/module requirements
+Windows 10 (Enterprise, Pro, Home, IoT Enterprise) | Yes | No |  Check the corresponding server version for software/module requirements
 Windows 8.1 (Enterprise, Pro)| Yes |No | Check the corresponding server version for software/module requirements
 Windows 8 (Enterprise, Pro) | Yes | No | Check the corresponding server version for software/module requirements
-Windows Server 2016 (Standard, Datacenter, Essentials) | Yes | Yes | - .NET 4.5 <br> - Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0
-Windows Server 2012 R2 (Standard, Datacenter, Foundation, Essentials) | Yes | Yes | - .NET 4.5 <br> - Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0
-Windows Server 2012 (Standard, Datacenter, Foundation) | Yes | Yes |- .NET 4.5 <br> -Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0 <br> - Deployment Image Servicing and Management (DISM.exe)
-Windows Storage Server 2016/2012 R2/2012 (Standard, Workgroup) | Yes | No | - .NET 4.5 <br> - Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0
-Windows Server 2019 (Standard, Datacenter, Essentials) | Yes | Yes | - .NET 4.5 <br> - Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0
+Windows Server 2025 (Standard, Datacenter, Essentials, Server IoT) | Yes | Yes |  - .NET 4.8 <br> - Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0
+Windows Server 2022 (Standard, Datacenter, Essentials, Server IoT) | Yes | Yes |  - .NET 4.8 <br> - Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0
+Windows Server 2019 (Standard, Datacenter, Essentials, Server IoT) | Yes | Yes | - .NET 4.8 <br> - Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0
+Windows Server 2016 (Standard, Datacenter, Essentials) | Yes | Yes | - .NET 4.8 <br> - Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0
+Windows Storage Server 2016/2012 R2/2012 (Standard, Workgroup) | Yes | No | - .NET 4.8 <br> - Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0
+Windows Server 2012 R2 (Standard, Datacenter, Foundation, Essentials) | Yes | Yes | - .NET 4.8 <br> - Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0
+Windows Server 2012 (Standard, Datacenter, Foundation) | Yes | Yes |- .NET 4.8 <br> -Windows PowerShell <br> - Latest Compatible Microsoft VC++ Redistributable <br> - Microsoft Management Console (MMC) 3.0 <br> - Deployment Image Servicing and Management (DISM.exe)
+
 
 For more information, see [Supported MABS and DPM operating systems](backup-support-matrix-mabs-dpm.md#supported-mabs-and-dpm-operating-systems).
 
@@ -100,16 +108,24 @@ Windows Server 2008 SP2| 1,700 GB
 Windows 8 or later| 54,400 GB
 Windows 7| 1,700 GB
 
-### Minimum retention limits
+>[!NOTE]
+>During Azure VM restore, you might experience performance issues in the following scenarios:
+> - The number of files to restore exceeds 8 million
+> - The total data size to restore is greater than 1 TB
+> - The backup set includes more than 20 chained incremental snapshots. 
+> 
+>The restore process can also interrupt due to operational issues such as high latency between the vault and the source machine, low download speed from Azure to the source machine, or limited bandwidth on your machine.
 
-The following are the minimum retention durations that can be set for the different recovery points:
+### Retention limits
 
-|Recovery point |Duration  |
-|---------|---------|
-|Daily recovery point    |   7 days      |
-|Weekly recovery point     |    4 weeks     |
-|Monthly recovery point    |   3 months      |
-|Yearly recovery point  |      1 year   |
+The following are the retention durations that can be set for the different recovery points:
+
+|Recovery point |Minimum  | Maximum
+|---------|---------| ---------
+|Daily recovery point    |   7 days      | 9999 days
+|Weekly recovery point     |    4 weeks     | 5163 weeks
+|Monthly recovery point    |   3 months      | 1188 months
+|Yearly recovery point  |      1 year   | 99 years
 
 ### Other limitations
 
@@ -179,6 +195,8 @@ The following table lists the previous versions of the agent with their download
 [2.0.9195.0](https://download.microsoft.com/download/6/1/3/613b70a7-f400-4806-9d98-ae26aeb70be9/MARSAgentInstaller.exe) | [4582474](https://support.microsoft.com/help/4582474)
 [2.0.9197.0](https://download.microsoft.com/download/2/7/5/27531ace-3100-43bc-b4af-7367680ea66b/MARSAgentInstaller.exe) | [4589598](https://support.microsoft.com/help/4589598)
 [2.0.9207.0](https://download.microsoft.com/download/b/5/a/b5a29638-1cef-4906-b704-4d3d914af76e/MARSAgentInstaller.exe) | [5001305](https://support.microsoft.com/help/5001305)
+[2.0.9415.0](https://download.microsoft.com/download/MARSAgentInstaller.exe) |[5059322](https://support.microsoft.com/help/5059322) 
+[2.0.9506.0](https://download.microsoft.com/download/398f1a94-03fb-4de2-af98-dbe8ff925f49/MARSAgentInstaller.exe) | [5068415](https://support.microsoft.com/help/5068415)
 
 >[!NOTE]
 >MARS agent versions with minor reliability and performance improvements don't have a KB article.

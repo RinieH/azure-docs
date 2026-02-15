@@ -2,19 +2,24 @@
 title: Define a technical profile for a SAML issuer in a custom policy
 titleSuffix: Azure AD B2C
 description: Define a technical profile for a Security Assertion Markup Language token (SAML) issuer in a custom policy in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
 
-ms.service: active-directory
-ms.workload: identity
+author: kengaderdus
+manager: CelesteDG
+
+ms.service: azure-active-directory
+
 ms.topic: reference
-ms.date: 10/12/2020
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 01/11/2024
+ms.author: kengaderdus
+ms.subservice: b2c
+
+
+#Customer intent: As a developer configuring SAML token issuance in Azure AD B2C, I want to define a technical profile for a SAML token issuer, so that I can emit a SAML token that is returned to the relying party application.
+
 ---
 
 # Define a technical profile for a SAML token issuer in an Azure Active Directory B2C custom policy
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-advanced-audience-warning](../../includes/active-directory-b2c-advanced-audience-warning.md)]
 
@@ -47,7 +52,7 @@ The following example shows a technical profile for `Saml2AssertionIssuer`:
 
 ## Input, output, and persist claims
 
-The **InputClaims**, **OutputClaims**, and **PersistClaims** elements are empty or absent. The **InutputClaimsTransformations** and **OutputClaimsTransformations** elements are also absent.
+The **InputClaims**, **OutputClaims**, and **PersistClaims** elements are empty or absent. The **InputClaimsTransformations** and **OutputClaimsTransformations** elements are also absent.
 
 ## Metadata
 
@@ -67,6 +72,7 @@ The CryptographicKeys element contains the following attributes:
 | --------- | -------- | ----------- |
 | MetadataSigning | Yes | The X509 certificate (RSA key set) to use to sign SAML metadata. Azure AD B2C uses this key to sign the metadata. |
 | SamlMessageSigning| Yes| Specify the X509 certificate (RSA key set) to use to sign SAML messages. Azure AD B2C uses this key to signing the response `<samlp:Response>` send to the relying party.|
+| SamlAssertionSigning| No| Specify the X509 certificate (RSA key set) to use to sign SAML assertion `<saml:Assertion>` element of the SAML token. If not provided, the `SamlMessageSigning` cryptographic key is used instead.|
 
 ## Session management
 

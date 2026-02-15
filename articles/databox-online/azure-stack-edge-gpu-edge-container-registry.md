@@ -1,14 +1,14 @@
 ---
 title: Enable an Edge container registry on Azure Stack Edge Pro GPU device
 description: Describes how to enable a local Edge container registry on Azure Stack Edge Pro GPU device.
-services: databox
 author: alkohli
-
-ms.service: databox
-ms.subservice: edge
+ms.service: azure-stack-edge
 ms.topic: how-to
 ms.date: 02/22/2021
 ms.author: alkohli
+ms.custom:
+  - sfi-image-nochange
+  - sfi-ropc-nochange
 ---
 # Enable Edge container registry on your Azure Stack Edge Pro GPU device
 
@@ -18,7 +18,7 @@ This article describes how to enable the Edge container registry and use it from
 
 ### About Edge container registry
 
-Containerized compute applications run on container images and these images are stored in registries. Registries can be public such as Docker Hub, private, or cloud provider managed such as Azure Container Registry. For more information, see [About registries, repositories, and images](../container-registry/container-registry-concepts.md).
+Containerized compute applications run on container images and these images are stored in registries. Registries can be public such as Docker Hub, private, or cloud provider managed such as Azure Container Registry. For more information, see [About registries, repositories, and images](/azure/container-registry/container-registry-concepts).
 
 An Edge container registry provides a repository at the Edge, on your Azure Stack Edge Pro device. You can use this registry to store and manage your private container images.
 
@@ -51,31 +51,31 @@ The first step is to enable the Edge container registry as an add-on.
 1. To enable the container registry as an add-on, type: 
 
     `Set-HcsKubernetesContainerRegistry`
-	
+    
     This operation may take several minutes to complete.
 
-    Here is the sample output of this command:	
-			
+    Here is the sample output of this command:    
+            
     ```powershell
     [10.128.44.40]: PS>Set-HcsKubernetesContainerRegistry
-	Operation completed successfully. Use Get-HcsKubernetesContainerRegistryInfo for credentials    
+    Operation completed successfully. Use Get-HcsKubernetesContainerRegistryInfo for credentials    
     ```
-			
+            
 1. To get the container registry details, type:
 
     `Get-HcsKubernetesContainerRegistryInfo`
 
     Here is the sample out of this command:  
-	
+    
     ```powershell
     [10.128.44.40]: PS> Get-HcsKubernetesContainerRegistryInfo
-    			
+                
     Endpoint                                   IPAddress    Username     Password
     --------                                   ---------    --------     --------
     ecr.dbe-hw6h1t2.microsoftdatabox.com:31001 10.128.44.41 ase-ecr-user i3eTsU4zGYyIgxV
-    ```	
+    ```    
 
-1. Make a note of the username and the password from the output of `Get-HcsKubernetesContainerRegistryInfo`. These credentials are used to sign in to the Edge container registry while pushing images.			
+1. Make a note of the username and the password from the output of `Get-HcsKubernetesContainerRegistryInfo`. These credentials are used to sign in to the Edge container registry while pushing images.            
 
 
 ## Manage container registry images
@@ -90,7 +90,7 @@ Follow these steps to access Edge container registry:
         ![Edge container registry endpoint on Device page](media/azure-stack-edge-gpu-edge-container-registry/get-edge-container-registry-endpoint-1.png) 
     1. Copy this endpoint and create a corresponding DNS entry into the `C:\Windows\System32\Drivers\etc\hosts` file of your client to connect to the Edge container registry endpoint. 
 
-        <IP address of the Kubernetes main node>    <Edge container registry endpoint> 
+        \<IP address of the Kubernetes main node\>    \<Edge container registry endpoint\> 
         
         ![Add DNS entry for Edge container registry endpoint](media/azure-stack-edge-gpu-edge-container-registry/add-domain-name-service-entry-hosts-1.png)    
 
@@ -211,7 +211,7 @@ You can now deploy the image that you pushed in your Edge container registry fro
 3. Deploy a pod to your namespace using kubectl. Use the following `yaml`. 
 
     Replace the image: `<image-name>` with the image pushed to the container registry. Refer to the secrets in your namespaces using imagePullSecrets with a name: `ase-ecr-credentials`.
-	
+    
     ```yml
     apiVersion: v1
     kind: Pod
@@ -245,7 +245,7 @@ To remove one or more container images, follow these steps:
 
 1. Set the image name to the image you want to delete.
 
-	```powershell
+    ```powershell
     PS C:\WINDOWS\system32> $imageName="nginx"    
     ```
 

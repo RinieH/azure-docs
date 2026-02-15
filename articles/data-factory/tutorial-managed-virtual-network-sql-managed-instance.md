@@ -3,21 +3,30 @@ title: Access Microsoft Azure SQL Managed Instance from Data Factory Managed VNE
 description: This tutorial provides steps for using the Azure portal to setup Private Link Service and access SQL Managed Instance from Managed VNET using Private Endpoint.
 author: lrtoyou1223
 ms.author: lle
-ms.service: data-factory
 ms.topic: tutorial
-ms.date: 05/06/2021
+ms.date: 10/03/2024
+ms.subservice: data-movement
+ms.custom: sfi-image-nochange
 ---
 
 # Tutorial: How to access SQL Managed Instance from Data Factory Managed VNET using Private Endpoint
+
+> [!IMPORTANT]
+> SQL Managed Instance now has native support for private endpoints. Instead of implementing the solution in this document, we recommend creating a private endpoint directly to the SQL Managed Instance resource as described in [Managed private endpoints](managed-virtual-network-private-endpoint.md#managed-private-endpoints).
 
 This tutorial provides steps for using the Azure portal to setup Private Link Service and 
 access SQL Managed Instance from Managed VNET using Private Endpoint.
 
 :::image type="content" source="./media/tutorial-managed-virtual-network/sql-mi-access-model.png" alt-text="Screenshot that shows the access model of SQL MI." lightbox="./media/tutorial-managed-virtual-network/sql-mi-access-model-expanded.png":::
 
+> [!NOTE]
+> When using this solution to connect to Azure SQL Database Managed Instance, **"Redirect"** connection policy is not supported, you need to switch to **"Proxy"** mode.
+
+
+
 ## Prerequisites
 
-* **Azure subscription**. If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/) before you begin.
+* **Azure subscription**. If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 * **Virtual Network**. If you don’t have a Virtual Network, create one following [Create Virtual Network](../virtual-network/quick-create-portal.md).
 * **Virtual network to on-premises network**. Create a connection between virtual network and on-premises network either using [ExpressRoute](../expressroute/expressroute-howto-linkvnet-portal-resource-manager.md?toc=%2fazure%2fvirtual-network%2ftoc.json) or [VPN](../vpn-gateway/tutorial-site-to-site-portal.md?toc=%2fazure%2fvirtual-network%2ftoc.json).
 * **Data Factory with Managed VNET enabled**. If you don’t have a Data Factory or Managed VNET is not enabled, create one following [Create Data Factory with Managed VNET](./tutorial-copy-data-portal-private.md).
@@ -38,8 +47,9 @@ access SQL Managed Instance from Managed VNET using Private Endpoint.
 
 Use the portal to create a standard internal load balancer.
 
-1. On the top left-hand side of the screen, select **Create a resource > Networking > Load Balancer**.
-2. In the **Basics** tab of the **Create load balancer** page, enter, or select the following information:
+1. In the search bar at the top of the portal, search for and select **Load Balancers** in the **Services** section of the search pane.
+2. On the **Load balancing** services page, Select **Create** to create a new load balancer.
+3. On the **Basics** tab of the **Create load balancer** page, enter, or select the following details:
 
     | Setting | Value |
     |:--- |:--- |
@@ -47,18 +57,22 @@ Use the portal to create a standard internal load balancer.
     |Resource group|Select your resource group.|
     |Name|Enter **myLoadBalancer**.|
     |Region|Select **East US**.|
-    |Type|Select **Internal**.|
     |SKU|Select **Standard**.|
+    |Type|Select **Internal**.|
+
+4. On the **Frontend IP configuration** tab of the **Create load balancer** page, select **Add a frontend IP configuration**, and then enter, or select the following details on the **Add frontend IP address** configuration pane:
+
+    | Setting | Value |
+    |:--- |:--- |
+    |Frontend IP name|Enter a name for your frontend IP|
     |Virtual network|Select your virtual network.|
     |Subnet|Select **fe-subnet** created in the previous step.|
     |IP address assignment|Select **Dynamic**.|
     |Availability zone|Select **Zone-redundant**.|
 
-3. Accept the defaults for the remaining settings, and then select **Review + create**.
-4. In the **Review + create** tab, select **Create**.
+5. Accept the defaults for the remaining settings, and then select **Review + create**.
+6. In the **Review + create** tab, select **Create**.
     
-    :::image type="content" source="./media/tutorial-managed-virtual-network/create-load-balancer.png" alt-text="Screenshot that shows the step to create standard load balancer.":::
-
 ## Create load balancer resources
 
 ### Create a backend pool
@@ -176,7 +190,7 @@ the page.
     |Region  |Select **East US**.|
     |Availability Options  |Select **Availability zones**.|
     |Availability zone  |Select **1**.| 
-    |Image  |Select **Ubuntu Server 18.04LTS – Gen1**.| 
+    |Image  |Select **Ubuntu Server 18.04LTS - Gen1**.| 
     |Azure Spot instance  |Select **No**.| 
     |Size   |Choose VM size or take default setting.| 
     |**Administrator account**||
@@ -209,12 +223,14 @@ the page.
 
 ## Creating Forwarding Rule to Endpoint
 
-1. Login and copy script [ip_fwd.sh](https://github.com/sajitsasi/az-ip-fwd/blob/main/ip_fwd.sh) to your backend server VMs. 
-2. Run the script on with the following options:<br/>
+1. Login and copy script [ip_fwd.sh](https://github.com/sajitsasi/az-ip-fwd/blob/main/ip_fwd.sh) to your backend server VMs.
+
+   > [!NOTE]
+   > This script will only temporarily set IP forwarding. To make this setting permanent, please ensure that the line "net.ipv4.ip_forward=1" is uncommented in the file /etc/sysctl.conf
+
+1. Run the script on with the following options:<br/>
     **sudo ./ip_fwd.sh -i eth0 -f 1433 -a <FQDN/IP> -b 1433**<br/>
     <FQDN/IP> is the host of your SQL Managed Instance.
-    
-    :::image type="content" source="./media/tutorial-managed-virtual-network/sql-mi-host.png" alt-text="Screenshot that shows SQL MI host." lightbox="./media/tutorial-managed-virtual-network/sql-mi-host-expanded.png":::
 
 3. Run below command and check the iptables in your backend server VMs. You can see one record in   your iptables with your target IP. <br/>
     **sudo iptables -t nat -v -L PREROUTING -n --line-number**
@@ -229,6 +245,9 @@ the page.
     >|**SQL MI 1**|1433 |1433 |sudo ./ip_fwd.sh -i eth0 -f 1433 -a <FQDN/IP> -b 1433|
     >|**SQL MI 2**|1434 |1434 |sudo ./ip_fwd.sh -i eth0 -f 1434 -a <FQDN/IP> -b 1433|
     
+    >[!Note]
+    > Run the script again every time you restart the VMs behind the load balancer.
+
 ## Create a Private Endpoint to Private Link Service
 
 1. Select All services in the left-hand menu, select All resources, and then select your 
@@ -239,13 +258,9 @@ data factory from the resources list.
 5. Select the **Private Link Service** tile from the list and select **Continue**.
 6. Enter the name of private endpoint and select **myPrivateLinkService** in private 
 link service list.
-7. Add FQDN of your target SQL Managed Instance and NAT IPs of your private link Service.
-    
-    :::image type="content" source="./media/tutorial-managed-virtual-network/sql-mi-host.png" alt-text="Screenshot that shows SQL MI host." lightbox="./media/tutorial-managed-virtual-network/sql-mi-host-expanded.png":::
+7. Add FQDN of your target SQL Managed Instance.
 
-    :::image type="content" source="./media/tutorial-managed-virtual-network/link-service-nat-ip.png" alt-text="Screenshot that shows the NAT IP in the linked service." lightbox="./media/tutorial-managed-virtual-network/link-service-nat-ip-expanded.png":::
-
-    :::image type="content" source="./media/tutorial-managed-virtual-network/private-endpoint-2.png" alt-text="Screenshot that shows the private endpoint settings.":::
+   :::image type="content" source="./media/tutorial-managed-virtual-network/private-endpoint-5.png" alt-text="Screenshot that shows the private endpoint settings.":::
 
 8. Create private endpoint.
 
@@ -270,7 +285,7 @@ link service list.
 
     :::image type="content" source="./media/tutorial-managed-virtual-network/linked-service-mi-3.png" alt-text="Screenshot that shows the SQL MI linked service creation page.":::
 
-## Next steps
+## Related content
 
 Advance to the following tutorial to learn about accessing on premises SQL Server from Data Factory 
 Managed VNET using Private Endpoint：

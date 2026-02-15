@@ -1,10 +1,12 @@
 ---
 title: "Tutorial: Protect new resources with locks"
 description: In this tutorial, you use the Azure Blueprints resource locks options Read Only and Do Not Delete to protect newly deployed resources.
-ms.date: 03/08/2021
+ms.date: 09/07/2023
 ms.topic: tutorial
 ---
 # Tutorial: Protect new resources with Azure Blueprints resource locks
+
+[!INCLUDE [Blueprints deprecation note](../../../../includes/blueprints-deprecation-note.md)]
 
 With Azure Blueprints [resource locks](../concepts/resource-locking.md), you can protect newly
 deployed resources from being tampered with, even by an account with the _Owner_ role. You can add
@@ -22,7 +24,7 @@ In this tutorial, you'll complete these steps:
 
 ## Prerequisites
 
-If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free)
+If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn)
 before you begin.
 
 ## Create a blueprint definition
@@ -164,7 +166,7 @@ the blueprint definition unique.
      - **Assignment name**: The name is pre-populated based on the name of the blueprint
        definition. We want this assignment to represent locking the new resource group, so change
        the assignment name to **assignment-locked-storageaccount-TestingBPLocks**.
-     - **Location**: Select a region in which to create the managed identity. Azure Blueprint uses
+     - **Location**: Select a region in which to create the managed identity. Azure Blueprints uses
        this managed identity to deploy all artifacts in the assigned blueprint. To learn more, see
        [managed identities for Azure resources](../../../active-directory/managed-identities-azure-resources/overview.md).
        For this tutorial, select **East US 2**.
@@ -277,7 +279,8 @@ doesn't remove the associated artifacts.
 
 1. Select **Resource groups** from the Azure menu, and then select **TestingBPLocks**.
 
-1. Select the **Access control (IAM)** page on the left and then select the **Role assignments** tab.
+1. Select the **Access control (IAM)** page on the left and then select the **Role assignments**
+   tab.
 
 The security for the resource group shows that the blueprint assignment no longer has _Owner_
 access.

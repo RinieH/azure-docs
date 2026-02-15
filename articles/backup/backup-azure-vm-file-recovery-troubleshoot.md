@@ -2,7 +2,11 @@
 title: Troubleshoot Azure VM file recovery
 description: Troubleshoot issues when recovering files and folders from an Azure VM backup.
 ms.topic: troubleshooting
-ms.date: 07/12/2020
+ms.custom: linux-related-content
+ms.date: 06/12/2025
+author: AbhishekMallick-MS
+ms.author: v-mallicka
+# Customer intent: "As an IT administrator, I want to troubleshoot file recovery issues from an Azure VM backup, so that I can effectively restore the necessary files and folders without disruption to services."
 ---
 
 # Troubleshoot issues in file recovery of an Azure VM backup
@@ -44,11 +48,14 @@ This section provides steps to troubleshoot common issues you might experience w
 1. Ensure you have the [required permissions to download the script](./backup-azure-restore-files-from-vm.md#select-recovery-point-who-can-generate-script).
 1. Verify the connection to the Azure target IPs. Run one of the following commands from an elevated command prompt:
 
-   `nslookup download.microsoft.com`
-
+   ```bash
+      nslookup download.microsoft.com
+   ```
     or
 
-    `ping download.microsoft.com`
+   ```bash
+      ping download.microsoft.com
+   ```
 
 ### The script downloads successfully, but fails to run
 
@@ -65,11 +72,14 @@ You might see an "Exception caught while connecting to target" error message.
 1. Ensure the machine where the script is run meets the [access requirements](./backup-azure-restore-files-from-vm.md#step-4-access-requirements-to-successfully-run-the-script).
 1. Verify the connection to the Azure target IPs. Run one of the following commands from an elevated command prompt:
 
-   `nslookup download.microsoft.com`
-
+   ```bash
+      nslookup download.microsoft.com
+   ```
    or
 
-   `ping download.microsoft.com`
+   ```bash
+      ping download.microsoft.com
+   ```
 1. Ensure access to iSCSI outbound port 3260.
 1. Check for a firewall or NSG blocking traffic to Azure target IPs or recovery service URLs.
 1. Make sure your antivirus software isn't blocking the execution of the script.
@@ -113,8 +123,9 @@ To resolve this issue, check if the volume is encrypted with a third-party appli
 
 1. Sign in to the backed-up VM and run this command:
 
-   `lsblk -f`
-
+   ```bash
+      lsblk -f
+   ```
    ![Screenshot showing the results of the command to list block devices.](./media/backup-azure-restore-files-from-vm/disk-without-volume-5.png)
 
 1. Verify the file system and encryption. If the volume is encrypted, file recovery isn't supported. Learn more at [Support matrix for Azure VM backup](./backup-support-matrix-iaas.md#support-for-file-level-restore).
@@ -155,14 +166,45 @@ To identify and resolve this issue, perform the following steps:
 
 >[!Tip]
 >Ensure you have the [right machine to run the script](./backup-azure-restore-files-from-vm.md#step-2-ensure-the-machine-meets-the-requirements-before-executing-the-script).
-
 If the protected Linux VM uses LVM or RAID Arrays, follow the steps in [Recover files from Azure virtual machine backup](./backup-azure-restore-files-from-vm.md#lvmraid-arrays-for-linux-vms).
+
+##### Disks are attached but volumes aren’t mounted on Linux VMs when multipath is enabled
+
+**Possible cause:**
+When you run Individual File Recovery (ILR) on a Linux VM, Azure Backup attaches the recovery disks to the VM using iSCSI. If multipath is enabled on the VM, the Linux OS might identify these iSCSI disks as multipath devices and claim them through the multipath daemon. As a result, the disks aren’t mounted as regular block devices during file recovery.
+This issue is commonly observed on Linux distributions where multipath is enabled by default.
+
+**Recommended action:**
+Update the multipath configuration on the VM to exclude iSCSI devices used for file recovery from multipath handling. After applying the configuration change and restarting the multipath service, rerun the file recovery script. For guidance on configuring multipath exclusions, refer to the documentation for your Linux distribution. 
+<br/> Ubuntu: [Multipath configuration options and overview](https://documentation.ubuntu.com/server/explanation/multipath/configuring-multipath/)
 
 ### You can't copy the files from mounted volumes
 
-The copy might fail with the error "0x80070780: The file cannot be accessed by the system." 
+The copy might fail with the error **0x80070780: The file cannot be accessed by the system.**
 
-Check if the source server has disk deduplication enabled. If it does, ensure the restore server also has deduplication enabled on the drives. You can leave deduplication unconfigured so that you don't deduplicate the drives on the restore server.
+Check if the source server has disk **deduplication** enabled. If the option is enabled, ensure the restore server also has **deduplication** enabled on the drives. You can leave deduplication unconfigured so that you don't deduplicate the drives on the restore server.
+
+### Disk is not unmounted although Unmount disks is clicked on Azure portal (Linux OS)
+
+Unmount disks manually by running python script with the `clean` parameter. The following example shows installation of **python 3 package** by the machine.
+
+```python
+
+ python3 XXX.py clean
+```
+
+### Unmount stuck disks on Windows
+
+To resolve this issue, follow these steps:
+
+1. Open **ISCSI initiator Properties** window on Azure VM where mounted disks are present.
+2. On the **ISCSI initiator Properties** window, select **Devices** and check the **Name** of the disk that you want to unmount.
+
+
+
+
+3. Go back to **ISCSI initiator Properties** window, select **Disconnect** > **Yes**.
+4. Check if the  target **Name** shows **Status : Inactive**.
 
 ## Next steps
 

@@ -2,19 +2,21 @@
 title: Set up Azure AD B2C local account identity provider
 titleSuffix: Azure AD B2C
 description: Define the identity types uses can use to sign-up or sign-in (email, username, phone number) in your Azure Active Directory B2C tenant.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
-
-ms.service: active-directory
-ms.workload: identity
+author: garrodonnell
+manager: CelesteDG
+ms.service: azure-active-directory
 ms.topic: how-to
-ms.date: 04/22/2021
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 01/24/2024
+ms.author: godonnell
+ms.subservice: b2c
 zone_pivot_groups: b2c-policy-type
+
+#Customer Intent: As an Azure AD B2C administrator, I want to configure the sign-in methods for local accounts, so that users can sign up and sign in to the application using their preferred method (email, username, or phone number).
+
 ---
 # Set up the local account identity provider
+
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-choose-user-flow-or-custom-policy](../../includes/active-directory-b2c-choose-user-flow-or-custom-policy.md)]
 
@@ -34,6 +36,11 @@ To configure settings for social or enterprise identities, where the identity of
 
 ::: zone pivot="b2c-user-flow"
 
+## Prerequisites
+
+[!INCLUDE [active-directory-b2c-customization-prerequisites](../../includes/active-directory-b2c-customization-prerequisites.md)]
+
+
 ## Configure local account identity provider settings
 
 
@@ -42,7 +49,7 @@ You can choose the local account sign-in methods (email, username, or phone numb
 To set your local account sign-in options at the tenant level: 
 
 1. Sign in to the [Azure portal](https://portal.azure.com).
-1. Make sure you're using the directory that contains your Azure AD B2C tenant by selecting the **Directory + subscription** filter in the top menu and choosing the directory that contains your Azure AD tenant.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
 1. Under **Azure services**, select **Azure AD B2C**. Or use the search box to find and select **Azure AD B2C**.
 1. Under **Manage**, select **Identity providers**.
 1. In the identity provider list, select **Local account**.
@@ -56,7 +63,7 @@ To set your local account sign-in options at the tenant level:
 ## Configure your user flow
 
 1. In the left menu of the Azure portal, select **Azure AD B2C**.
-1. Under **Policies**, select **User flows (policies)**.
+1. Under **Policies**, select **User flows**.
 1. Select the user flow for which you'd like to configure the sign-up and sign-in experience.
 1. Select **Identity providers**
 1. Under the **Local accounts**, select one of the following: **Email signup**,  **User ID signup**, **Phone signup**, **Phone/Email signup**, or **None**.
@@ -66,7 +73,7 @@ To set your local account sign-in options at the tenant level:
 If you choose the **Phone signup**, **Phone/Email signup** option, enable the recovery email prompt.
 
 1. Sign in to the [Azure portal](https://portal.azure.com).
-1. Select the **Directory + Subscription** icon in the portal toolbar, and then select the directory that contains your Azure AD B2C tenant.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
 1. In the Azure portal, search for and select **Azure AD B2C**.
 1. In Azure AD B2C, under **Policies**, select **User flows**.
 1. Select the user flow from the list.

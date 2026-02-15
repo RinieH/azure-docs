@@ -1,19 +1,18 @@
 ---
 title: Customize the setup for an Azure-SSIS Integration Runtime
 description: This article describes how to use the custom setup interface for an Azure-SSIS Integration Runtime to install additional components or change settings
-ms.service: data-factory
+ms.subservice: integration-services
 ms.topic: conceptual
-author: swinarko
-ms.author: sawinark
-ms.custom: seo-lt-2019
-ms.date: 04/30/2021
+author: chugugrace
+ms.author: chugu
+ms.date: 05/15/2024
 ---
 
 # Customize the setup for an Azure-SSIS Integration Runtime
 
-[!INCLUDE[appliesto-adf-xxx-md](includes/appliesto-adf-xxx-md.md)]
+[!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
 
-You can customize your Azure-SQL Server Integration Services (SSIS) Integration Runtime (IR) in Azure Data Factory (ADF) via custom setups. They allow you to add your own steps during the provisioning or reconfiguration of your Azure-SSIS IR. 
+You can customize your Azure-SQL Server Integration Services (SSIS) Integration Runtime (IR) in Azure Data Factory (ADF) or Synapse Pipelines via custom setups. They allow you to add your own steps during the provisioning or reconfiguration of your Azure-SSIS IR. 
 
 By using custom setups, you can alter the default operating configuration or environment of your Azure-SSIS IR. For example, to start additional Windows services, persist access credentials for file shares, or use only strong cryptography/more secure network protocol (TLS 1.2). Or you can install additional components, such as assemblies, drivers, or extensions, on each node of your Azure-SSIS IR. They can be custom-made, Open Source, or 3rd party components. For more information about built-in/preinstalled components, see [Built-in/preinstalled components on Azure-SSIS IR](./built-in-preinstalled-components-ssis-integration-runtime.md).
 
@@ -40,7 +39,7 @@ The following limitations apply only to standard custom setups:
 
 ## Prerequisites
 
-[!INCLUDE [updated-for-az](../../includes/updated-for-az.md)]
+[!INCLUDE [updated-for-az](~/reusable-content/ce-skilling/azure/includes/updated-for-az.md)]
 
 To customize your Azure-SSIS IR, you need the following items:
 
@@ -52,7 +51,7 @@ To customize your Azure-SSIS IR, you need the following items:
 
 ## Instructions
 
-You can provision or reconfigure your Azure-SSIS IR with custom setups on ADF UI. If you want to do the same using PowerShell, download and install [Azure PowerShell](/powershell/azure/install-az-ps).
+You can provision or reconfigure your Azure-SSIS IR with custom setups on ADF UI. If you want to do the same using PowerShell, download and install [Azure PowerShell](/powershell/azure/install-azure-powershell).
 
 ### Standard custom setup
 
@@ -68,40 +67,40 @@ To provision or reconfigure your Azure-SSIS IR with standard custom setups on AD
 
    a. Under **Local and Attached**, right-click **Storage Accounts**, and then select **Connect to Azure Storage**.
 
-      ![Connect to Azure Storage](media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image1.png)
+      :::image type="content" source="media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image1.png" alt-text="Connect to Azure Storage":::
 
    b. Select **Storage account or service**, select **Account name and key**, and then select **Next**.
 
    c. Enter your Azure Storage account name and key, select **Next**, and then select **Connect**.
 
-      ![Provide storage account name and key](media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image3.png)
+      :::image type="content" source="media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image3.png" alt-text="Provide storage account name and key":::
 
    d. Under your connected Azure Storage account, right-click **Blob Containers**, select **Create Blob Container**, and name the new blob container.
 
-      ![Create a blob container](media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image4.png)
+      :::image type="content" source="media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image4.png" alt-text="Create a blob container":::
 
    e. Select the new blob container, and upload your custom setup script and its associated files. Make sure that you upload *main.cmd* at the top level of your blob container, not in any folder. Your blob container should contain only the necessary custom setup files, so downloading them to your Azure-SSIS IR later won't take a long time. The maximum duration of a custom setup is currently set at 45 minutes before it times out. This includes the time to download all files from your blob container and install them on the Azure-SSIS IR. If setup requires more time, raise a support ticket.
 
-      ![Upload files to the blob container](media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image5.png)
+      :::image type="content" source="media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image5.png" alt-text="Upload files to the blob container":::
 
    f. Right-click the blob container, and then select **Get Shared Access Signature**.
 
-      ![Get the Shared Access Signature for the blob container](media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image6.png)
+      :::image type="content" source="media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image6.png" alt-text="Get the Shared Access Signature for the blob container":::
 
    g. Create the SAS URI for your blob container with a sufficiently long expiration time and with read/write/list permission. You need the SAS URI to download and run your custom setup script and its associated files. This happens whenever any node of your Azure-SSIS IR is reimaged or restarted. You also need write permission to upload setup execution logs.
 
       > [!IMPORTANT]
       > Ensure that the SAS URI doesn't expire and the custom setup resources are always available during the whole lifecycle of your Azure-SSIS IR, from creation to deletion, especially if you regularly stop and start your Azure-SSIS IR during this period.
 
-      ![Generate the Shared Access Signature for the blob container](media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image7.png)
+      :::image type="content" source="media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image7.png" alt-text="Generate the Shared Access Signature for the blob container":::
 
    h. Copy and save the SAS URI of your blob container.
 
-      ![Copy and save the Shared Access Signature](media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image8.png)
+      :::image type="content" source="media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image8.png" alt-text="Copy and save the Shared Access Signature":::
 
 1. Select the **Customize your Azure-SSIS Integration Runtime with additional system configurations/component installations** check box on the **Advanced settings** page of **Integration runtime setup** pane. Next, enter the SAS URI of your blob container in the **Custom setup container SAS URI** text box.
 
-   ![Advanced settings with custom setups](./media/tutorial-create-azure-ssis-runtime-portal/advanced-settings-custom.png)
+   :::image type="content" source="./media/tutorial-create-azure-ssis-runtime-portal/advanced-settings-custom.png" alt-text="Advanced settings with custom setups":::
 
 After your standard custom setup finishes and your Azure-SSIS IR starts, you can find all custom setup logs in the *main.cmd.log* folder of your blob container. They include the standard output of *main.cmd* and other execution logs.
 
@@ -115,7 +114,7 @@ To provision or reconfigure your Azure-SSIS IR with express custom setups on ADF
 
 #### Running cmdkey command
 
-If you select the **Run cmdkey command** type for your express custom setup, you can run the Windows cmdkey command on your Azure-SSIS IR. To do so, enter your targeted computer name or domain name, username or account name, and password or account key in the **/Add**, **/User**, and **/Pass** text boxes, respectively. This will allow you to persist access credentials for SQL Servers, file shares, or Azure Files on your Azure-SSIS IR. For example, to access Azure Files, you can enter `YourAzureStorageAccountName.file.core.windows.net`, `azure\YourAzureStorageAccountName`, and `YourAzureStorageAccountKey` for **/Add**, **/User**, and **/Pass**, respectively. This is similar to running the Windows [cmdkey](/windows-server/administration/windows-commands/cmdkey) command on your local machine. Only one express custom setup to run cmdkey command is supported for now. To run multiple cmdkey commands, use a standard custom setup instead.
+If you select the **Run cmdkey command** type for your express custom setup, you can run the Windows cmdkey command on your Azure-SSIS IR. To do so, enter your targeted computer name or domain name, username or account name, and password or account key in the **/Add**, **/User**, and **/Pass** text boxes, respectively. This will allow you to persist access credentials for SQL Servers, file shares, or Azure Files on your Azure-SSIS IR. For example, to access Azure Files, you can enter `YourAzureStorageAccountName.file.core.windows.net`, `azure\YourAzureStorageAccountName`, and `YourAzureStorageAccountKey` for **/Add**, **/User**, and **/Pass**, respectively. This is similar to running the Windows [cmdkey](/windows-server/administration/windows-commands/cmdkey) command on your local machine. 
 
 #### Adding environment variables
 
@@ -129,23 +128,23 @@ If you select the **Install Azure PowerShell** type for your express custom setu
 
 If you select the **Install licensed component** type for your express custom setup, you can then select an integrated component from our ISV partners in the **Component name** drop-down list:
 
-* If you select the **SentryOne's Task Factory** component, you can install the [Task Factory](https://www.sentryone.com/products/task-factory/high-performance-ssis-components) suite of components from SentryOne on your Azure-SSIS IR by entering the product license key that you purchased from them in the **License key** box. The current integrated version is **2020.21.2**.
+* If you select the **SentryOne's Task Factory** component, you can install the [Task Factory](https://www.solarwinds.com/resources/it-glossary/ssis-components) suite of components from SentryOne on your Azure-SSIS IR by entering the product license key that you purchased from them in the **License key** box. The current integrated version is **2021.18.1**.
 
 * If you select the **oh22's HEDDA.IO** component, you can install the [HEDDA.IO](https://github.com/oh22is/HEDDA.IO/tree/master/SSIS-IR) data quality/cleansing component from oh22 on your Azure-SSIS IR. To do so, you need to purchase their service beforehand. The current integrated version is **1.0.14**.
 
 * If you select the **oh22's SQLPhonetics.NET** component, you can install the [SQLPhonetics.NET](https://appsource.microsoft.com/product/web-apps/oh22.sqlphonetics-ssis) data quality/matching component from oh22 on your Azure-SSIS IR. To do so, enter the product license key that you purchased from them beforehand in the **License key** text box. The current integrated version is **1.0.45**.
    
-* If you select the **KingswaySoft's SSIS Integration Toolkit** component, you can install the [SSIS Integration Toolkit](https://www.kingswaysoft.com/products/ssis-integration-toolkit-for-microsoft-dynamics-365) suite of connectors for CRM/ERP/marketing/collaboration apps, such as Microsoft Dynamics/SharePoint/Project Server, Oracle/Salesforce Marketing Cloud, etc. from KingswaySoft on your Azure-SSIS IR by entering the product license key that you purchased from them in the **License key** box. The current integrated version is **20.2**.
+* If you select the **KingswaySoft's SSIS Integration Toolkit** component, you can install the [SSIS Integration Toolkit](https://www.kingswaysoft.com/products/ssis-integration-toolkit-for-microsoft-dynamics-365) suite of connectors for CRM/ERP/marketing/collaboration apps, such as Microsoft Dynamics/SharePoint/Project Server, Oracle/Salesforce Marketing Cloud, etc. from KingswaySoft on your Azure-SSIS IR by entering the product license key that you purchased from them in the **License key** box. The current integrated version is **23.1**.
 
-* If you select the **KingswaySoft's SSIS Productivity Pack** component, you can install the [SSIS Productivity Pack](https://www.kingswaysoft.com/products/ssis-productivity-pack) suite of components from KingswaySoft on your Azure-SSIS IR by entering the product license key that you purchased from them in the **License key** box. The current integrated version is **20.2**.
+* If you select the **KingswaySoft's SSIS Productivity Pack** component, you can install the [SSIS Productivity Pack](https://www.kingswaysoft.com/products/ssis-productivity-pack) suite of components from KingswaySoft on your Azure-SSIS IR by entering the product license key that you purchased from them in the **License key** box. The current integrated version is **23.1**.
 
-* If you select the **Theobald Software's Xtract IS** component, you can install the [Xtract IS](https://theobald-software.com/en/xtract-is/) suite of connectors for SAP system (ERP, S/4HANA, BW) from Theobald Software on your Azure-SSIS IR by dragging & dropping/uploading the product license file that you purchased from them into the **License file** box. The current integrated version is **6.5.13.18**.
+* If you select the **Theobald Software's Xtract IS** component, you can install the [Xtract IS](https://theobald-software.com/en/xtract-is/) suite of connectors for SAP system (ERP, S/4HANA, BW) from Theobald Software on your Azure-SSIS IR by dragging & dropping/uploading the product license file that you purchased from them into the **License file** box. The current integrated version is **6.9.3.26**.
 
 * If you select the **AecorSoft's Integration Service** component, you can install the [Integration Service](https://www.aecorsoft.com/en/products/integrationservice) suite of connectors for SAP and Salesforce systems from AecorSoft on your Azure-SSIS IR. To do so, enter the product license key that you purchased from them beforehand in the **License key** text box. The current integrated version is **3.0.00**.
 
-* If you select the **CData's SSIS Standard Package** component, you can install the [SSIS Standard Package](https://www.cdata.com/kb/entries/ssis-adf-packages.rst#standard) suite of most popular components from CData, such as Microsoft SharePoint connectors, on your Azure-SSIS IR. To do so, enter the product license key that you purchased from them beforehand in the **License key** text box. The current integrated version is **19.7354**.
+* If you select the **CData's SSIS Standard Package** component, you can install the [SSIS Standard Package](https://www.cdata.com/kb/entries/ssis-adf-packages.rst#standard) suite of most popular components from CData, such as Microsoft SharePoint connectors, on your Azure-SSIS IR. To do so, enter the product license key that you purchased from them beforehand in the **License key** text box. The current integrated version is **21.7867**.
 
-* If you select the **CData's SSIS Extended Package** component, you can install the [SSIS Extended Package](https://www.cdata.com/kb/entries/ssis-adf-packages.rst#extended) suite of all components from CData, such as Microsoft Dynamics 365 Business Central connectors and other components in their **SSIS Standard Package**, on your Azure-SSIS IR. To do so, enter the product license key that you purchased from them beforehand in the **License key** text box. The current integrated version is **19.7354**. Due to its large size, to avoid installation timeout, please ensure that your Azure-SSIS IR has at least 4 CPU cores per node.
+* If you select the **CData's SSIS Extended Package** component, you can install the [SSIS Extended Package](https://www.cdata.com/kb/entries/ssis-adf-packages.rst#extended) suite of all components from CData, such as Microsoft Dynamics 365 Business Central connectors and other components in their **SSIS Standard Package**, on your Azure-SSIS IR. To do so, enter the product license key that you purchased from them beforehand in the **License key** text box. The current integrated version is **21.7867**. Due to its large size, to avoid installation timeout, please ensure that your Azure-SSIS IR has at least 4 CPU cores per node.
 
 Your added express custom setups will appear on the **Advanced settings** page. To remove them, select their check boxes, and then select **Delete**.
 
@@ -257,29 +256,17 @@ To provision or reconfigure your Azure-SSIS IR with custom setups using Azure Po
 
 ### Standard custom setup samples
 
-To view and reuse some samples of standard custom setups, complete the following steps.
+1. You can view and reuse some [samples of standard custom setups](https://github.com/Azure/Azure-DataFactory/tree/main/SamplesV2/SQLServerIntegrationServices/publicpreview/CustomSetupScript):
 
-1. Connect to our Public Preview blob container using Azure Storage Explorer.
-
-   a. Under **Local and Attached**, right-click **Storage Accounts**, and then select **Connect to Azure Storage**.
-
-      ![Connect to Azure Storage](media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image1.png)
-
-   b. Select **Blob container**, select **Shared access signature URL (SAS)**, and then select **Next**.
-
-   c. In the **Blob container SAS URL** text box, enter the SAS URI for our Public Preview blob container below, select **Next**, and then select **Connect**.
-
-      `https://ssisazurefileshare.blob.core.windows.net/publicpreview?sp=rl&st=2020-03-25T04:00:00Z&se=2025-03-25T04:00:00Z&sv=2019-02-02&sr=c&sig=WAD3DATezJjhBCO3ezrQ7TUZ8syEUxZZtGIhhP6Pt4I%3D`
-
-   d. In the left pane, select the connected **publicpreview** blob container, and then double-click the *CustomSetupScript* folder. In this folder are the following items:
+    a. In this folder are the following items:
 
       * A *Sample* folder, which contains a custom setup to install a basic task on each node of your Azure-SSIS IR. The task does nothing but sleep for a few seconds. The folder also contains a *gacutil* folder, whose entire content (*gacutil.exe*, *gacutil.exe.config*, and *1033\gacutlrc.dll*) can be copied as is to your blob container.
 
       * A *UserScenarios* folder, which contains several custom setup samples from real user scenarios. If you want to install multiple samples on your Azure-SSIS IR, you can combine their custom setup script (*main.cmd*) files into a single one and upload it with all of their associated files into your blob container.
 
-        ![Contents of the public preview blob container](media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image11.png)
+        :::image type="content" source="media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image11.png" alt-text="Contents of the public preview blob container":::
 
-   e. Double-click the *UserScenarios* folder to find the following items:
+    b. Double-click the *UserScenarios* folder to find the following items:
 
       * A *.NET FRAMEWORK 3.5* folder, which contains a custom setup script (*main.cmd*) to install an earlier version of the .NET Framework on each node of your Azure-SSIS IR. This version might be required by some custom components.
 
@@ -297,9 +284,9 @@ To view and reuse some samples of standard custom setups, complete the following
         
         If Data Source Name (DSN) is used in connection, DSN configuration is needed in setup script. For example: C:\Windows\SysWOW64\odbcconf.exe /A {CONFIGSYSDSN "MySQL ODBC 8.0 Unicode Driver" "DSN=\<dsnname\>|PORT=3306|SERVER=\<servername\>"}
 
-      * An *ORACLE ENTERPRISE* folder, which contains a custom setup script (*main.cmd*) and silent installation config file (*client.rsp*) to install the Oracle connectors and OCI driver on each node of your Azure-SSIS IR Enterprise Edition. This setup lets you use the Oracle Connection Manager, Source, and Destination to connect to the Oracle server. 
+      * An *ORACLE ENTERPRISE* folder, which contains a custom setup script (*main.cmd*) to install the Oracle connectors and OCI driver on each node of your Azure-SSIS IR Enterprise Edition. This setup lets you use the Oracle Connection Manager, Source, and Destination to connect to the Oracle server. 
       
-        First, download Microsoft Connectors v5.0 for Oracle (*AttunitySSISOraAdaptersSetup.msi* and *AttunitySSISOraAdaptersSetup64.msi*) from [Microsoft Download Center](https://www.microsoft.com/en-us/download/details.aspx?id=55179) and the latest Oracle client (for example, *winx64_12102_client.zip*) from [Oracle](https://www.oracle.com/database/technologies/oracle19c-windows-downloads.html). Next, upload them all together with *main.cmd* and *client.rsp* to your blob container. If you use TNS to connect to Oracle, you also need to download *tnsnames.ora*, edit it, and upload it to your blob container. In this way, it can be copied to the Oracle installation folder during setup.
+        First, download Microsoft Connectors v5.0 for Oracle (*AttunitySSISOraAdaptersSetup.msi* and *AttunitySSISOraAdaptersSetup64.msi*) from [Microsoft Download Center](https://www.microsoft.com/en-us/download/details.aspx?id=55179) and the latest Oracle Instant Client (for example, *instantclient-basic-windows.x64-21.3.0.0.0.zip*) from [Oracle](https://www.oracle.com/cis/database/technologies/instant-client/downloads.html). Next, upload them all together with *main.cmd* to your blob container. If you use TNS to connect to Oracle, you also need to download *tnsnames.ora*, edit it, and upload it to your blob container. In this way, it can be copied to the Oracle installation folder during setup.
 
       * An *ORACLE STANDARD ADO.NET* folder, which contains a custom setup script (*main.cmd*) to install the Oracle ODP.NET driver on each node of your Azure-SSIS IR. This setup lets you use the ADO.NET Connection Manager, Source, and Destination to connect to the Oracle server. 
       
@@ -313,11 +300,11 @@ To view and reuse some samples of standard custom setups, complete the following
 
       * An *ORACLE STANDARD OLEDB* folder, which contains a custom setup script (*main.cmd*) to install the Oracle OLEDB driver on each node of your Azure-SSIS IR. This setup lets you use the OLEDB Connection Manager, Source, and Destination to connect to the Oracle server. 
      
-        First, [download the latest Oracle OLEDB driver](https://www.oracle.com/partners/campaign/index-090165.html) (for example, *ODAC122010Xcopy_x64.zip*), and then upload it together with *main.cmd* to your blob container.
+        First, [download the latest Oracle OLEDB driver](https://oracle.com/technetwork/database/windows/downloads/index-090165.html) (for example, *ODAC122010Xcopy_x64.zip*), and then upload it together with *main.cmd* to your blob container.
 
       * A *POSTGRESQL ODBC* folder, which contains a custom setup script (*main.cmd*) to install the PostgreSQL ODBC drivers on each node of your Azure-SSIS IR. This setup lets you use the ODBC Connection Manager, Source, and Destination to connect to the PostgreSQL server. 
      
-        First, [download the latest 64-bit and 32-bit versions of PostgreSQL ODBC driver installers](https://www.postgresql.org/ftp/odbc/versions/msi/) (for example, *psqlodbc_x64.msi* and *psqlodbc_x86.msi*), and then upload them all together with *main.cmd* to your blob container.
+        First, [download the latest 64-bit and 32-bit versions of PostgreSQL ODBC driver installers](https://sbp.enterprisedb.com/getfile.jsp?fileid=1259018) (for example, *psqlodbc_x64.msi* and *psqlodbc_x86.msi*), and then upload them all together with *main.cmd* to your blob container.
 
       * A *SAP BW* folder, which contains a custom setup script (*main.cmd*) to install the SAP .NET connector assembly (*librfc32.dll*) on each node of your Azure-SSIS IR Enterprise Edition. This setup lets you use the SAP BW Connection Manager, Source, and Destination to connect to the SAP BW server. 
       
@@ -329,7 +316,7 @@ To view and reuse some samples of standard custom setups, complete the following
 
       * A *TERADATA* folder, which contains a custom setup script (*main.cmd*), its associated file (*install.cmd*), and installer packages (*.msi*). These files install the Teradata connectors, the Teradata Parallel Transporter (TPT) API, and the ODBC driver on each node of your Azure-SSIS IR Enterprise Edition. This setup lets you use the Teradata Connection Manager, Source, and Destination to connect to the Teradata server. 
       
-        First, [download the Teradata Tools and Utilities 15.x zip file](http://partnerintelligence.teradata.com) (for example,  *TeradataToolsAndUtilitiesBase__windows_indep.15.10.22.00.zip*), and then upload it together with the previously mentioned *.cmd* and *.msi* files to your blob container.
+        First, [download the Teradata Tools and Utilities 15.x zip file](https://downloads.teradata.com/download/tools/teradata-tools-and-utilities-windows-installation-package-1) (for example,  *TeradataToolsAndUtilitiesBase__windows_indep.15.10.22.00.zip*), and then upload it together with the previously mentioned *.cmd* and *.msi* files to your blob container.
 
       * A *TLS 1.2* folder, which contains a custom setup script (*main.cmd*) to use only strong cryptography/more secure network protocol (TLS 1.2) on each node of your Azure-SSIS IR. The script also disables older SSL/TLS versions (SSL 3.0, TLS 1.0, TLS 1.1) at the same time.
 
@@ -337,9 +324,9 @@ To view and reuse some samples of standard custom setups, complete the following
       
         First, [download the latest Zulu OpenJDK](https://www.azul.com/downloads/zulu/zulu-windows/) (for example, *zulu8.33.0.1-jdk8.0.192-win_x64.zip*), and then upload it together with *main.cmd* and *install_openjdk.ps1* to your blob container.
 
-        ![Folders in the user scenarios folder](media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image12.png)
+        :::image type="content" source="media/how-to-configure-azure-ssis-ir-custom-setup/custom-setup-image12.png" alt-text="Folders in the user scenarios folder":::
 
-   f. To reuse these standard custom setup samples, copy the content of selected folder to your blob container.
+    c. To reuse these standard custom setup samples, copy the content of selected folder to your blob container.
 
 1. When you provision or reconfigure your Azure-SSIS IR on ADF UI, select the **Customize your Azure-SSIS Integration Runtime with additional system configurations/component installations** check box on the **Advanced settings** page of **Integration runtime setup** pane. Next, enter the SAS URI of your blob container in the **Custom setup container SAS URI** text box.
    
@@ -347,7 +334,7 @@ To view and reuse some samples of standard custom setups, complete the following
 
 1. After your standard custom setup finishes and your Azure-SSIS IR starts, you can find all custom setup logs in the *main.cmd.log* folder of your blob container. They include the standard output of *main.cmd* and other execution logs.
 
-## Next steps
+## Related content
 
 - [Set up the Enterprise Edition of Azure-SSIS IR](how-to-configure-azure-ssis-ir-enterprise-edition.md)
 - [Develop paid or licensed components for Azure-SSIS IR](how-to-develop-azure-ssis-ir-licensed-components.md)

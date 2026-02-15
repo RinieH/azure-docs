@@ -1,23 +1,17 @@
 ---
-title: Add or edit Azure role assignment conditions using Azure PowerShell (preview) - Azure RBAC
+title: Add or edit Azure role assignment conditions using Azure PowerShell - Azure ABAC
 description: Learn how to add, edit, list, or delete attribute-based access control (ABAC) conditions in Azure role assignments using Azure PowerShell and Azure role-based access control (Azure RBAC).
-services: active-directory
 author: rolyon
-manager: mtillman
+manager: pmwongera
 ms.service: role-based-access-control
 ms.subservice: conditions
 ms.topic: how-to
-ms.workload: identity
-ms.date: 05/07/2021
+ms.custom: devx-track-azurepowershell
+ms.date: 04/15/2024
 ms.author: rolyon
 ---
 
-# Add or edit Azure role assignment conditions using Azure PowerShell (preview)
-
-> [!IMPORTANT]
-> Azure ABAC and Azure role assignment conditions are currently in preview.
-> This preview version is provided without a service level agreement, and it's not recommended for production workloads. Certain features might not be supported or might have constrained capabilities.
-> For more information, see [Supplemental Terms of Use for Microsoft Azure Previews](https://azure.microsoft.com/support/legal/preview-supplemental-terms/).
+# Add or edit Azure role assignment conditions using Azure PowerShell
 
 An [Azure role assignment condition](conditions-overview.md) is an additional check that you can optionally add to your role assignment to provide more fine-grained access control. For example, you can add a condition that requires an object to have a specific tag to read the object. This article describes how to add, edit, list, or delete conditions for your role assignments using Azure PowerShell.
 
@@ -74,7 +68,7 @@ Condition          : ((!(ActionMatches{'Microsoft.Storage/storageAccounts/blobSe
 In PowerShell, if your condition includes a dollar sign ($), you must prefix it with a backtick (\`). For example, the following condition uses dollar signs to delineate the tag key name. For more information about rules for quotation marks in PowerShell, see [About Quoting Rules](/powershell/module/microsoft.powershell.core/about/about_quoting_rules).
 
 ```azurepowershell
-$condition = "((!(ActionMatches{'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'} AND @Request[subOperation] ForAnyOfAnyValues:StringEqualsIgnoreCase {'Blob.Read.WithTagConditions'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs/tags:Project<`$key_case_sensitive`$>] StringEquals 'Cascade'))"
+$condition = "((!(ActionMatches{'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'} AND NOT SubOperationMatches{'Blob.List'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs/tags:Project<`$key_case_sensitive`$>] StringEquals 'Cascade'))"
 ```
 
 ## Edit a condition
@@ -168,18 +162,49 @@ ConditionVersion   : 2.0
 Condition          : ((!(ActionMatches{'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'})) OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringEquals 'blobs-example-container' OR @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name] StringEquals 'blobs-example-container2'))
 ```
 
+### Edit conditions in multiple role assignments
+
+If you need to make the same update to multiple role assignments, you can use a loop. The following commands perform the following task:
+
+- Finds role assignments in a subscription with `<find-condition-string-1>` or `<find-condition-string-2>` strings in the condition.
+
+    ```azurepowershell
+    $tenantId = "<your-tenant-id>"
+    $subscriptionId = "<your-subscription-id>";
+    $scope = "/subscriptions/$subscriptionId"
+    $findConditionString1 = "<find-condition-string-1>"
+    $findConditionString2 = "<find-condition-string-2>"
+    Connect-AzAccount -TenantId $tenantId -SubscriptionId $subscriptionId
+    $roleAssignments = Get-AzRoleAssignment -Scope $scope
+    $foundRoleAssignments = $roleAssignments | Where-Object { ($_.Condition -Match $findConditionString1) -Or ($_.Condition -Match $findConditionString2) }
+    ```
+
+The following commands perform the following tasks:
+
+- In the condition of the found role assignments, replaces `<condition-string>` with `<replace-condition-string>`.
+- Updates the role assignments with the changes.
+
+    ```azurepowershell
+    $conditionString = "<condition-string>"
+    $conditionStringReplacement = "<condition-string-replacement>"
+    $updatedRoleAssignments = $foundRoleAssignments | ForEach-Object { $_.Condition = $_.Condition -replace $conditionString, $conditionStringReplacement; $_ }
+    $updatedRoleAssignments | ForEach-Object { Set-AzRoleAssignment -InputObject $_ -PassThru }
+    ```
+
+If strings include special characters, such as square brackets ([ ]), you'll need to escape these characters with a backslash (\\).
+
 ## List a condition
 
-To list a role assignment condition, use [Get-AzRoleAssignment](/powershell/module/az.resources/get-azroleassignment). For more information, see [List Azure role assignments using Azure PowerShell](role-assignments-list-powershell.md).
+To list a role assignment condition, use [Get-AzRoleAssignment](/powershell/module/az.resources/get-azroleassignment). For more information, see [List Azure role assignments using Azure PowerShell](/azure/role-based-access-control/role-assignments-list-powershell).
 
 ## Delete a condition
 
 To delete a role assignment condition, edit the role assignment condition and set both the `Condition` and `ConditionVersion` properties to either an empty string (`""`) or `$null`.
 
-Alternatively, if you want to delete both the role assignment and the condition, you can use the [Remove-AzRoleAssignment](/powershell/module/az.resources/remove-azroleassignment) command. For more information, see [Remove Azure role assignments](role-assignments-remove.md).
+Alternatively, if you want to delete both the role assignment and the condition, you can use the [Remove-AzRoleAssignment](/powershell/module/az.resources/remove-azroleassignment) command. For more information, see [Remove Azure role assignments](/azure/role-based-access-control/role-assignments-remove).
 
 ## Next steps
 
-- [Example Azure role assignment conditions (preview)](../storage/common/storage-auth-abac-examples.md)
-- [Tutorial: Add a role assignment condition to restrict access to blobs using Azure PowerShell (preview)](../storage/common/storage-auth-abac-powershell.md)
-- [Troubleshoot Azure role assignment conditions (preview)](conditions-troubleshoot.md)
+- [Example Azure role assignment conditions for Blob Storage](../storage/blobs/storage-auth-abac-examples.md)
+- [Tutorial: Add a role assignment condition to restrict access to blobs using Azure PowerShell](../storage/blobs/storage-auth-abac-powershell.md)
+- [Troubleshoot Azure role assignment conditions](conditions-troubleshoot.md)

@@ -2,14 +2,13 @@
 title: 'Configure packet capture for VPN Gateway'
 titleSuffix: Azure VPN Gateway
 description: Learn about packet capture functionality that you can use on VPN gateways to help narrow down the cause of a problem.  
-services: vpn-gateway
-author: anzaman
-
-ms.service: vpn-gateway
+author: cherylmc
+ms.service: azure-vpn-gateway
 ms.topic: how-to
-ms.date: 02/22/2021
-ms.author: alzam 
-ms.custom: devx-track-azurepowershell
+ms.date: 03/31/2025
+ms.author: cherylmc
+ms.custom: sfi-image-nochange
+# Customer intent: As a network administrator, I want to configure packet capture on my VPN gateway, so that I can effectively diagnose and troubleshoot connectivity issues by narrowing down traffic analysis to specific network segments.
 ---
 
 # Configure packet capture for VPN gateways
@@ -18,9 +17,9 @@ Connectivity and performance-related problems are often complex. It can take sig
 
 There are some commonly available packet capture tools. Getting relevant packet captures with these tools can be cumbersome, especially in high-volume traffic scenarios. The filtering capabilities provided by Azure VPN Gateway packet capture are a major differentiator. You can use VPN Gateway packet capture together with commonly available packet capture tools.
 
-## VPN Gateway packet capture filtering capabilities
+## About packet capture for VPN Gateway
 
-You can run VPN Gateway packet capture on the gateway or on a specific connection, depending on your needs. You can also run packet capture on multiple tunnels at the same time. You can capture one-way or bi-directional traffic, IKE and ESP traffic, and inner packets along with filtering on a VPN gateway.
+You can run VPN Gateway packet capture on the gateway, or on a specific connection, depending on your needs. You can also run packet capture on multiple tunnels at the same time. You can capture one-way or bi-directional traffic, IKE and ESP traffic, and inner packets along with filtering on a VPN gateway.
 
 It's helpful to use a five-tuple filter (source subnet, destination subnet, source port, destination port, protocol) and TCP flags (SYN, ACK, FIN, URG, PSH, RST) when you're isolating problems in high-volume traffic.
 
@@ -30,9 +29,15 @@ The following examples of JSON and a JSON schema provide explanations of each pr
 - You can't run multiple gateway-wide packet captures at the same time.
 - You can't run multiple packet captures on a single connection at the same time. You can run multiple packet captures on different connections at the same time.
 - A maximum of five packet captures can be run in parallel per gateway. These packet captures can be a combination of gateway-wide packet captures and per-connection packet captures.
-- The unit for MaxPacketBufferSize is bytes and MaxFileSize is megabytes
+- The unit for MaxPacketBufferSize is bytes.
+- The unit for MaxFileSize is megabytes.
 
-### Example JSON
+> [!NOTE]  
+> Set the **CaptureSingleDirectionTrafficOnly** option to **false** if you want to capture both inner and outer packets.
+> When analyzing pcap files containing packets that got truncated due to the **MaxPacketBufferSize** setting, this may result in unexpected warnings like "TCP Previous segment not captured" and "TCP ACKed unseen segment".
+
+**Example JSON**
+
 ```JSON-interactive
 {
   "TracingFlags": 11,
@@ -41,7 +46,7 @@ The following examples of JSON and a JSON schema provide explanations of each pr
   "Filters": [
     {
       "SourceSubnets": [
-        "20.1.1.0/24"
+        "10.1.0.0/24"
       ],
       "DestinationSubnets": [
         "10.1.1.0/24"
@@ -61,7 +66,9 @@ The following examples of JSON and a JSON schema provide explanations of each pr
   ]
 }
 ```
-### JSON schema
+
+**JSON schema**
+
 ```JSON-interactive
 {
     "type": "object",
@@ -127,7 +134,7 @@ The following examples of JSON and a JSON schema provide explanations of each pr
                         ],
                         "TcpFlags": 16,
                         "SourceSubnets": [
-                            "20.1.1.0/24"
+                            "10.1.0.0/24"
                         ],
                         "DestinationSubnets": [
                             "10.1.1.0/24"
@@ -152,7 +159,7 @@ The following examples of JSON and a JSON schema provide explanations of each pr
                         ],
                         "TcpFlags": 16,
                         "SourceSubnets": [
-                            "20.1.1.0/24"
+                            "10.1.0.0/24"
                         ],
                         "DestinationSubnets": [
                             "10.1.1.0/24"
@@ -182,7 +189,7 @@ The following examples of JSON and a JSON schema provide explanations of each pr
                         "default": [],
                         "examples": [
                             [
-                                "20.1.1.0/24"
+                                "10.1.0.0/24"
                             ]
                         ],
                         "additionalItems": true,
@@ -193,7 +200,7 @@ The following examples of JSON and a JSON schema provide explanations of each pr
                             "description": "An explanation about the purpose of this instance.",
                             "default": "",
                             "examples": [
-                                "20.1.1.0/24"
+                                "10.1.0.0/24"
                             ]
                         }
                     },
@@ -316,21 +323,63 @@ The following examples of JSON and a JSON schema provide explanations of each pr
 }
 ```
 
+### Key considerations
+
+- Running packet capture can affect performance. Remember to stop the packet capture when you don't need it.
+- Suggested minimum packet capture duration is 600 seconds. Because of sync issues among multiple components on the path, shorter packet captures might not provide complete data.
+- Packet capture data files are generated in PCAP format. Use Wireshark or other commonly available applications to open PCAP files.
+- Packet captures aren't supported on policy-based gateways.
+- The maximum filesize of packet capture data files is 500 MB.
+- If the `SASurl` parameter isn't configured correctly, the trace might fail with Storage errors. For examples of how to correctly generate an `SASurl` parameter, see [Stop-AzVirtualNetworkGatewayPacketCapture](/powershell/module/az.network/stop-azvirtualnetworkgatewaypacketcapture).
+- If you're configuring a User Delegated SAS, make sure the user account is granted proper RBAC permissions on the storage account such as Storage Blob Data Owner.
+
 ## Packet capture - portal
+
+This section helps you start and stop a packet capture using the Azure portal.
+
+### Start packet capture - portal
 
 You can set up packet capture in the Azure portal.
 
-:::image type="content" source="./media/packet-capture/portal.jpg" alt-text="Screenshot of packet capture in the portal." lightbox="./media/packet-capture/portal.jpg":::
+1. Go to your VPN gateway in the Azure portal.
+1. On the left, select **VPN Gateway Packet Capture** to open the VPN Gateway Packet Capture page.
+1. Select **Start Packet Capture**.
+
+   :::image type="content" source="./media/packet-capture/packet-capture-portal.png" alt-text="Screenshot of start packet capture in the portal." lightbox="./media/packet-capture/packet-capture-portal.png":::
+
+1. On the **Start Packet Capture** page, make any necessary adjustments. Don't select the "Capture Single Direction Traffic Only" option if you want to capture both inner and outer packets. 
+1. Once you've configured the settings, click **Start Packet Capture**.
+
+### Stop packet capture - portal
+
+To complete a packet capture, you need to provide a valid SAS (or Shared Access Signature) URL with read/write access. When a packet capture is stopped, the output of the packet capture is written to the container that is referenced by the SAS URL.
+
+1. To get the SAS URL, go to the storage account.
+1. Go to the container you want to use and right-click to show the dropdown list. Select **Generate SAS** to open the Generate SAS page.
+1. On the Generate SAS page, configure your settings. Make sure that you have granted read and write access.
+1. Click **Generate SAS token and URL**.
+1. The SAS token and SAS URL is generated and appears below the button immediately. Copy the Blob SAS URL.
+
+   :::image type="content" source="./media/packet-capture/generate-sas.png" alt-text="Screenshot of generate SAS token." lightbox="./media/packet-capture/generate-sas.png":::
+
+1. Go back to the VPN Gateway Packet Capture page in the Azure portal and click the **Stop Packet Capture** button.
+
+1. Paste the SAS URL (from the previous step) in the **Output Sas Url** text box and click **Stop Packet Capture**.
+
+1. The packet capture (pcap) file will be stored in the specified account.
+
+> [!NOTE]  
+> Avoid the use of Azure-generated containers, such as `$logs`. Containers that start with `$` are typically internal containers, and only the service that creates them should use them. For instance, `$logs` is used by Azure Storage Account for writing storage account related logs.
 
 ## Packet capture - PowerShell
 
 The following examples show PowerShell commands that start and stop packet captures. For more information on parameter options, see [Start-AzVirtualnetworkGatewayPacketCapture](/powershell/module/az.network/start-azvirtualnetworkgatewaypacketcapture).
 
->
-### Prerequisite
+**Prerequisites**
 
-* Packet capture data will need to be logged into a storage account on your subscription. See [create storage account](../storage/common/storage-account-create.md).
-* To stop the packet capture, you will need to generate the `SASUrl` for your storage account. See [create a user delegation SAS](../storage/blobs/storage-blob-user-delegation-sas-create-powershell.md).
+* Packet capture data needs to be logged into a storage account on your subscription. See [create storage account](../storage/common/storage-account-create.md).
+
+* To stop the packet capture, you'll need to generate the `SASUrl` for your storage account. See [create a user delegation SAS](../storage/blobs/storage-blob-user-delegation-sas-create-powershell.md).
 
 ### Start packet capture for a VPN gateway
 
@@ -364,16 +413,6 @@ Stop-AzVirtualNetworkGatewayConnectionPacketCapture -ResourceGroupName "YourReso
 
 For more information on parameter options, see [Stop-AzVirtualNetworkGatewayConnectionPacketCapture](/powershell/module/az.network/stop-azvirtualnetworkgatewayconnectionpacketcapture).
 
-## Key considerations
-
-- Running packet capture can affect performance. Remember to stop the packet capture when you don't need it.
-- Suggested minimum packet capture duration is 600 seconds. Because of sync issues among multiple components on the path, shorter packet captures might not provide complete data.
-- Packet capture data files are generated in PCAP format. Use Wireshark or other commonly available applications to open PCAP files.
-- Packet captures aren't supported on policy-based gateways.
-- If the `SASurl` parameter isn't configured correctly, the trace might fail with Storage errors. For examples of how to correctly generate an `SASurl` parameter, see [Stop-AzVirtualNetworkGatewayPacketCapture](/powershell/module/az.network/stop-azvirtualnetworkgatewaypacketcapture).
-
-
-
 ## Next steps
 
-For more information about VPN Gateway, see [What is VPN Gateway?](vpn-gateway-about-vpngateways.md).
+For more information about VPN Gateway, see [What is VPN Gateway?](vpn-gateway-about-vpngateways.md)

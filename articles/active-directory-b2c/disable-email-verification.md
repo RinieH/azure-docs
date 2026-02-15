@@ -2,21 +2,25 @@
 title: Disable email verification during customer sign-up
 titleSuffix: Azure AD B2C
 description: Learn how to disable email verification during customer sign-up in Azure Active Directory B2C.
-services: active-directory-b2c
-author: msmimart
-manager: celestedg
 
-ms.service: active-directory
-ms.workload: identity
+author: kengaderdus
+manager: CelesteDG
+
+ms.service: azure-active-directory
+
 ms.topic: how-to
-ms.date: 12/10/2020
-ms.custom: project-no-code
-ms.author: mimart
-ms.subservice: B2C
+ms.date: 01/11/2024
+ms.author: kengaderdus
+ms.subservice: b2c
 zone_pivot_groups: b2c-policy-type
+
+
+#Customer intent: As an Azure AD B2C application developer, I want to disable email verification during the customer sign-up process, so that I can create a smoother sign-up experience and have the flexibility to differentiate between verified and unverified customers.
+
 ---
 
 # Disable email verification during customer sign-up in Azure Active Directory B2C
+[!INCLUDE [active-directory-b2c-end-of-sale-notice-b](../../includes/active-directory-b2c-end-of-sale-notice-b.md)]
 
 [!INCLUDE [active-directory-b2c-choose-user-flow-or-custom-policy](../../includes/active-directory-b2c-choose-user-flow-or-custom-policy.md)]
 
@@ -36,15 +40,15 @@ Some application developers prefer to skip email verification during the sign-up
 
 Follow these steps to disable email verification:
 
-1. Sign in to the [Azure portal](https://portal.azure.com)
-1. Use the **Directory + subscription** filter in the top menu to select the directory that contains your Azure AD B2C tenant.
+1. Sign in to the [Azure portal](https://portal.azure.com).
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
 1. In the left menu, select **Azure AD B2C**. Or, select **All services** and search for and select **Azure AD B2C**.
 1. Select **User flows**.
-1. Select the user flow for which you want to disable email verification. For example, *B2C_1_signinsignup*.
+1. Select the user flow for which you want to disable email verification.
 1. Select **Page layouts**.
 1. Select **Local account sign-up page**.
 1. Under **User attributes**, select **Email Address**.
-1. In the **REQUIRES VERIFICATION** drop-down, select **No**.
+1. In the **Requires Verification** drop-down, select **No**.
 1. Select **Save**. Email verification is now disabled for this user flow.
 
 ::: zone-end
@@ -74,8 +78,8 @@ The **LocalAccountSignUpWithLogonEmail** technical profile is a [self-asserted](
 
 ## Test your policy 
 
-1. Sign in to the [Azure portal](https://portal.azure.com)
-1. Use the **Directory + subscription** filter in the top menu to select the directory that contains your Azure AD B2C tenant.
+1. Sign in to the [Azure portal](https://portal.azure.com).
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Azure AD B2C tenant from the **Directories + subscriptions** menu.
 1. In the left menu, select **Azure AD B2C**. Or, select **All services** and search for and select **Azure AD B2C**.
 1. Select **User flows**.
 1. Select the user flow for which you want to disable email verification. For example, *B2C_1_signinsignup*.
@@ -91,7 +95,7 @@ The **LocalAccountSignUpWithLogonEmail** technical profile is a [self-asserted](
 ## Update and test the relying party file
 
 1. Sign in to the [Azure portal](https://portal.azure.com).
-1. Make sure you're using the directory that contains your Azure AD tenant by selecting the **Directory + subscription** filter in the top menu and choosing the directory that contains your Azure AD tenant.
+1. If you have access to multiple tenants, select the **Settings** icon in the top menu to switch to your Microsoft Entra ID tenant from the **Directories + subscriptions** menu.
 1. Choose **All services** in the top-left corner of the Azure portal, and then search for and select **App registrations**.
 1. Select **Identity Experience Framework**.
 1. Select **Upload Custom Policy**, and then upload the two policy files that you changed.
@@ -104,4 +108,3 @@ The **LocalAccountSignUpWithLogonEmail** technical profile is a [self-asserted](
 ## Next steps
 
 - Learn how to [customize the user interface in Azure Active Directory B2C](customize-ui-with-html.md)
-

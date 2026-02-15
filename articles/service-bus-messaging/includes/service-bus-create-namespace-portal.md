@@ -1,58 +1,62 @@
 ---
- title: include file
- description: include file
- services: service-bus-messaging
+ title: Create a namespace
+ description: Provides step-by-step instructions to create an Azure Service Bus namespace using the Azure portal. 
  author: spelluru
- ms.service: service-bus-messaging
+ ms.service: azure-service-bus
  ms.topic: include
- ms.date: 02/20/2019
+ ms.date: 02/05/2026
  ms.author: spelluru
- ms.custom: include file
+ ms.custom:
+   - include file
+   - sfi-image-nochange
 ---
 
 ## Create a namespace in the Azure portal
-To begin using Service Bus messaging entities in Azure, you must first create a namespace with a name that is unique across Azure. A namespace provides a scoping container for addressing Service Bus resources within your application.
+
+To start using Service Bus messaging entities in Azure, create a namespace with a name that's unique across Azure. A namespace provides a scoping container for Service Bus resources, such as queues and topics, in your application.
 
 To create a namespace:
 
-1. Sign in to the [Azure portal](https://portal.azure.com)
-2. In the left navigation pane of the portal, select **+ Create a resource**, select **Integration**, and then select **Service Bus**.
+1. Sign in to the [Azure portal](https://portal.azure.com).
+1. Select the flyout menu from the top left and go to the [**All services** page](https://portal.azure.com/#allservices/category/All).
+1. On the left navigation bar, select **Integration**.
+1. Scroll down to **Messaging services**, hover your mouse over **Service Bus**, and then select **Create**. 
+    
+   :::image type="content" source="./media/service-bus-create-namespace-portal/create-resource-service-bus-menu.png" alt-text="Screenshot showing selection of Create a resource, Integration, and then Service Bus in the menu." lightbox="./media/service-bus-create-namespace-portal/create-resource-service-bus-menu.png":::
 
-    ![Create a resource -> Integration -> Service Bus](./media/service-bus-create-namespace-portal/create-resource-service-bus-menu.png)
-3. In the **Create namespace** dialog, do the following steps: 
-    1. Enter a **name for the namespace**. The system immediately checks to see if the name is available. For a list of rules for naming namespaces, see [Create Namespace REST API](/rest/api/servicebus/create-namespace).
-    2. Select the pricing tier (Basic, Standard, or Premium) for the namespace. If you want to use [topics and subscriptions](../service-bus-queues-topics-subscriptions.md#topics-and-subscriptions), choose either Standard or Premium. Topics/subscriptions are not supported in the Basic pricing tier.
-    3. If you selected the **Premium** pricing tier, follow these steps: 
-        1. Specify the number of **messaging units**. The premium tier provides resource isolation at the CPU and memory level so that each workload runs in isolation. This resource container is called a messaging unit. A premium namespace has at least one messaging unit. You can select 1, 2, or 4 messaging units for each Service Bus Premium namespace. For more information, see [Service Bus Premium Messaging](../service-bus-premium-messaging.md).
-        2. Specify whether you want to make the namespace **zone redundant**. The zone redundancy provides enhanced availability by spreading replicas across availability zones within one region at no additional cost. For more information, see [Availability zones in Azure](../../availability-zones/az-overview.md).
-    4. For **Subscription**, choose an Azure subscription in which to create the namespace.
-    5. For **Resource group**, choose an existing resource group in which the namespace will live, or create a new one.      
-    6. For **Location**, choose the region in which your namespace should be hosted.
-    7. Select **Create**. The system now creates your namespace and enables it. You might have to wait several minutes as the system provisions resources for your account.
+1. In the **Basics** tab of the **Create namespace** page, follow these steps:
+
+   1. For **Subscription**, choose an Azure subscription in which to create the namespace.
+   1. For **Resource group**, choose an existing resource group, or create a new one.      
+   1. Enter a **Namespace name** that meets the following naming conventions:
+
+      - The name must be unique across Azure. The system immediately checks to see if the name is available. 
+      - The name length is at least 6 and at most 50 characters.
+      - The name can contain only letters, numbers, and hyphens `-`.
+      - The name must start with a letter and end with a letter or number.
+      - The name doesn't end with `-sb` or `-mgmt`.
+
+   1. For **Location**, choose the region to host your namespace.
+   1. For **Pricing tier**, select the pricing tier (Basic, Standard, or Premium) for the namespace. For this quickstart, select **Standard**. 
+    
+      If you select the **Premium** tier, you can enable **geo-replication** for the namespace. The geo-replication feature ensures that the metadata and data of a namespace are continuously replicated from a primary region to one or more secondary regions.
+    
+      > [!IMPORTANT]
+      > If you want to use [topics and subscriptions](../service-bus-queues-topics-subscriptions.md#topics-and-subscriptions), choose either Standard or Premium. The Basic pricing tier doesn't support topics and subscriptions. 
+
+      If you selected the **Premium** pricing tier, specify the number of **messaging units**. The premium tier provides resource isolation at the CPU and memory level so that each workload runs in isolation. This resource container is called as a *messaging unit*. A premium namespace has at least one messaging unit. You can select 1, 2, 4, 8, or 16 messaging units for each Service Bus Premium namespace. For more information, see [Service Bus premium messaging tier](../service-bus-premium-messaging.md).
+
+   1. Select **Review + create** at the bottom of the page. 
    
-        ![Create namespace](./media/service-bus-create-namespace-portal/create-namespace.png)
-4. Confirm that the service bus namespace is deployed successfully. To see the notifications, select the **bell icon (Alerts)** on the toolbar. Select the **name of the resource group** in the notification as shown in the image. You see the resource group that contains the service bus namespace.
+      :::image type="content" source="./media/service-bus-create-namespace-portal/create-namespace.png" alt-text="Screenshot showing the Create a namespace page." lightbox="./media/service-bus-create-namespace-portal/create-namespace.png":::
 
-    ![Deployment alert](./media/service-bus-create-namespace-portal/deployment-alert.png)
-5. On the **Resource group** page for your resource group, select your **service bus namespace**. 
+   1. On the **Review + create** page, review the settings, and select **Create**. 
 
-    ![Resource group page - select your service bus namespace](./media/service-bus-create-namespace-portal/resource-group-select-service-bus.png)
-6. You see the home page for your service bus namespace. 
+1. After the deployment of the resource is successful, select **Go to resource** on the deployment page. 
 
-    ![Home page for your service bus namespace](./media/service-bus-create-namespace-portal/service-bus-namespace-home-page.png)
+   :::image type="content" source="./media/service-bus-create-namespace-portal/deployment-alert.png" alt-text="Screenshot showing the deployment succeeded page with the Go to resource link." lightbox="./media/service-bus-create-namespace-portal/deployment-alert.png":::
 
-## Get the connection string 
-Creating a new namespace automatically generates an initial Shared Access Signature (SAS) rule with an associated pair of primary and secondary keys that each grant full control over all aspects of the namespace. See [Service Bus authentication and authorization](../service-bus-authentication-and-authorization.md) for information about how to create rules with more constrained rights for regular senders and receivers. To copy the primary and secondary keys for your namespace, follow these steps: 
+1. You see the home page for your service bus namespace. 
 
-1. Click **All resources**, then click the newly created namespace name.
-2. In the namespace window, click **Shared access policies**.
-3. In the **Shared access policies** screen, click **RootManageSharedAccessKey**.
-   
-    ![Screenshot shows the Shared access policies window with a policy highlighted.](./media/service-bus-create-namespace-portal/connection-info.png)
-4. In the **Policy: RootManageSharedAccessKey** window, click the copy button next to **Primary Connection String**, to copy the connection string to your clipboard for later use. Paste this value into Notepad or some other temporary location.
-   
-    ![Screenshot shows an S A S policy called RootManageSharedAccessKey, which includes keys and connection strings.](./media/service-bus-create-namespace-portal/connection-string.png)
-5. Repeat the previous step, copying and pasting the value of **Primary key** to a temporary location for later use.
-
-<!--Image references-->
+   :::image type="content" source="./media/service-bus-create-namespace-portal/service-bus-namespace-home-page.png" lightbox="./media/service-bus-create-namespace-portal/service-bus-namespace-home-page.png" alt-text="Screenshot showing the home page of the Service Bus namespace created." :::
 

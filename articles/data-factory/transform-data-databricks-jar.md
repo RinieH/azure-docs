@@ -1,22 +1,38 @@
 ---
 title: Transform data with Databricks Jar
-description: Learn how to process or transform data by running a Databricks Jar within an Azure Data Factory pipeline.
-ms.service: data-factory
+titleSuffix: Azure Data Factory & Azure Synapse
+description: Learn how to process or transform data by running a Databricks Jar within an Azure Data Factory or Synapse Analytics pipeline.
+ms.custom: synapse
 ms.topic: conceptual
 ms.author: abnarain
 author: nabhishek
-ms.date: 02/10/2021
+ms.date: 01/16/2025
+ms.subservice: orchestration
 ---
 
 # Transform data by running a Jar activity in Azure Databricks
 
 [!INCLUDE[appliesto-adf-asa-md](includes/appliesto-adf-asa-md.md)]
 
-The Azure Databricks Jar Activity in a [Data Factory pipeline](concepts-pipelines-activities.md) runs a Spark Jar in your Azure Databricks cluster. This article builds on the [data transformation activities](transform-data.md) article, which presents a general overview of data transformation and the supported transformation activities. Azure Databricks is a managed platform for running Apache Spark.
+The Azure Databricks Jar Activity in a [pipeline](concepts-pipelines-activities.md) runs a Spark Jar in your Azure Databricks cluster. This article builds on the [data transformation activities](transform-data.md) article, which presents a general overview of data transformation and the supported transformation activities. Azure Databricks is a managed platform for running Apache Spark.
 
 For an eleven-minute introduction and demonstration of this feature, watch the following video:
 
-> [!VIDEO https://channel9.msdn.com/Shows/Azure-Friday/Execute-Jars-and-Python-scripts-on-Azure-Databricks-using-Data-Factory/player]
+> [!VIDEO https://learn.microsoft.com/Shows/Azure-Friday/Execute-Jars-and-Python-scripts-on-Azure-Databricks-using-Data-Factory/player]
+
+## Add a Jar activity for Azure Databricks to a pipeline with UI
+
+To use a Jar activity for Azure Databricks in a pipeline, complete the following steps:
+
+1. Search for _Jar_ in the pipeline Activities pane, and drag a Jar activity to the pipeline canvas.
+1. Select the new Jar activity on the canvas if it is not already selected.
+1. Select the  **Azure Databricks** tab to select or create a new Azure Databricks linked service that will execute the Jar activity.
+
+   :::image type="content" source="media/transform-data-databricks-jar/jar-activity.png" alt-text="Shows the UI for a Jar activity.":::
+
+1. Select the **Settings** tab and specify a class name to be executed on Azure Databricks, optional parameters to be passed to the Jar, and libraries to be installed on the cluster to execute the job.
+
+   :::image type="content" source="media/transform-data-databricks-jar/jar-settings.png" alt-text="Shows the UI for the Settings tab for a Jar activity.":::
 
 ## Databricks Jar activity definition
 
@@ -103,21 +119,21 @@ For more information, see the [Databricks documentation](/azure/databricks/dev-t
 
 ### You can use the Workspace UI:
 
-1. [Use the Databricks workspace UI](/azure/databricks/libraries/#create-a-library)
+1. [Use the Databricks workspace UI](/azure/databricks/libraries/cluster-libraries#install-a-library-on-a-cluster)
 
-2. To obtain the dbfs path of the library added using UI, you can use [Databricks CLI](/azure/databricks/dev-tools/cli/#install-the-cli).
+2. To obtain the dbfs path of the library added using UI, you can use [Databricks CLI](/azure/databricks/dev-tools/cli/reference/fs-commands#databricks-fs-ls).
 
    Typically the Jar libraries are stored under dbfs:/FileStore/jars while using the UI. You can list all through the CLI: *databricks fs ls dbfs:/FileStore/job-jars*
 
 ### Or you can use the Databricks CLI:
 
-1. Follow [Copy the library using Databricks CLI](/azure/databricks/dev-tools/cli/#copy-a-file-to-dbfs)
+1. Follow [Copy the library using Databricks CLI](/azure/databricks/dev-tools/cli/reference/fs-commands#databricks-fs-cp)
 
-2. Use Databricks CLI [(installation steps)](/azure/databricks/dev-tools/cli/#install-the-cli)
+2. Use Databricks CLI [(installation steps)](/azure/databricks/dev-tools/cli/commands#compute-commands)
 
    As an example, to copy a JAR to dbfs:
    `dbfs cp SparkPi-assembly-0.1.jar dbfs:/docs/sparkpi.jar`
 
-## Next steps
+## Related content
 
-For an eleven-minute introduction and demonstration of this feature, watch the [video](https://channel9.msdn.com/Shows/Azure-Friday/Execute-Jars-and-Python-scripts-on-Azure-Databricks-using-Data-Factory/player).
+For an eleven-minute introduction and demonstration of this feature, watch the [video](/Shows/Azure-Friday/Execute-Jars-and-Python-scripts-on-Azure-Databricks-using-Data-Factory/player).

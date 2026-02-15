@@ -3,9 +3,9 @@ title: Dedupe rows and find nulls by using data flow snippets
 description: Learn how to easily dedupe rows and find nulls by using code snippets in data flows
 author: kromerm
 ms.author: makromer
-ms.service: data-factory
 ms.topic: conceptual
-ms.date: 09/30/2020
+ms.date: 10/03/2024
+ms.subservice: data-flows
 ---
 
 # Dedupe rows and find nulls by using data flow snippets
@@ -14,7 +14,7 @@ ms.date: 09/30/2020
 
 By using code snippets in mapping data flows, you can easily perform common tasks such as data deduplication and null filtering. This article explains how to easily add those functions to your pipelines by using data flow script snippets.
 <br>
-> [!VIDEO https://www.microsoft.com/en-us/videoplayer/embed/RE4GnhH]
+> [!VIDEO https://learn-video.azurefd.net/vod/player?id=9caa524f-5af1-4bfa-845f-72a170ac0e5d]
 
 ## Create a pipeline
 
@@ -24,7 +24,7 @@ By using code snippets in mapping data flows, you can easily perform common task
 
 1. Select the **Source settings** tab, add a source transformation, and then connect it to one of your datasets.
 
-    ![Screenshot of the "Source settings" pane for adding a source type.](media/data-flow/snippet-adf-2.png)
+    :::image type="content" source="media/data-flow/snippet-adf-2.png" alt-text="Screenshot of the &quot;Source settings&quot; pane for adding a source type.":::
 
     The dedupe and null check snippets use generic patterns that take advantage of data flow schema drift. The snippets work with any schema from your dataset, or with datasets that have no pre-defined schema.
 
@@ -32,7 +32,7 @@ By using code snippets in mapping data flows, you can easily perform common task
 
 1. [Go to the Data Flow Script documentation page and copy the code snippet for Distinct Rows.](./data-flow-script.md#distinct-row-using-all-columns)
 
-    ![Screenshot of a source snippet.](media/data-flow/snippet-adf-3.png)
+    :::image type="content" source="media/data-flow/snippet-adf-3.png" alt-text="Screenshot of a source snippet.":::
 
 1. In your script, after the definition for `source1`, hit Enter, and then paste the code snippet.
 
@@ -42,7 +42,7 @@ By using code snippets in mapping data flows, you can easily perform common task
 
    * Alternatively, you can connect the new transformation in the designer by selecting the incoming stream from the new transformation node in the graph.
 
-     ![Screenshot of the "Conditional split settings" pane.](media/data-flow/snippet-adf-4.png)
+     :::image type="content" source="media/data-flow/snippet-adf-4.png" alt-text="Screenshot of the &quot;Conditional split settings&quot; pane.":::
 
    Now your data flow will remove duplicate rows from your source by using the aggregate transformation, which groups by all rows by using a general hash across all column values.
     
@@ -54,10 +54,10 @@ By using code snippets in mapping data flows, you can easily perform common task
 
    Your data flow graph should now look similar to this:
 
-    ![Screenshot of the data flow graph.](media/data-flow/snippet-adf-1.png)
+    :::image type="content" source="media/data-flow/snippet-adf-1.png" alt-text="Screenshot of the data flow graph.":::
 
   You have now created a working data flow with generic deduping and null checks by taking existing code snippets from the Data Flow Script library and adding them into your existing design.
 
-## Next steps
+## Related content
 
 * Build the rest of your data flow logic by using mapping data flows [transformations](concepts-data-flow-overview.md).

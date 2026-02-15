@@ -6,9 +6,11 @@ description: Provides an overview of factors to consider and steps to follow to 
 author: karauten
 ms.author: karauten
 ms.date: 04/12/2021
-ms.topic: conceptual
-ms.service: storage
-ms.subservice: partner
+ms.topic: concept-article
+ms.service: azure-storage
+ms.subservice: storage-partner-integration
+ms.custom: sfi-image-nochange
+# Customer intent: As a data administrator using DobiProtect, I want to configure Azure Blob storage as a backup and recovery target, so that I can ensure data protection and quick recovery in the event of a disaster.
 ---
 
 # Backup to Azure with DobiProtect
@@ -47,7 +49,6 @@ Remember, you'll require enough network capacity to support daily data transfers
 To determine how much bandwidth you'll need, use the following resources:
 
 - Backup software-independent assessment and reporting tools like:
-  - [MiTrend](https://mitrend.com/)
   - [Aptare](https://www.veritas.com/insights/aptare-it-analytics)
   - [Datavoss](https://www.datavoss.com/)
 
@@ -63,14 +64,14 @@ Use the following methods to identify the bandwidth headroom that your backups t
 - If you're an existing Azure ExpressRoute customer, view your [circuit usage](../../../../../expressroute/expressroute-monitoring-metrics-alerts.md#circuits-metrics) in the Azure portal.
 - Contact your ISP. They should be able to share reports that show your existing daily and monthly utilization.
 - There are several tools that can measure utilization by monitoring your network traffic at the router/switch level. These include:
-  - [Solarwinds Bandwidth Analyzer Pack](https://www.solarwinds.com/network-bandwidth-analyzer-pack?CMP=ORG-BLG-DNS)
+  - [SolarWinds Bandwidth Analyzer Pack](https://www.solarwinds.com/network-bandwidth-analyzer-pack?CMP=ORG-BLG-DNS)
   - [Paessler PRTG](https://www.paessler.com/bandwidth_monitoring)
   - [Cisco Network Assistant](https://www.cisco.com/c/en/us/products/cloud-systems-management/network-assistant/index.html)
   - [WhatsUp Gold](https://www.whatsupgold.com/network-traffic-monitoring)
 
 ### Choose the right storage options
 
-When you use Azure as a backup target, you'll make use of [Azure Blob storage](../../../../blobs/storage-blobs-introduction.md). Blob storage is Microsoft's object storage solution. Blob storage is optimized for storing massive amounts of unstructured data, which is data that does not adhere to any data model or definition. Additionally, Azure Storage is durable, highly available, secure, and scalable. You can select the right storage for your workload to provide the [level of resiliency](../../../../common/storage-redundancy.md) to meet your internal SLAs. Blob storage is a pay-per-use service. You're [charged monthly](../../../../blobs/storage-blob-storage-tiers.md#pricing-and-billing) for the amount of data stored, accessing that data, and in the case of cool and archive tiers, a minimum required retention period. The resiliency and tiering options applicable to backup data are summarized in the following tables.
+When you use Azure as a backup target, you'll make use of [Azure Blob storage](../../../../blobs/storage-blobs-introduction.md). Blob storage is Microsoft's object storage solution. Blob storage is optimized for storing massive amounts of unstructured data, which is data that does not adhere to any data model or definition. Additionally, Azure Storage is durable, highly available, secure, and scalable. You can select the right storage for your workload to provide the [level of resiliency](../../../../common/storage-redundancy.md) to meet your internal SLAs. Blob storage is a pay-per-use service. You're [charged monthly](../../../../blobs/access-tiers-overview.md#pricing-and-billing) for the amount of data stored, accessing that data, and in the case of cool and archive tiers, a minimum required retention period. The resiliency and tiering options applicable to backup data are summarized in the following tables.
 
 **Blob storage resiliency options:**
 
@@ -178,9 +179,9 @@ This section provides a brief guide for how to add Azure Storage to an on-premis
 
 #### Azure portal
 
-Azure provides a robust monitoring solution in the form of [Azure Monitor](../../../../../azure-monitor/essentials/monitor-azure-resource.md). You can [configure Azure Monitor](../../../../blobs/monitor-blob-storage.md) to track Azure Storage capacity, transactions, availability, authentication, and more. You can find the full reference of metrics that are collected [here](../../../../blobs/monitor-blob-storage-reference.md). A few useful metrics to track are BlobCapacity - to make sure you remain below the maximum [storage account capacity limit](../../../../common/scalability-targets-standard-account.md), Ingress and Egress - to track the amount of data being written to and read from your Azure Storage account, and SuccessE2ELatency - to track the roundtrip time for requests to and from Azure Storage and your MediaAgent.
+Azure provides a robust monitoring solution in the form of [Azure Monitor](/azure/azure-monitor/essentials/monitor-azure-resource). You can [configure Azure Monitor](../../../../blobs/monitor-blob-storage.md) to track Azure Storage capacity, transactions, availability, authentication, and more. You can find the full reference of metrics that are collected [here](../../../../blobs/monitor-blob-storage-reference.md). A few useful metrics to track are BlobCapacity - to make sure you remain below the maximum [storage account capacity limit](../../../../common/scalability-targets-standard-account.md), Ingress and Egress - to track the amount of data being written to and read from your Azure Storage account, and SuccessE2ELatency - to track the roundtrip time for requests to and from Azure Storage and your MediaAgent.
 
-You can also [create log alerts](../../../../../service-health/alerts-activity-log-service-notifications-portal.md) to track Azure Storage service health and view the [Azure status dashboard](https://status.azure.com/status) at any time.
+You can also [create log alerts](/azure/service-health/alerts-activity-log-service-notifications-portal) to track Azure Storage service health and view the [Azure status dashboard](https://azure.status.microsoft/status) at any time.
 
 #### DobiSync documentation
 
@@ -212,4 +213,4 @@ See the following Datadobi documentation for further detail:
 
 Datadobi has made it easy to deploy their solution in Azure to protect Azure Virtual Machines and many other Azure services. For more information, see the following reference:
 
-- [Protect File Data in Azure with DobiProtect](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/datadobi1602192408529.datadobi-dobiprotect?tab=overview)
+- [Protect File Data in Azure with DobiProtect](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/datadobi1602192408529.datadobi_license_purchase?tab=Overview)

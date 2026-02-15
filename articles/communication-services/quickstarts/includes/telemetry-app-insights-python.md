@@ -9,16 +9,18 @@ ms.service: azure-communication-services
 ms.subservice: azure-communication-services
 ms.date: 06/30/2021
 ms.topic: include
-ms.custom: include file
 ms.author: jbeauregardb
+ms.custom:
+  - include file
+  - sfi-ropc-nochange
 ---
 
 ## Prerequisites
 
-- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
-- [Python](https://www.python.org/downloads/) 2.7 or 3.6+.
+- An Azure account with an active subscription. [Create an account for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
+- [Python](https://www.python.org/downloads/) 3.7+.
 - An active Communication Services resource and connection string. [Create a Communication Services resource](../create-communication-resource.md).
-- Create an [Application Insights Resources](https://docs.microsoft.com/azure/azure-monitor/app/create-new-resource) in Azure portal.
+- Create an [Application Insights Resources](/previous-versions/azure/azure-monitor/app/create-new-resource) in Azure portal.
 
 ## Setting Up
 
@@ -66,10 +68,10 @@ Add this code inside the `try` block:
 
 ```python
 connection_string = os.environ["COMMUNICATION_SERVICES_CONNECTION_STRING"]
-client = CommunicationIdentityClient.from_connection_string(connection_string)
+identity_client = CommunicationIdentityClient.from_connection_string(connection_string)
 ```
 
-First, in order to create the span that will allow you to trace the requests in the Azure Monitor, you will have to create an instance of an `AzureMonitorTraceExporter` object. You will need to provide the connection string from your Application Insights Resource.
+First, in order to create the span that will allow you to trace the requests in the Azure Monitor, you will have to create an instance of an `AzureMonitorTraceExporter` object. You will need to provide the [connection string](/azure/azure-monitor/app/sdk-connection-string) from your Application Insights Resource.
 
 ```python
 exporter = AzureMonitorTraceExporter.from_connection_string(

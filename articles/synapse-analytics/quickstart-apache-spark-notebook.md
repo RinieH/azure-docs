@@ -1,14 +1,13 @@
 ---
 title: 'Quickstart: Create a serverless Apache Spark pool using web tools'
 description: This quickstart shows how to use the web tools to create a serverless Apache Spark pool in Azure Synapse Analytics and how to run a Spark SQL query.
-services: synapse-analytics
-author: euangMS
-ms.author: euang 
-ms.reviewer: jrasnick 
-ms.service: synapse-analytics
+author: juluczni
+ms.author: juluczni
+ms.service: azure-synapse-analytics
 ms.subservice: spark
 ms.topic: quickstart
-ms.date: 10/16/2020
+ms.date: 02/15/2022
+ms.custom: mode-other
 ---
 
 # Quickstart: Create a serverless Apache Spark pool in Azure Synapse Analytics using web tools
@@ -18,11 +17,11 @@ In this quickstart, you learn how to create a serverless Apache Spark pool in Az
 > [!IMPORTANT]
 > Billing for Spark instances is prorated per minute, whether you are using them or not. Be sure to shutdown your Spark instance after you have finished using it, or set a short timeout. For more information, see the **Clean up resources** section of this article.
 
-If you don't have an Azure subscription, [create a free account before you begin](https://azure.microsoft.com/free/).
+If you don't have an Azure subscription, [create a free account before you begin](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn).
 
 ## Prerequisites
 
-- Azure subscription - [create one for free](https://azure.microsoft.com/free/)
+- You'll need an Azure subscription. If needed, [create a free Azure account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn)
 - [Synapse Analytics workspace](quickstart-create-workspace.md)
 - [Serverless Apache Spark pool](quickstart-create-apache-spark-pool-studio.md)
 
@@ -30,7 +29,7 @@ If you don't have an Azure subscription, [create a free account before you begin
 
 Sign in to the [Azure portal](https://portal.azure.com/).
 
-If you don't have an Azure subscription, [create a free account](https://azure.microsoft.com/free/) before you begin.
+If you don't have an Azure subscription, [create a free Azure account](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn) before you begin.
 
 ## Create a notebook
 
@@ -143,7 +142,4 @@ To ensure the Spark instance is shut down, end any connected sessions(notebooks)
 In this quickstart, you learned how to create a serverless Apache Spark pool and run a basic Spark SQL query.
 
 - [Azure Synapse Analytics](overview-what-is.md)
-- [.NET for Apache Spark documentation](/dotnet/spark)
-
-
-
+- [.NET for Apache Spark documentation](/previous-versions/dotnet/spark/what-is-apache-spark-dotnet)

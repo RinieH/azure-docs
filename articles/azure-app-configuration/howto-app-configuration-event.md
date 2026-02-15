@@ -2,13 +2,12 @@
 title: Use Event Grid for App Configuration data change notifications
 description: Learn how to use Azure App Configuration event subscriptions to send key-value modification events to a web endpoint
 services: azure-app-configuration
-author: AlexandraKemperMS
-ms.assetid: 
+author: maud-lv
 ms.service: azure-app-configuration
 ms.devlang: csharp
 ms.topic: how-to
 ms.date: 03/04/2020
-ms.author: alkemper 
+ms.author: malev 
 ms.custom: devx-track-azurecli
 
 
@@ -21,9 +20,9 @@ In this article, you learn how to set up Azure App Configuration event subscript
 
 ## Prerequisites
 
-- Azure subscription - [create one for free](https://azure.microsoft.com/free/). You can optionally use the Azure Cloud Shell.
+- Azure subscription - [create one for free](https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn). You can optionally use the Azure Cloud Shell.
 
-[!INCLUDE [cloud-shell-try-it.md](../../includes/cloud-shell-try-it.md)]
+[!INCLUDE [cloud-shell-try-it.md](~/reusable-content/ce-skilling/azure/includes/cloud-shell-try-it.md)]
 
 If you choose to install and use the CLI locally, this article requires that you're running the latest version of Azure CLI (2.0.70 or later). To find the version, run `az --version`. If you need to install or upgrade, see [Install Azure CLI](/cli/azure/install-azure-cli).
 
@@ -72,7 +71,7 @@ The deployment may take a few minutes to complete. After the deployment has succ
 
 You should see the site with no messages currently displayed.
 
-[!INCLUDE [event-grid-register-provider-cli.md](../../includes/event-grid-register-provider-cli.md)]
+[!INCLUDE [register-provider-cli.md](../../articles/event-grid/includes/register-provider-cli.md)]
 
 ## Subscribe to your App Configuration store
 
@@ -85,7 +84,7 @@ appconfigId=$(az appconfig show --name <appconfig_name> --resource-group <resour
 endpoint=https://$sitename.azurewebsites.net/api/updates
 
 az eventgrid event-subscription create \
-  --resource-id $appconfigId \
+  --source-resource-id $appconfigId \
   --name <event_subscription_name> \
   --endpoint $endpoint
 ```
@@ -106,12 +105,13 @@ You've triggered the event, and Event Grid sent the message to the endpoint you 
 
 ```json
 [{
-  "id": "deb8e00d-8c64-4b6e-9cab-282259c7674f",
+  "id": "00000000-0000-0000-0000-000000000000",
   "topic": "/subscriptions/{subscription-id}/resourceGroups/eventDemoGroup/providers/microsoft.appconfiguration/configurationstores/{appconfig-name}",
   "subject": "https://{appconfig-name}.azconfig.io/kv/Foo",
   "data": {
     "key": "Foo",
-    "etag": "a1LIDdNEIV6wCnfv3xaip7fMXD3"
+    "etag": "a1LIDdNEIV6wCnfv3xaip7fMXD3",
+    "syncToken":"zAJw6V16=Njo1IzMzMjE3MzA=;sn=3321730"
   },
   "eventType": "Microsoft.AppConfiguration.KeyValueModified",
   "eventTime": "2019-05-31T18:59:54Z",

@@ -3,9 +3,9 @@ title: 'Azure ExpressRoute Insights using Network Insights'
 description: Learn about Azure ExpressRoute Insights using Network Insights.
 services: expressroute
 author: duongau
-ms.service: expressroute
+ms.service: azure-expressroute
 ms.topic: how-to
-ms.date: 04/05/2021
+ms.date: 06/30/2023
 ms.author: duau
 ---
 
@@ -18,8 +18,6 @@ This article explains how Network Insights can help you view  your ExpressRoute 
 ## Visualize functional dependencies
 
 1. Navigate to the *Azure Monitor* page, then select *Networks*.
-
-    :::image type="content" source="./media/expressroute-network-insights/monitor-page.png" alt-text="Screenshot of the Monitor landing page.":::
 
 1. Select the *ExpressRoute Circuits* card. 
 
@@ -35,9 +33,9 @@ This article explains how Network Insights can help you view  your ExpressRoute 
 
     :::image type="content" source="./media/expressroute-network-insights/topology-hovered.png" alt-text="Screenshot of hovering over topology view resources." lightbox="./media/expressroute-network-insights/topology-hovered-expanded.png":::
 
-## View a detailed and pre-loaded metrics dashboard
+## View a detailed and preloaded metrics dashboard
 
-Once you review the topology of your ExpressRoute setup using the functional dependency view, select **View detailed metrics** to navigated to the detailed metrics view to understand the performance of your circuit. This view offers an organized list of linked resources and a rich dashboard of important ExpressRoute metrics.
+Once you review the topology of your ExpressRoute setup using the functional dependency view, select **View detailed metrics** to navigate to the detailed metrics view to understand the performance of your circuit. This view offers an organized list of linked resources and a rich dashboard of important ExpressRoute metrics.
 
 The **Linked Resources** section lists the connected ExpressRoute gateways and configured peerings, which you can select on to navigate to the corresponding resource page.
 
@@ -51,6 +49,10 @@ The **ExpressRoute Metrics** section includes charts of important circuit metric
 The *Availability* tab tracks ARP and BGP availability, plotting the data for both the circuit as a whole and individual connection (primary and secondary). 
 
 :::image type="content" source="./media/expressroute-network-insights/arp-bgp-availability.png" alt-text="Screenshot of availability metric graphs." lightbox="./media/expressroute-network-insights/arp-bgp-availability-expanded.png":::
+
+>[!NOTE]
+>During maintenance between the Microsoft edge and core network, BGP availability will appear down even if the BGP session between the customer edge and Microsoft edge remains up. For information about maintenance between the Microsoft edge and core network, make sure to have your [maintenance alerts turned on and configured](./maintenance-alerts.md).
+>
 
 ### Throughput
 
@@ -74,7 +76,7 @@ Lastly, the Gateway Metrics tab populates with key metrics charts for a selected
 
 Configure your ExpressRoute connection.
   
-* Learn more about [Azure ExpressRoute](expressroute-introduction.md), [Network Insights](../azure-monitor/insights/network-insights-overview.md), and [Network Watcher](../network-watcher/network-watcher-monitoring-overview.md)
+* Learn more about [Azure ExpressRoute](expressroute-introduction.md), [Network Insights](../network-watcher/network-insights-overview.md), and [Network Watcher](../network-watcher/network-watcher-monitoring-overview.md)
 * [Create and modify a circuit](expressroute-howto-circuit-arm.md)
 * [Create and modify peering configuration](expressroute-howto-routing-arm.md)
 * [Link a VNet to an ExpressRoute circuit](expressroute-howto-linkvnet-arm.md)

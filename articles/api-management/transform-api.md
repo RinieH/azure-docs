@@ -1,193 +1,175 @@
 ---
-title: Tutorial - Transform and protect your API in Azure API Management | Microsoft Docs
+title: "Tutorial: Transform and protect your API in Azure API Management"
 description: In this tutorial, you learn how to protect your API in API Management with transformation and throttling (rate-limiting) policies.
-
-author: vladvino
-ms.service: api-management
-ms.custom: mvc
+author: dlepow    
+ms.service: azure-api-management
 ms.topic: tutorial
-ms.date: 09/28/2020
-ms.author: apimpm
+ms.date: 02/09/2026
+ms.author: danlep
+ms.custom:
+  - mvc
+  - devdivchpfy22
+  - sfi-image-nochange
+#customer intent: As an API developer responsible for an API, I need to use policies to manage access and use of APIs in API Management.
 ---
 
 # Tutorial: Transform and protect your API
 
-The tutorial shows how to transform your API so it does not reveal info about the private backend. For example, you might want to hide the info about the technology stack that is running on the backend. You might also want to hide original URLs that appear in the body of the API's HTTP response and instead redirect them to the APIM gateway.
+[!INCLUDE [api-management-availability-all-tiers](../../includes/api-management-availability-all-tiers.md)]
 
-This tutorial also shows you how easy it is to add protection for your backend API by configuring a rate limit with Azure API Management. For example, you may want to limit the rate of API calls so the API isn't overused by developers. For more information, see [API Management policies](api-management-policies.md).
+In this tutorial, you learn about configuring [policies](api-management-howto-policies.md) to protect or transform your API. Policies are a collection of statements that are run sequentially on the request or response of an API that modify the API's behavior.
+
+[!INCLUDE [api-management-workspace-try-it](../../includes/api-management-workspace-try-it.md)] 
+
+For example, you might want to set a custom response header. Or, configure a rate limit policy to protect your backend API, so developers don't overuse the API. These examples are a simple introduction to API Management policies. For more policy options, see [API Management policies](api-management-policies.md).
+
+> [!NOTE]
+> By default, API Management configures a global [`forward-request`](forward-request-policy.md) policy. The `forward-request` policy is needed for the gateway to complete a request to a backend service.
 
 In this tutorial, you learn how to:
 
 > [!div class="checklist"]
->
-> -   Transform an API to strip response headers
-> -   Replace original URLs in the body of the API response with APIM gateway URLs
-> -   Protect an API by adding a rate limit policy (throttling)
-> -   Test the transformations
+> - Transform an API to set a custom response header
+> - Protect an API by adding a rate limit policy, or *throttling*
+> - Test the transformations
 
-:::image type="content" source="media/transform-api/api-management-management-console.png" alt-text="Policies in portal":::
+:::image type="content" source="media/transform-api/api-management-console-new.png" lightbox="media/transform-api/api-management-console-new.png" alt-text="Screenshot of API Management policies in the portal.":::
 
 ## Prerequisites
 
--   Learn the [Azure API Management terminology](api-management-terminology.md).
--   Understand the [concept of policies in Azure API Management](api-management-howto-policies.md).
--   Complete the following quickstart: [Create an Azure API Management instance](get-started-create-service-instance.md).
--   Also, complete the following tutorial: [Import and publish your first API](import-and-publish.md).
+- Learn the [Azure API Management terminology](api-management-terminology.md).
+- Understand the [concept of policies in Azure API Management](api-management-howto-policies.md).
+- Complete the following quickstart: [Create an Azure API Management instance](get-started-create-service-instance.md). For this tutorial, we recommend that you use one of the classic or v2 tiers, for example, the Developer tier or the Basic v2 tier. The Consumption tier doesn't support all policies used in this tutorial.
+- Complete the following tutorial: [Import and publish your first API](import-and-publish.md).
 
 [!INCLUDE [api-management-navigate-to-instance.md](../../includes/api-management-navigate-to-instance.md)]
 
-## Transform an API to strip response headers
-
-This section shows how to hide the HTTP headers that you don't want to show to your users. This example shows how to delete the following headers in the HTTP response:
-
--   **X-Powered-By**
--   **X-AspNet-Version**
-
-### Test the original response
+## Test the original response
 
 To see the original response:
 
-1. In your API Management service instance, select **APIs**.
-1. Select **Demo Conference API** from your API list.
-1. Select the **Test** tab, on the top of the screen.
-1. Select the **GetSpeakers** operation and select **Send**.
+1. In your API Management service instance, select **APIs** > **APIs**.
+1. From your API list, select **Swagger Petstore**.
+1. At the top of the screen, select **Test**.
+1. Select the **GET Finds Pets by status** operation, and optionally select a different value of the *status* **Query parameter**. 
+1. Select **Send**.
 
-The original response should look similar to the following:
+The original API response should look similar to the following response:
 
-:::image type="content" source="media/transform-api/original-response.png" alt-text="Original API response":::
+:::image type="content" source="media/transform-api/test-original-response-new.png" lightbox="media/transform-api/test-original-response-new.png" alt-text="Screenshot of the original API response in the Azure portal.":::
 
-As you can see, the response includes the **X-AspNet-Version** and **X-Powered-By** headers.
+## Transform an API to add a custom response header
 
-### Set the transformation policy
-
-1. Select **Demo Conference API** > **Design** > **All operations**.
-4. In the **Outbound processing** section, select the code editor (**</>**) icon.
-
-   :::image type="content" source="media/transform-api/04-ProtectYourAPI-01-SetPolicy-Outbound.png" alt-text="Navigate to outbound policy" border="false":::
-
-1. Position the cursor inside the **&lt;outbound&gt;** element and select **Show snippets** at the top right corner.
-1. In the right window, under **Transformation policies**, select **Set HTTP header** twice (to insert two policy snippets).
-
-   :::image type="content" source="media/transform-api/transform-api.png" alt-text="Set HTTP header policy":::
-
-1. Modify your **\<outbound>** code to look like this:
-
-   ```
-   <set-header name="X-Powered-By" exists-action="delete" />
-   <set-header name="X-AspNet-Version" exists-action="delete" />
-   ```
-
-   :::image type="content" source="media/transform-api/set-policy.png" alt-text="Set HTTP header":::
-
-1. Select **Save**.
-
-## Replace original URLs in the body of the API response with APIM gateway URLs
-
-This section shows how to hide original URLs that appear in the body of the API's HTTP response and instead redirect them to the APIM gateway.
-
-### Test the original response
-
-To see the original response:
-
-1. Select **Demo Conference API** > **Test**.
-1. Select the **GetSpeakers** operation and select **Send**.
-
-    As you can see, the response includes the original backend URLs:
-
-    :::image type="content" source="media/transform-api/original-response2.png" alt-text="Original URLs in response":::
-
+API Management includes several transformation policies that you can use to modify request or response payloads, headers, or status codes. In this example, you set a custom response header in the API response.
 
 ### Set the transformation policy
 
-1.  Select **Demo Conference API** > **All operations** > **Design**.
-1.  In the **Outbound processing** section, select the code editor (**</>**) icon.
-1.  Position the cursor inside the **&lt;outbound&gt;** element and select **Show snippets** at the top right corner.
-1.  In the right window, under **Transformation policies**, select **Mask URLs in content**. 
-1.  Select **Save**.
+This section shows you how to configure a custom response header using the `set-header` policy. Here you use a form-based policy editor that simplifies the policy configuration.
 
-## Protect an API by adding rate limit policy (throttling)
+1. Select **Swagger Petstore** > **Design** > **All operations**.
+1. In the **Outbound processing** section, select **+ Add policy**.
 
-This section shows how to add protection for your backend API by configuring rate limits. For example, you may want to limit the rate of API calls so that the API isn't overused by developers. In this example, the limit is set to 3 calls per 15 seconds for each subscription ID. After 15 seconds, a developer can retry calling the API.
+   :::image type="content" source="media/transform-api/outbound-policy-small.png" alt-text="Screenshot of navigating to outbound policy in the portal." lightbox="media/transform-api/outbound-policy.png":::
 
-1.  Select **Demo Conference API** > **All operations** > **Design**.
-1.  In the **Inbound processing** section, select the code editor (**</>**) icon.
-1.  Position the cursor inside the **&lt;inbound&gt;** element and select **Show snippets** at the top right corner.
+1. In the **Add outbound policy** window, select **Set headers**.
 
-    :::image type="content" source="media/transform-api/04-ProtectYourAPI-01-SetPolicy-Inbound.png" alt-text="Set inbound policy" border="false":::
+   :::image type="content" source="media/transform-api/set-http-header.png" alt-text="Screenshot of configuring the Set headers policy in the portal.":::
 
-1.  In the right window, under **Access restriction policies**, select **+ Limit call rate per key**.
-1.  Modify your **rate-limit-by-key** code (in the **\<inbound\>** element) to the following code:
+1. To configure the Set headers policy:
 
-    ```
+   1. Under **Name**, enter *Custom*.
+   1. Under **Value**, select **+ Add value**. Enter *My custom value*.
+   1. Select **Save**.
+  
+   After configuration, a **set-header** policy element appears in the **Outbound processing** section.
+
+   :::image type="content" source="media/transform-api/set-policy.png" alt-text="Screenshot of the Set headers outbound policies in the portal.":::
+
+## Protect an API by adding rate limit policy
+
+This section shows how to add protection to your backend API by configuring rate limits, so that developers don't overuse the API. This example shows how to configure the `rate-limit-by-key` policy using the code editor. In this example, the limit is set to three calls per 15 seconds. After 15 seconds, a developer can retry calling the API.
+
+> [!NOTE]
+> This policy isn't supported in the Consumption tier.
+
+1. Select **Swagger Petstore** > **Design** > **All operations**.
+1. In the **Inbound processing** section, select the code editor (**</>**) icon.
+
+   :::image type="content" source="media/transform-api/inbound-policy-code.png" lightbox="media/transform-api/inbound-policy-code.png" alt-text="Screenshot of navigating to inbound policy code editor in the portal.":::
+
+1. Position the cursor inside the `<inbound>` element on a blank line. Then, select **Show snippets** at the top-right corner of the screen.
+
+    :::image type="content" source="media/transform-api/show-snippets-2.png" alt-text="Screenshot of selecting show snippets in inbound policy editor in the portal.":::
+
+1. In the right window, under **Access restriction policies**, select **Limit call rate per key**. 
+
+    The `<rate-limit-by-key />` element is added at the cursor. 
+
+   :::image type="content" source="media/transform-api/limit-call-rate-per-key.png" alt-text="Screenshot of inserting limit call rate per key policy in the portal.":::
+
+1. Modify your `<rate-limit-by-key />` code in the `<inbound>` element to the following code. Then select **Save**.
+    ```xml
     <rate-limit-by-key calls="3" renewal-period="15" counter-key="@(context.Subscription.Id)" />
     ```
 
 ## Test the transformations
 
-At this point, if you look at the code in the code editor, your policies look like this:
+At this point, if you look at the code in the code editor, your policies look like the following code:
 
-   ```
+   ```xml
    <policies>
-      <inbound>
-        <rate-limit-by-key calls="3" renewal-period="15" counter-key="@(context.Subscription.Id)" />
-        <base />
-      </inbound>
-      <backend>
-        <base />
-      </backend>
-      <outbound>
-        <set-header name="X-Powered-By" exists-action="delete" />
-        <set-header name="X-AspNet-Version" exists-action="delete" />
-        <redirect-content-urls />
-        <base />
-      </outbound>
-      <on-error>
-        <base />
-      </on-error>
-   </policies>
+        <inbound>
+            <rate-limit calls="3" renewal-period="15" counter-key="@(context.Subscription.Id)" />
+            <base />
+        </inbound>
+        <outbound>
+            <set-header name="Custom" exists-action="override">
+                <value>"My custom value"</value>
+              </set-header>
+            <base />
+        </outbound>
+        <on-error>
+            <base />
+        </on-error>
+    </policies>
    ```
 
 The rest of this section tests policy transformations that you set in this article.
 
-### Test the stripped response headers
+### Test the custom response header
 
-1. Select **Demo Conference API** > **Test**.
-1. Select the **GetSpeakers** operation and select **Send**.
+1. Select **Swagger Petstore** > **Test**.
+1. Select the **GET Finds Pets by status** operation, and optionally select a different value of the *status* **Query parameter**. Select **Send**.
 
-    As you can see, the headers have been stripped:
+    As you can see, the custom response header is added:
 
-    :::image type="content" source="media/transform-api/final-response1.png" alt-text="Stripped response headers":::
+    :::image type="content" source="media/transform-api/custom-response-header.png" alt-text="Screenshot showing custom response header in the portal.":::
 
-### Test the replaced URL
 
-1. Select **Demo Conference API** > **Test**.
-1. Select the **GetSpeakers** operation and select **Send**.
+### Test the rate limit
 
-    As you can see, the URL has been replaced.
+1. Select **Swagger Petstore** > **Test**.
+1. Select the **GET Finds Pets by status** operation. Select **Send** several times in a row.
 
-    :::image type="content" source="media/transform-api/final-response2.png" alt-text="Replaced URL":::
+    After sending too many requests in the configured period, you get the **429 Too Many Requests** response.
 
-### Test the rate limit (throttling)
+    :::image type="content" source="media/transform-api/test-throttling-new.png" alt-text="Screenshot showing Too Many Requests in the response in the portal.":::
 
-1. Select **Demo Conference API** > **Test**.
-1. Select the **GetSpeakers** operation. Select **Send** three times in a row.
+1. Wait for 15 seconds or more and then select **Send** again. This time you should get a **200 OK** response.
 
-    After sending the request 3 times, you get the **429 Too many requests** response.
+[!INCLUDE [api-management-policies-azure-copilot](../../includes/api-management-policies-azure-copilot.md)]
 
-    :::image type="content" source="media/transform-api/test-throttling.png" alt-text="Too many requests":::
-
-1. Wait 15 seconds or so and select **Send** again. This time you should get a **200 OK** response.
-
-## Next steps
+## Summary
 
 In this tutorial, you learned how to:
 
 > [!div class="checklist"]
 >
-> -   Transform an API to strip response headers
-> -   Replace original URLs in the body of the API response with APIM gateway URLs
-> -   Protect an API by adding rate limit policy (throttling)
-> -   Test the transformations
+> - Transform an API to set a custom response header
+> - Protect an API by adding a rate limit policy
+> - Test the transformations
+
+## Next step
 
 Advance to the next tutorial:
 

@@ -1,21 +1,40 @@
 ---
-title: Offerings from partners - Azure partner solutions
-description: Learn about solutions offered by partners on Azure.
-author: tfitzmac
-ms.topic: conceptual
-ms.service: partner-services
-ms.date: 05/25/2021
-ms.author: tomfitz
+title: Overview of Azure Native Integrations
+description: Learn about Azure Native Integrations, including their features and supported solution areas.
+ms.topic: overview
+ms.date: 08/06/2025
+ai-usage: ai-assisted
+
 ---
+# What are Azure Native Integrations?
 
-# Extend Azure with solutions from partners
+Azure Native Integrations are services that Microsoft and software development companies jointly develop and natively integrate into the Azure platform. Customers manage and operate these services through Azure, which provides a consistent experience for deployment, management, and monitoring.
 
-Partner organizations offer solutions that you can use in Azure to enhance your cloud infrastructure. These solutions are fully integrated into Azure. You work with these solutions in much the same way you would work with solutions from Microsoft. You use a resource provider, resource types, and SDKs to manage the solution.
+## Purpose
 
-Partner solutions are available through the Marketplace.
+Customers use Azure Native Integrations to deploy and manage partner solutions directly within Azure. Azure Native Integrations enable unified operations without requiring custom integration or other infrastructure.
 
-| Partner solution | Description |
-| :--- | :--- |
-| [Apache Kafka for Confluent Cloud](./apache-kafka-confluent-cloud/overview.md) | Fully managed event streaming platform powered by Apache Kafka |
-| [Datadog](./datadog/overview.md) | Monitor your servers, clouds, metrics, and apps in one place. |
-| [Elastic](./elastic/overview.md) | Monitor the health and performance of your Azure environment. |
+## Features
+
+Azure Native Integrations provide:
+
+- Integrated onboarding through Azure Resource Manager templates, SDKs, the Azure CLI, and the Azure portal.
+- Automatic resource discovery for monitoring.
+- Integration of logs and metrics with Azure Monitor.
+- Centralized management through the Azure portal.
+- Single sign-on (SSO) with Microsoft Entra ID.
+- Consolidated billing through Azure Marketplace.
+- Security features such as private data plane access and virtual network injection.
+- Operational consistency via Azure tools and processes.
+
+## Available solution areas
+
+Azure Native Integrations are available in the following areas:
+
+- **AI**: Integrate advanced AI capabilities.
+- **Observability**: Gain insights into application and infrastructure performance.
+- **Data and storage**: Manage and analyze data at scale.
+- **Networks**: Enhance connectivity and network management.
+- **Security**: Strengthen security posture.
+
+For a complete list of available partner services, see [Azure Native Integrations partner solutions](partners.md).

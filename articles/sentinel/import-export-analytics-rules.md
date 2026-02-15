@@ -1,31 +1,26 @@
 ---
-title: Import and export Azure Sentinel analytics rules | Microsoft Docs
+title: Import and export Microsoft Sentinel analytics rules | Microsoft Docs
 description: Export and import analytics rules to and from ARM templates to aid deployment
-services: sentinel
-documentationcenter: na
-author: yelevin
-manager: rkarlin
-editor: ''
-
-ms.service: azure-sentinel
-ms.subservice: azure-sentinel
-ms.devlang: na
+author: guywi-ms
+ms.author: guywild
 ms.topic: how-to
-ms.tgt_pltfrm: na
-ms.workload: na
-ms.date: 05/30/2021
-ms.author: yelevin
+ms.date: 11/09/2021
+
+#Customer intent: As a security engineer, I want to export and import analytics rules using ARM templates so that I can manage and control my Microsoft Sentinel deployments as code.
 
 ---
+
 # Export and import analytics rules to and from ARM templates
 
+>[!IMPORTANT]
+> [**Custom detections**](/defender-xdr/custom-detections-overview?toc=/azure/sentinel/TOC.json&bc=/azure/sentinel/breadcrumb/toc.json) is now the best way to create new rules across Microsoft Sentinel SIEM Microsoft Defender XDR. With custom detections, you can reduce ingestion costs, get unlimited real-time detections, and benefit from seamless integration with Defender XDR data, functions, and remediation actions with automatic entity mapping. For more information, read [this blog](https://techcommunity.microsoft.com/blog/microsoftthreatprotectionblog/custom-detections-are-now-the-unified-experience-for-creating-detections-in-micr/4463875).
+
 > [!IMPORTANT]
->
-> - Exporting and importing rules is in **PREVIEW**. See the [Supplemental Terms of Use for Microsoft Azure Previews](https://azure.microsoft.com/support/legal/preview-supplemental-terms/) for additional legal terms that apply to Azure features that are in beta, preview, or otherwise not yet released into general availability.
+> Exporting and importing rules is in **PREVIEW**. See the [Supplemental Terms of Use for Microsoft Azure Previews](https://azure.microsoft.com/support/legal/preview-supplemental-terms/) for additional legal terms that apply to Azure features that are in beta, preview, or otherwise not yet released into general availability.
 
 ## Introduction
 
-You can now export your analytics rules to Azure Resource Manager (ARM) template files, and import rules from these files, as part of managing and controlling your Azure Sentinel deployments as code. The export action will create a JSON file (named *Azure_Sentinel_analytic_rule.json*) in your browser's downloads location, that you can then rename, move, and otherwise handle like any other file.
+You can now export your analytics rules to Azure Resource Manager (ARM) template files, and import rules from these files, as part of managing and controlling your Microsoft Sentinel deployments as code. The export action will create a JSON file (named *Azure_Sentinel_analytic_rule.json*) in your browser's downloads location, that you can then rename, move, and otherwise handle like any other file.
 
 The exported JSON file is workspace-independent, so it can be imported to other workspaces and even other tenants. As code, it can also be version-controlled, updated, and deployed in a managed CI/CD framework.
 
@@ -33,11 +28,11 @@ The file includes all the parameters defined in the analytics rule, so for **Sch
 
 ## Export rules
 
-1. From the Azure Sentinel navigation menu, select **Analytics**.
+1. From the Microsoft Sentinel navigation menu, select **Analytics**.
 
 1. Select the rule you want to export and click **Export** from the bar at the top of the screen.
 
-    :::image type="content" source="./media/import-export-analytics-rules/export-rule.png" alt-text="Export analytics rule" lightbox="./media/import-export-analytics-rules/export-rule.png":::
+    :::image type="content" source="./media/import-export-analytics-rules/export-analytics-rule.png" alt-text="Export analytics rule" lightbox="./media/import-export-analytics-rules/export-analytics-rule.png":::
 
     > [!NOTE]
     > - You can select multiple analytics rules at once for export by marking the check boxes next to the rules and clicking **Export** at the end.
@@ -50,11 +45,11 @@ The file includes all the parameters defined in the analytics rule, so for **Sch
 
 1. Have an analytics rule ARM template JSON file ready.
 
-1. From the Azure Sentinel navigation menu, select **Analytics**.
+1. From the Microsoft Sentinel navigation menu, select **Analytics**.
 
 1. Click **Import** from the bar at the top of the screen. In the resulting dialog box, navigate to and select the JSON file representing the rule you want to import, and select **Open**.
 
-    :::image type="content" source="./media/import-export-analytics-rules/import-rule.png" alt-text="Import analytics rule" lightbox="./media/import-export-analytics-rules/import-rule.png":::
+    :::image type="content" source="./media/import-export-analytics-rules/import-analytics-rule.png" alt-text="Import analytics rule" lightbox="./media/import-export-analytics-rules/import-analytics-rule.png":::
 
     > [!NOTE]
     > You can import **up to 50** analytics rules from a single ARM template file.
@@ -62,5 +57,5 @@ The file includes all the parameters defined in the analytics rule, so for **Sch
 ## Next steps
 
 In this document, you learned how to export and import analytics rules to and from ARM templates.
-- Learn more about [analytics rules](tutorial-detect-threats-built-in.md), including [custom scheduled rules](tutorial-detect-threats-custom.md).
+- Learn more about [analytics rules](detect-threats-built-in.md), including [custom scheduled rules](detect-threats-custom.md).
 - Learn more about [ARM templates](../azure-resource-manager/templates/overview.md).

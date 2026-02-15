@@ -1,10 +1,15 @@
 ---
 title: Use the Azure CLI to create Service Bus topics and subscriptions
 description: In this quickstart, you learn how to create a Service Bus topic and subscriptions to that topic by using the Azure CLI
-ms.date: 06/23/2020
+ms.date: 09/28/2021
 ms.topic: quickstart
 author: spelluru
-ms.author: spelluru 
+ms.author: spelluru
+ms.devlang: azurecli
+ms.custom:
+  - mode-api
+  - devx-track-azurecli
+  - sfi-ropc-nochange
 ---
 
 # Use Azure CLI to create a Service Bus topic and subscriptions to the topic
@@ -14,7 +19,7 @@ In this quickstart, you use Azure CLI to create a Service Bus topic and then cre
 Service Bus topics and subscriptions support a *publish/subscribe* messaging communication model. When using topics and subscriptions, components of a distributed application do not communicate directly with
 each other; instead they exchange messages via a topic, which acts as an intermediary.
 
-![TopicConcepts](./media/service-bus-java-how-to-use-topics-subscriptions/sb-topics-01.png)
+:::image type="content" source="./media/service-bus-java-how-to-use-topics-subscriptions/service-bus-topics-subscriptions.png" alt-text="Diagram that shows how topics and subscriptions work." lightbox="./media/service-bus-java-how-to-use-topics-subscriptions/service-bus-topics-subscriptions.png":::
 
 In contrast with Service Bus queues, in which each message is processed by a single consumer, topics and subscriptions provide a one-to-many form of communication, using a publish/subscribe pattern. It is possible to
 register multiple subscriptions to a topic. When a message is sent to a topic, it is then made available to each subscription to handle/process independently. A subscription to a topic resembles a virtual queue that receives copies of the messages that were sent to the topic. You can optionally register filter rules for a topic on a per-subscription basis, which allows you to filter or restrict which messages to a topic are received by which topic subscriptions.
@@ -24,15 +29,16 @@ Service Bus topics and subscriptions enable you to scale to process a large numb
 ## Prerequisites
 If you don't have an Azure subscription, you can create a [free account][free account] before you begin.
 
-In this quickstart, you use Azure Cloud Shell that you can launch after sign into the Azure portal. For details about Azure Cloud Shell, see [Overview of Azure Cloud Shell](../cloud-shell/overview.md). You can also [install](/cli/azure/install-azure-cli) and use Azure PowerShell on your machine. 
+In this quickstart, you use Azure Cloud Shell that you can launch after sign in to the Azure portal. For details about Azure Cloud Shell, see [Overview of Azure Cloud Shell](../cloud-shell/overview.md). You can also [install](/cli/azure/install-azure-cli) and use Azure PowerShell on your machine. 
 
 ## Create a Service Bus topic and subscriptions
 Each [subscription to a topic](service-bus-messaging-overview.md#topics) can receive a copy of each message. Topics are fully protocol and semantically compatible with Service Bus queues. Service Bus topics support a wide array of selection rules with filter conditions, with optional actions that set or modify message properties. Each time a rule matches, it produces a message. To learn more about rules, filters, and actions, follow this [link](topic-filters.md).
 
-1. Sign into the [Azure portal](https://portal.azure.com).
+1. Sign in to the [Azure portal](https://portal.azure.com).
 2. Launch Azure Cloud Shell by selecting the icon shown in the following image. Switch to **Bash** mode if the Cloud Shell is in **PowerShell** mode. 
 
-    :::image type="content" source="./media/service-bus-quickstart-powershell/launch-cloud-shell.png" alt-text="Launch Cloud Shell":::
+    :::image type="icon" source="~/reusable-content/ce-skilling/azure/media/cloud-shell/launch-cloud-shell-button.png" alt-text="Button to launch the Azure Cloud Shell." border="false" link="https://shell.azure.com":::
+
 3. Run the following command to create an Azure resource group. Update the resource group name and the location if you want. 
 
     ```azurecli-interactive
@@ -95,7 +101,7 @@ To learn how to send messages to a topic and receive those messages via a subscr
 > [Publish and subscribe for messages](service-bus-dotnet-how-to-use-topics-subscriptions.md)
 
 
-[free account]: https://azure.microsoft.com/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio
+[free account]: https://azure.microsoft.com/pricing/purchase-options/azure-account?cid=msft_learn
 [fully qualified domain name]: https://wikipedia.org/wiki/Fully_qualified_domain_name
 [Install the Azure CLI]: /cli/azure/install-azure-cli
 [az group create]: /cli/azure/group#az_group_create

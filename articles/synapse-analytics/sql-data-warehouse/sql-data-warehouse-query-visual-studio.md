@@ -1,22 +1,18 @@
 ---
-title: Connect to dedicated SQL pool (formerly SQL DW) with VSTS 
+title: Connect to dedicated SQL pool (formerly SQL DW) with VSTS
 description: Query dedicated SQL pool (formerly SQL DW) in Azure Synapse Analytics with Visual Studio.
-services: synapse-analytics
-author: julieMSFT 
-manager: craigg
-ms.service: synapse-analytics
+author: ajagadish-24
+ms.author: ajagadish
+ms.date: 02/04/2026
+ms.service: azure-synapse-analytics
+ms.subservice: sql-dw
 ms.topic: conceptual
-ms.subservice: sql-dw 
-ms.date: 08/15/2019
-ms.author: jrasnick
-ms.reviewer: igorstan
-ms.custom: seo-lt-2019
+ms.custom: sfi-image-nochange
 ---
 
 # Connect to dedicated SQL pool (formerly SQL DW) in Azure Synapse Analytics with Visual Studio and SSDT
 
 > [!div class="op_single_selector"]
-> * [Azure Data Studio](../sql/get-started-azure-data-studio.md)
 > * [Power BI](/power-bi/connect-data/service-azure-sql-data-warehouse-with-direct-connect)
 > * [Visual Studio](sql-data-warehouse-query-visual-studio.md)
 > * [sqlcmd](../sql/get-started-connect-sqlcmd.md) 
@@ -75,4 +71,4 @@ Now that a connection has been established to your database, let's write a query
 ## Next steps
 Now that you can connect and query, try [visualizing the data with Power BI](/power-bi/connect-data/service-azure-sql-data-warehouse-with-direct-connect).
 
-To configure your environment for Azure Active Directory authentication, see [Authenticate to dedicated SQL pool (formerly SQL DW)](sql-data-warehouse-authentication.md).
+To configure your environment for Microsoft Entra authentication, see [Authenticate to dedicated SQL pool (formerly SQL DW)](sql-data-warehouse-authentication.md).
